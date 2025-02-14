@@ -1,4 +1,5 @@
 /* Reset básico de márgenes y fuentes */
+/* Estilos generales */
 * {
     margin: 0;
     padding: 0;
@@ -8,7 +9,6 @@
 body {
     font-family: 'Arial', sans-serif;
     background: linear-gradient(to bottom, #FBEDFA, #B7C5E9);
-    /* Gradiente de arriba a abajo */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -19,66 +19,88 @@ body {
 .container {
     display: flex;
     height: 100vh;
-    /* Asegura que el contenedor ocupe toda la altura de la pantalla */
     width: 100%;
 }
 
 /* Sección izquierda: Logo y nombre */
 .left-section {
     flex: 1;
-    background: inherit;
-    /* Hereda el gradiente del body */
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
-    text-align: center;
-    padding: 0 50px;
+    padding: 20px;
+    height: 100vh;
+    /* Ocupa toda la altura de la pantalla */
+}
+
+
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 50px;
 }
 
 .logo-container {
-    margin-bottom: 50px;
-
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .logo {
-    width: 500px;
-    /* Nuevo ancho */
-    height: 500px;
-    /* Nuevo alto */
+    width: 100px;
+    height: 100px;
     object-fit: contain;
-    margin-bottom: 20px;
 }
 
 h1 {
-    font-size: 2.8rem;
+    font-size: 2rem;
     font-weight: 700;
     color: #333;
-    margin-bottom: 10px;
 }
+
+.content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: auto;
+    /* Empuja hacia abajo */
+    min-height: 25vh;
+    /* Lo coloca en la última cuarta parte de la pantalla */
+}
+
+
+
 
 .description {
     font-size: 1.1rem;
     color: #555;
     font-style: italic;
-    max-width: 350px;
+    max-width: 550px;
+    margin-top: auto;
+    /* Empuja "HOLA!!" hacia abajo */
+    padding-bottom: 20px;
+    /* Ajusta la separación con el borde inferior */
 }
+
 
 /* Sección derecha: Formulario de autenticación */
 .right-section {
-    flex: 1;
-    background: inherit;
-    /* Hereda el gradiente del body */
+    flex: 0 1 380px;
+    /* Aquí ajustamos el tamaño de la sección derecha */
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0 50px;
-    /* Elimina el borde, ya que no se ve bien con el fondo degradado */
+    padding: 0 30px;
+    /* Ajustamos el padding para mejor visualización */
 }
 
 .auth-form {
     width: 100%;
     max-width: 380px;
+    /* Ajusta el tamaño máximo del formulario */
     padding: 30px;
     background-color: #ffffff;
     border-radius: 10px;
@@ -139,4 +161,54 @@ h1 {
 
 .signup-prompt a:hover {
     text-decoration: underline;
+}
+
+/* Contenedor del carrusel */
+.carousel-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    width: 100%;
+    height: 250px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+/* Contenedor de las imágenes */
+.carousel {
+    display: flex;
+    transition: transform 1s ease-in-out;
+    width: calc(120px * 3 + 20px * 2);
+    /* 120px es el tamaño de la imagen, y 20px es el margen entre imágenes */
+}
+
+/* Estilos generales para las imágenes */
+.carousel img {
+    width: 120px;
+    height: 160px;
+    object-fit: cover;
+    filter: blur(5px);
+    /* Difuminar las imágenes */
+    opacity: 0.5;
+    /* Hacerlas opacas */
+    transition: all 1s ease-in-out;
+    margin: 0 10px;
+}
+
+/* Imagen central activa: más grande y nítida */
+.carousel img.active {
+    width: 160px;
+    height: 220px;
+    filter: blur(0);
+    /* No difuminarla */
+    opacity: 1;
+    /* Totalmente opaca */
+}
+
+/* Imágenes laterales más pequeñas y difusas */
+.carousel img.left,
+.carousel img.right {
+    transform: scale(0.7);
+    /* Reducir el tamaño */
 }
