@@ -1,0 +1,142 @@
+/* Reset básico de márgenes y fuentes */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(to bottom, #FBEDFA, #B7C5E9);
+    /* Gradiente de arriba a abajo */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Contenedor principal */
+.container {
+    display: flex;
+    height: 100vh;
+    /* Asegura que el contenedor ocupe toda la altura de la pantalla */
+    width: 100%;
+}
+
+/* Sección izquierda: Logo y nombre */
+.left-section {
+    flex: 1;
+    background: inherit;
+    /* Hereda el gradiente del body */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 0 50px;
+}
+
+.logo-container {
+    margin-bottom: 50px;
+
+}
+
+.logo {
+    width: 500px;
+    /* Nuevo ancho */
+    height: 500px;
+    /* Nuevo alto */
+    object-fit: contain;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.description {
+    font-size: 1.1rem;
+    color: #555;
+    font-style: italic;
+    max-width: 350px;
+}
+
+/* Sección derecha: Formulario de autenticación */
+.right-section {
+    flex: 1;
+    background: inherit;
+    /* Hereda el gradiente del body */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 50px;
+    /* Elimina el borde, ya que no se ve bien con el fondo degradado */
+}
+
+.auth-form {
+    width: 100%;
+    max-width: 380px;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.auth-form h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #333;
+    transition: border 0.3s ease;
+}
+
+.auth-form input:focus {
+    border: 1px solid #0073e6;
+    outline: none;
+}
+
+.auth-form .btn-submit {
+    width: 100%;
+    padding: 12px;
+    background-color: #0073e6;
+    color: white;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.auth-form .btn-submit:hover {
+    background-color: #005bb5;
+}
+
+.signup-prompt {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.signup-prompt a {
+    color: #0073e6;
+    text-decoration: none;
+}
+
+.signup-prompt a:hover {
+    text-decoration: underline;
+}
