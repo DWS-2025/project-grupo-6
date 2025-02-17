@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles del Producto</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos personalizados */
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+
+        .thumbnail:hover {
+            border-color: #ff4757;
+        }
+
+        .thumbnail.active {
+            border-color: #ff4757;
+        }
+
+        .main-image {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            object-fit: cover;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 p-6">
+    <div class="container mx-auto bg-white p-8 rounded-lg shadow-lg">
+        <!-- Sección de imágenes -->
+        <div class="flex flex-col md:flex-row gap-8">
+            <!-- Miniaturas -->
+            <div class="flex flex-col space-y-4">
+                <img src="/Images/little-owl-egg.jpg" alt="Miniatura 1" class="thumbnail active" onclick="changeMainImage(this)">
+                <img src="/Images/ImgPrueba.jpg" alt="Miniatura 2" class="thumbnail" onclick="changeMainImage(this)">
+                <img src="/Images/view-three-dimensional-animated-cartoon-bird.jpg" alt="Miniatura 3" class="thumbnail" onclick="changeMainImage(this)">
+                <img src="/Images/low-angle-shot-cathedral-ceiling-with-windows-black-white.jpg" alt="Miniatura 4" class="thumbnail" onclick="changeMainImage(this)">
+            </div>
+
+            <!-- Imagen principal -->
+            <div class="flex-1">
+                <img id="mainImage" src="/Images/baby-londok-calotes-closeup-dry-leaves.jpg" alt="Imagen principal del producto" class="main-image">
+            </div>
+
+            <!-- Detalles del producto -->
+            <div class="flex-1">
+                <h1 class="text-3xl font-bold mb-4">Nombre del Producto</h1>
+                <p class="text-2xl text-red-600 font-bold mb-4">$199.99</p>
+                <p class="text-gray-600 mb-4">Descripción del producto. Este es un producto increíble con características únicas que te encantarán.</p>
+
+                <!-- Valoración con estrellas -->
+                <div class="flex items-center mb-4">
+                    <span class="text-yellow-400 text-2xl">★★★★★</span>
+                    <span class="text-gray-600 ml-2">(4.5)</span>
+                </div>
+
+                <!-- Botón de compra -->
+                <button class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors">
+                    Añadir al carrito
+                </button>
+            </div>
+        </div>
+
+        <!-- Recomendaciones -->
+        <div class="mt-12">
+            <h2 class="text-2xl font-bold mb-6">Productos Recomendados</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Producto recomendado 1 -->
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <img src="https://via.placeholder.com/150" alt="Producto 1" class="w-full h-48 object-cover mb-4">
+                    <p class="text-lg font-semibold">Teléfono Móvil</p>
+                    <p class="text-red-600 font-bold">$149.99</p>
+                </div>
+
+                <!-- Producto recomendado 2 -->
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <img src="https://via.placeholder.com/150" alt="Producto 2" class="w-full h-48 object-cover mb-4">
+                    <p class="text-lg font-semibold">Cargador Rápido</p>
+                    <p class="text-red-600 font-bold">$19.99</p>
+                </div>
+
+                <!-- Producto recomendado 3 -->
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <img src="https://via.placeholder.com/150" alt="Producto 3" class="w-full h-48 object-cover mb-4">
+                    <p class="text-lg font-semibold">Auriculares Inalámbricos</p>
+                    <p class="text-red-600 font-bold">$49.99</p>
+                </div>
+
+                <!-- Producto recomendado 4 -->
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <img src="https://via.placeholder.com/150" alt="Producto 4" class="w-full h-48 object-cover mb-4">
+                    <p class="text-lg font-semibold">Funda Protectora</p>
+                    <p class="text-red-600 font-bold">$9.99</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Función para cambiar la imagen principal
+        function changeMainImage(thumbnail) {
+            const mainImage = document.getElementById("mainImage");
+            const thumbnails = document.querySelectorAll(".thumbnail");
+
+            // Intercambiar la imagen principal con la miniatura clickeada
+            const tempSrc = mainImage.src;
+            mainImage.src = thumbnail.src;
+            thumbnail.src = tempSrc;
+
+            // Remover la clase "active" de todas las miniaturas
+            thumbnails.forEach(t => t.classList.remove("active"));
+
+            // Añadir la clase "active" a la miniatura clickeada
+            thumbnail.classList.add("active");
+        }
+    </script>
+</body>
+
+</html>
