@@ -16,7 +16,7 @@
 </head>
 
 <body class="bg-gray-100">
-    <header class="bg-[#191b7b] p-4 text-white flex justify-between items-center">
+    <header class="bg-blue-800 p-4 text-white flex justify-between items-center">
         <img src="/src/main/resources/static/Images/Logos/logotipo.png" alt="Logo de la tienda" width="200">
         <input type="text" id="searchBar" placeholder="Buscar productos..." class="p-2 rounded text-black w-1/3">
         <nav>
@@ -28,31 +28,31 @@
     <main class="p-6">
         <!-- Filtros y ordenamiento -->
         <div class="flex space-x-4 mb-6">
-            <select id="filterCategory" class="p-2 rounded">
+            <select id="filterCategory" class="p-2 rounded bg-blue-700 text-white">
                 <option value="all">Todas las categorías</option>
                 <option value="Ropa">Ropa</option>
                 <option value="Electrónica">Electrónica</option>
                 <option value="Hogar">Hogar</option>
                 <option value="Deportes">Deportes</option>
             </select>
-            <select id="sortBy" class="p-2 rounded">
+            <select id="sortBy" class="p-2 rounded bg-blue-700 text-white">
                 <option value="priceAsc">Precio: Menor a Mayor</option>
                 <option value="priceDesc">Precio: Mayor a Menor</option>
             </select>
         </div>
 
         <!-- Productos destacados -->
-        <h2 class="text-xl font-semibold mb-4">Productos Destacados</h2>
+        <h2 class="text-xl font-semibold mb-4 text-blue-800">Productos Destacados</h2>
         <div id="productsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"></div>
-        <button id="loadMore" class="mt-6 bg-[#191b7b] text-white px-4 py-2 rounded">Cargar más</button>
+        <button id="loadMore" class="mt-6 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Cargar más</button>
     </main>
 
     <!-- Carrito de compras -->
     <div id="cartModal" class="hidden fixed inset-0 bg-black bg-opacity-50 justify-end">
         <div class="bg-white w-1/3 h-full p-6 overflow-y-auto">
-            <h2 class="text-xl font-semibold mb-4">Carrito de Compras</h2>
+            <h2 class="text-xl font-semibold mb-4 text-blue-800">Carrito de Compras</h2>
             <div id="cartItems"></div>
-            <p class="text-xl font-bold mt-4">Total: $<span id="cartTotal">0.00</span></p>
+            <p class="text-xl font-bold mt-4 text-blue-800">Total: $<span id="cartTotal">0.00</span></p>
 
             <!-- Botón de pago -->
             <button class="pay-btn mt-4" onclick="payNow()">
@@ -91,7 +91,7 @@
                 </div>
             </button>
 
-            <button onclick="toggleCart()" class="mt-4 bg-red-600 text-white px-4 py-2 rounded">Cerrar</button>
+            <button onclick="toggleCart()" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Cerrar</button>
         </div>
     </div>
 
@@ -123,9 +123,9 @@
             productsContainer.innerHTML = productsToShow.map(product => `
                 <div class="bg-white p-4 rounded shadow hover:scale-105 transition-transform">
                     <img src="https://via.placeholder.com/150" alt="${product.name}" class="w-full h-48 object-cover">
-                    <p class="mt-2 font-semibold">${product.name}</p>
+                    <p class="mt-2 font-semibold text-blue-800">${product.name}</p>
                     <p class="text-gray-600">${product.category}</p>
-                    <p class="text-red-600 font-bold">$${product.price.toFixed(2)}</p>
+                    <p class="text-blue-600 font-bold">$${product.price.toFixed(2)}</p>
                     <div data-tooltip="Price:-$${product.price.toFixed(2)}" class="button" onclick="addToCart('${product.name}', ${product.price})">
                         <div class="button-wrapper">
                             <div class="text">Buy Now</div>
@@ -196,7 +196,7 @@
             cartItems.innerHTML = cart.map(item => `
                 <div class="cart-item mb-4">
                     <p>${item.name} - $${item.price.toFixed(2)} x ${item.quantity}</p>
-                    <button onclick="removeFromCart('${item.name}')" class="text-red-600">Eliminar</button>
+                    <button onclick="removeFromCart('${item.name}')" class="text-blue-600">Eliminar</button>
                 </div>
             `).join("");
 
