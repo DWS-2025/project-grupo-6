@@ -12,37 +12,39 @@
     <header class="bg-blue-800 p-4 text-white flex justify-between items-center">
         <h1 class="text-2xl font-bold">User Profile</h1>
         <nav>
-            <a href="/start" class="mx-2">Start</a>
-            <a href="/" class="mx-2">Close Session</a>
+            <a href="/start" class="mx-2 hover:text-blue-300">Start</a>
+            <a href="/" class="mx-2 hover:text-blue-300">Close Session</a>
         </nav>
     </header>
 
     <main class="p-6 max-w-4xl mx-auto">
-        <h2 class="text-xl font-semibold mb-4">Change Personal Information</h2>
+        <!-- Cambiar información personal -->
+        <h2 class="text-xl font-semibold mb-4 text-blue-800">Change Personal Information</h2>
         <form class="bg-white p-6 rounded shadow">
-            <label class="block mb-2">Name:</label>
-            <input type="text" class="w-full p-2 border rounded mb-4" placeholder="Your name">
-            <label class="block mb-2">Password:</label>
-            <input type="password" class="w-full p-2 border rounded mb-4" placeholder="New Password">
+            <label class="block mb-2 text-blue-800">Name:</label>
+            <input type="text" class="w-full p-2 border rounded mb-4 text-blue-800" placeholder="Your name">
+            <label class="block mb-2 text-blue-800">Password:</label>
+            <input type="password" class="w-full p-2 border rounded mb-4 text-blue-800" placeholder="New Password">
 
-            <button type="submit" class="bg-blue-800 text-white p-2 rounded">Save Changes</button>
+            <button type="submit" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Save Changes</button>
         </form>
 
-        <h2 class="text-xl font-semibold my-6">Shopping Cart</h2>
+        <!-- Carrito de compras -->
+        <h2 class="text-xl font-semibold my-6 text-blue-800">Shopping Cart</h2>
         <div class="bg-white p-6 rounded shadow">
             <div class="flex justify-between border-b pb-2 mb-2">
-                <p>Producto 1</p>
-                <p class="text-blue-800 font-bold">$10.99</p>
+                <p class="text-blue-800">Producto 1</p>
+                <p class="text-blue-600 font-bold">$10.99</p>
             </div>
             <div class="flex justify-between border-b pb-2 mb-2">
-                <p>Producto 2</p>
-                <p class="text-blue-800 font-bold">$15.99</p>
+                <p class="text-blue-800">Producto 2</p>
+                <p class="text-blue-600 font-bold">$15.99</p>
             </div>
             <div class="flex justify-between border-b pb-2 mb-2">
-                <p>Producto 3</p>
-                <p class="text-blue-800 font-bold">$8.99</p>
+                <p class="text-blue-800">Producto 3</p>
+                <p class="text-blue-600 font-bold">$8.99</p>
             </div>
-            <button class="bg-blue-800 text-white p-2 rounded w-full mt-4">Proceed to Payment</button>
+            <button class="bg-blue-600 text-white p-2 rounded w-full mt-4 hover:bg-blue-700">Proceed to Payment</button>
         </div>
     </main>
 
