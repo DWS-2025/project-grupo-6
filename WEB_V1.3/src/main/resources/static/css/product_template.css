@@ -1,0 +1,61 @@
+/* Estilos personalizados */
+.thumbnail {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.3s ease;
+}
+
+.thumbnail:hover {
+    border-color: #ff4757;
+}
+
+.thumbnail.active {
+    border-color: #ff4757;
+}
+
+.main-image {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    object-fit: cover;
+}
+
+.review-box {
+    display: none; /* Ocultar inicialmente el cuadro de reseña */
+}
+
+.scroll-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    gap: 16px;
+    padding-bottom: 16px; /* Espacio para el scroll */
+}
+
+.scroll-container::-webkit-scrollbar {
+    display: none; /* Ocultar la barra de scroll */
+}
+
+.scroll-button {
+    background: rgba(255, 255, 255, 0.8);
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+}
+
+.scroll-button.left {
+    left: 0;
+}
+
+.scroll-button.right {
+    right: 0;
+}

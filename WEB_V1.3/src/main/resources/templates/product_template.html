@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles del Producto</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet" href="/src/main/resources/static/css/product_template.css"> 
+
+    <script src="/src/main/resources/static/js/Order.js"></script>
+    <script src="/src/main/resources/static/js/Product.js"></script>
+    <script src="/src/main/resources/static/js/Review.js"></script>
+    <script src="/src/main/resources/static/js/User.js"></script>
+
+</head>
+
+<body class="bg-gray-100 p-6">
+    <div class="container mx-auto bg-white p-8 rounded-lg shadow-lg">
+        <!-- Sección de imágenes -->
+        <div class="flex flex-col md:flex-row gap-8">
+            <!-- Miniaturas -->
+            <div class="flex flex-col space-y-4">
+                <img src="/src/main/resources/static/Images/Movil/Foto1.jpg" alt="Miniatura 1" class="thumbnail active" onclick="changeMainImage(this)">
+                <img src="/src/main/resources/static/Images/Movil/Foto3.jpg" alt="Miniatura 2" class="thumbnail" onclick="changeMainImage(this)">
+                <img src="/src/main/resources/static/Images/Movil/Foto4.jpg" alt="Miniatura 3" class="thumbnail" onclick="changeMainImage(this)">
+                <img src="/src/main/resources/static/Images/Movil/Foto5.jpg" alt="Miniatura 4" class="thumbnail" onclick="changeMainImage(this)">
+            </div>
+
+            <!-- Imagen principal -->
+            <div class="flex-1">
+                <img id="mainImage" src="/src/main/resources/static/Images/Movil/Foto2.jpg" alt="Imagen principal del producto" class="main-image">
+            </div>
+
+            <!-- Detalles del producto -->
+            <div class="flex-1">
+                <h1 class="text-3xl font-bold mb-4">Xiaomi Redmi Note 14</h1>
+                <p class="text-2xl text-red-600 font-bold mb-4">$199.99</p>
+                <p class="text-gray-600 mb-4">Smartphone de 6+128GB, Pantalla de 6.67" AMOLED FHD+ 120Hz, MediaTek Helio G99-Ultra, cámara de 108MP, TurboCharge 33W, 5500 mAh, Cargador no Incluido, Negro (Versión ES)</p>
+
+                <!-- Valoración con estrellas -->
+                <div class="flex items-center mb-4">
+                    <a href="#valoraciones" class="text-yellow-400 text-2xl">★★★★★</a>
+                    <span class="text-gray-600 ml-2">(4.4)</span>
+                </div>
+
+                <!-- Botón de compra -->
+                <button class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors">
+                    Añadir al carrito
+                </button>
+            </div>
+        </div>
+
+        <!-- Recomendaciones -->
+        <div class="mt-12 relative">
+            <h2 class="text-2xl font-bold mb-6">Productos Recomendados</h2>
+            <div class="relative">
+                <!-- Botón de scroll izquierdo -->
+                <button class="scroll-button left" onclick="scrollLeft()">&#10094;</button>
+                <!-- Contenedor de productos -->
+                <div class="scroll-container" id="recommendedProducts">
+                    <!-- Producto recomendado 1 -->
+                    <div class="bg-white p-4 rounded-lg shadow-md flex-shrink-0 w-48">
+                        <img src="/src/main/resources/static/Images/baby-londok-calotes-closeup-dry-leaves.jpg" alt="Producto 1" class="w-full h-48 object-cover mb-4">
+                        <p class="text-lg font-semibold">Teléfono Móvil</p>
+                        <p class="text-red-600 font-bold">$149.99</p>
+                    </div>
+                    <!-- Producto recomendado 2 -->
+                    <div class="bg-white p-4 rounded-lg shadow-md flex-shrink-0 w-48">
+                        <img src="/src/main/resources/static/Images/ImgPrueba.jpg" alt="Producto 2" class="w-full h-48 object-cover mb-4">
+                        <p class="text-lg font-semibold">Cargador Rápido</p>
+                        <p class="text-red-600 font-bold">$19.99</p>
+                    </div>
+                    <!-- Producto recomendado 3 -->
+                    <div class="bg-white p-4 rounded-lg shadow-md flex-shrink-0 w-48">
+                        <img src="/src/main/resources/static/Images/little-owl-egg.jpg" alt="Producto 3" class="w-full h-48 object-cover mb-4">
+                        <p class="text-lg font-semibold">Auriculares Inalámbricos</p>
+                        <p class="text-red-600 font-bold">$49.99</p>
+                    </div>
+                    <!-- Producto recomendado 4 -->
+                    <div class="bg-white p-4 rounded-lg shadow-md flex-shrink-0 w-48">
+                        <img src="/src/main/resources/static/Images/low-angle-shot-cathedral-ceiling-with-windows-black-white.jpg" alt="Producto 4" class="w-full h-48 object-cover mb-4">
+                        <p class="text-lg font-semibold">Funda Protectora</p>
+                        <p class="text-red-600 font-bold">$9.99</p>
+                    </div>
+                    <!-- Más productos recomendados -->
+                    <div class="bg-white p-4 rounded-lg shadow-md flex-shrink-0 w-48">
+                        <img src="/src/main/resources/static/Images/view-three-dimensional-animated-cartoon-bird.jpg" alt="Producto 5" class="w-full h-48 object-cover mb-4">
+                        <p class="text-lg font-semibold">Smartwatch</p>
+                        <p class="text-red-600 font-bold">$99.99</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-md flex-shrink-0 w-48">
+                        <img src="/src/main/resources/static/Images/summer-girl-with-retro-camera.jpg" alt="Producto 6" class="w-full h-48 object-cover mb-4">
+                        <p class="text-lg font-semibold">Tablet</p>
+                        <p class="text-red-600 font-bold">$199.99</p>
+                    </div>
+                </div>
+                <!-- Botón de scroll derecho -->
+                <button class="scroll-button right" onclick="scrollRight()">&#10095;</button>
+            </div>
+        </div>
+
+        <!-- Sección de Valoraciones -->
+        <div id="valoraciones" class="mt-12">
+            <h2 class="text-2xl font-bold mb-6">Valoraciones y Reseñas</h2>
+            <div class="flex flex-col md:flex-row gap-8">
+                <!-- Gráfico de barras -->
+                <div class="w-full md:w-1/3">
+                    <canvas id="ratingChart"></canvas>
+                    <p class="text-center text-gray-600 mt-4">Valoración promedio: <span class="font-bold">4.5</span></p>
+                </div>
+
+                <!-- Reseñas -->
+                <div class="w-full md:w-2/3">
+                    <!-- Botón para dejar una reseña -->
+                    <button onclick="toggleReviewBox()" class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors mb-6">
+                        Dejar una reseña
+                    </button>
+
+                    <!-- Cuadro de reseña (oculto inicialmente) -->
+                    <div id="reviewBox" class="review-box bg-gray-50 p-6 rounded-lg shadow-md mb-6">
+                        <textarea id="reviewText" class="w-full p-4 border rounded-lg mb-4" placeholder="Escribe tu reseña aquí..."></textarea>
+                        <button onclick="submitReview()" class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors">
+                            Enviar reseña
+                        </button>
+                    </div>
+
+                    <!-- Lista de reseñas -->
+                    <div id="reviewsList">
+                        <!-- Ejemplo de reseña -->
+                        <div class="bg-gray-50 p-6 rounded-lg shadow-md mb-4">
+                            <p class="text-gray-600">"¡Excelente producto! Lo recomiendo totalmente."</p>
+                            <p class="text-gray-400 text-sm mt-2">- Usuario Anónimo</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Función para cambiar la imagen principal
+        function changeMainImage(thumbnail) {
+            const mainImage = document.getElementById("mainImage");
+            const thumbnails = document.querySelectorAll(".thumbnail");
+
+            // Intercambiar la imagen principal con la miniatura clickeada
+            const tempSrc = mainImage.src;
+            mainImage.src = thumbnail.src;
+            thumbnail.src = tempSrc;
+
+            // Remover la clase "active" de todas las miniaturas
+            thumbnails.forEach(t => t.classList.remove("active"));
+
+            // Añadir la clase "active" a la miniatura clickeada
+            thumbnail.classList.add("active");
+        }
+
+        // Mostrar/ocultar el cuadro de reseña
+        function toggleReviewBox() {
+            const reviewBox = document.getElementById("reviewBox");
+            reviewBox.style.display = reviewBox.style.display === "none" ? "block" : "none";
+        }
+
+        // Enviar reseña
+        function submitReview() {
+            const reviewText = document.getElementById("reviewText").value;
+            if (reviewText.trim() === "") {
+                alert("Por favor, escribe una reseña.");
+                return;
+            }
+
+            // Añadir la reseña a la lista
+            const reviewsList = document.getElementById("reviewsList");
+            const newReview = document.createElement("div");
+            newReview.className = "bg-gray-50 p-6 rounded-lg shadow-md mb-4";
+            newReview.innerHTML = `
+                <p class="text-gray-600">"${reviewText}"</p>
+                <p class="text-gray-400 text-sm mt-2">- Usuario Anónimo</p>
+            `;
+            reviewsList.prepend(newReview);
+
+            // Limpiar el cuadro de texto y ocultar el formulario
+            document.getElementById("reviewText").value = "";
+            toggleReviewBox();
+        }
+
+        // Gráfico de barras vertical
+        const ctx = document.getElementById('ratingChart').getContext('2d');
+        const ratingChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['1 estrella', '2 estrellas', '3 estrellas', '4 estrellas', '5 estrellas'],
+                datasets: [{
+                    label: 'Porcentaje de valoraciones',
+                    data: [5, 10, 15, 30, 40], // Datos de ejemplo
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)', // Mismo color para todas las barras
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y', // Barras verticales
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false // Ocultar la leyenda
+                    }
+                }
+            }
+        });
+
+        // Scroll horizontal para productos recomendados
+        const scrollContainer = document.getElementById("recommendedProducts");
+
+        function scrollLeft() {
+            scrollContainer.scrollBy({ left: -200, behavior: 'smooth' });
+        }
+
+        function scrollRight() {
+            scrollContainer.scrollBy({ left: 200, behavior: 'smooth' });
+        }
+    </script>
+</body>
+
+</html>
