@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Shop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="/src/main/resources/static/css/start_template.css"> 
+
+    <script src="/src/main/resources/static/js/Order.js"></script>
+    <script src="/src/main/resources/static/js/Product.js"></script>
+    <script src="/src/main/resources/static/js/Review.js"></script>
+    <script src="/src/main/resources/static/js/User.js"></script>
+</head>
+
+<body class="bg-gray-100">
+    <header class="bg-blue-800 p-4 text-white flex justify-between items-center">
+        <img src="/src/main/resources/static/Images/Logos/logotipo.png" alt="Logo de la tienda" width="200">
+        <input type="text" id="searchBar" placeholder="Buscar productos..." class="p-2 rounded text-black w-1/3">
+        <nav>
+            <a href="#" class="mx-2">Start</a>
+            <a href="#" class="mx-2" onclick="toggleCart()">Cart</a>
+            <a href="/src/main/resources/templates/profile_template.html" class="mx-2">Profile</a>
+        </nav>
+    </header>
+
+    <main class="p-6">
+        <!-- Filters and Sorting -->
+        <div class="flex space-x-4 mb-6">
+            <select id="filterCategory" class="p-2 rounded bg-blue-700 text-white">
+                <option value="all">All Categories</option>
+                <option value="Ropa">Clothes</option>
+                <option value="Electrónica">Electronics</option>
+                <option value="Hogar">Home</option>
+                <option value="Deportes">Sports</option>
+            </select>
+            <select id="sortBy" class="p-2 rounded bg-blue-700 text-white">
+                <option value="priceAsc">Price: Lowest to Highest</option>
+                <option value="priceDesc">Price: Highest to Lowest</option>
+            </select>
+        </div>
+
+        <!-- Highlighted Products -->
+        <h2 class="text-xl font-semibold mb-4 text-blue-800">Highlighted Products</h2>
+        <div id="productsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+        <button id="loadMore" class="mt-6 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Load more</button>
+    </main>
+
+    <!-- Shopping Cart -->
+    <div id="cartModal" class="hidden fixed inset-0 bg-black bg-opacity-50 justify-end">
+        <div class="bg-white w-1/3 h-full p-6 overflow-y-auto">
+            <h2 class="text-xl font-semibold mb-4 text-blue-800">Shopping Cart</h2>
+            <div id="cartItems"></div>
+            <p class="text-xl font-bold mt-4 text-blue-800">Total: $<span id="cartTotal">0.00</span></p>
+
+            <!-- Pay Button -->
+            <button class="pay-btn mt-4" onclick="payNow()">
+                <span class="btn-text">Pay Now</span>
+                <div class="icon-container">
+                    <svg viewBox="0 0 24 24" class="icon card-icon">
+                        <path
+                            d="M20,8H4V6H20M20,18H4V12H20M20,4H4C2.89,4 2,4.89 2,6V18C2,19.11 2.89,20 4,20H20C21.11,20 22,19.11 22,18V6C22,4.89 21.11,4 20,4Z"
+                            fill="currentColor"
+                        ></path>
+                    </svg>
+                    <svg viewBox="0 0 24 24" class="icon payment-icon">
+                        <path
+                            d="M2,17H22V21H2V17M6.25,7H9V6H6V3H18V6H15V7H17.75L19,17H5L6.25,7M9,10H15V8H9V10M9,13H15V11H9V13Z"
+                            fill="currentColor"
+                        ></path>
+                    </svg>
+                    <svg viewBox="0 0 24 24" class="icon dollar-icon">
+                        <path
+                            d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"
+                            fill="currentColor"
+                        ></path>
+                    </svg>
+                    <svg viewBox="0 0 24 24" class="icon wallet-icon default-icon">
+                        <path
+                            d="M21,18V19A2,2 0 0,1 19,21H5C3.89,21 3,20.1 3,19V5A2,2 0 0,1 5,3H19A2,2 0 0,1 21,5V6H12C10.89,6 10,6.9 10,8V16A2,2 0 0,0 12,18M12,16H22V8H12M16,13.5A1.5,1.5 0 0,1 14.5,12A1.5,1.5 0 0,1 16,10.5A1.5,1.5 0 0,1 17.5,12A1.5,1.5 0 0,1 16,13.5Z"
+                            fill="currentColor"
+                        ></path>
+                    </svg>
+                    <svg viewBox="0 0 24 24" class="icon check-icon">
+                        <path
+                            d="M9,16.17L4.83,12L3.41,13.41L9,19L21,7L19.59,5.59L9,16.17Z"
+                            fill="currentColor"
+                        ></path>
+                    </svg>
+                </div>
+            </button>
+
+            <button onclick="toggleCart()" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Close</button>
+        </div>
+    </div>
+
+    <footer class="bg-gray-800 text-white text-center p-4 mt-6">
+        &copy; 2025 Online Shop - All rights reserved
+    </footer>
+
+    <script>
+        // Products data 
+        const products = [
+            { name: "TShirt", category: "Clothes", price: 10.99 },
+            { name: "Shoes", category: "Clothes", price: 25.99 },
+            { name: "Phone", category: "Electronics", price: 199.99 },
+            { name: "Lamp", category: "Home", price: 15.99 },
+            { name: "Ball", category: "Sports", price: 8.99 },
+            { name: "Trousers", category: "Clothes", price: 20.99 },
+            { name: "Tablet", category: "Electronics", price: 149.99 },
+            { name: "Chair", category: "Home", price: 45.99 },
+            { name: "Raquet", category: "Sports", price: 30.99 },
+        ];
+
+        let currentPage = 1;
+        const productsPerPage = 4;
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+        // Function to render products
+        function renderProducts(productsToShow) {
+            const productsContainer = document.getElementById("productsContainer");
+            productsContainer.innerHTML = productsToShow.map(product => `
+                <div class="bg-white p-4 rounded shadow hover:scale-105 transition-transform">
+                    <img src="https://via.placeholder.com/150" alt="${product.name}" class="w-full h-48 object-cover">
+                    <p class="mt-2 font-semibold text-blue-800">${product.name}</p>
+                    <p class="text-gray-600">${product.category}</p>
+                    <p class="text-blue-600 font-bold">$${product.price.toFixed(2)}</p>
+
+                    <button class="Btn" onclick="addToCart('${product.name}', ${product.price})">
+                        Add to Cart
+                        <svg class="svgIcon" viewBox="0 0 576 512">
+                            <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z"></path>
+                        </svg>
+                    </button>
+                    
+                </div>
+            `).join("");
+        }
+
+        // Function to load more products
+        function loadMoreProducts() {
+            const startIndex = (currentPage - 1) * productsPerPage;
+            const endIndex = startIndex + productsPerPage;
+            const productsToShow = products.slice(0, endIndex);
+            renderProducts(productsToShow);
+            currentPage++;
+
+            if (endIndex >= products.length) {
+                document.getElementById("loadMore").style.display = "none";
+            }
+        }
+
+        // Function to filter and sort products
+        function applyFiltersAndSort() {
+            const selectedCategory = document.getElementById("filterCategory").value;
+            const sortBy = document.getElementById("sortBy").value;
+
+            let filteredProducts = products;
+
+            // Filter by category
+            if (selectedCategory !== "all") {
+                filteredProducts = products.filter(product => product.category === selectedCategory);
+            }
+
+            // Sort
+            if (sortBy === "priceAsc") {
+                filteredProducts.sort((a, b) => a.price - b.price);
+            } else if (sortBy === "priceDesc") {
+                filteredProducts.sort((a, b) => b.price - a.price);
+            }
+
+            renderProducts(filteredProducts.slice(0, currentPage * productsPerPage));
+        }
+
+        // Feature to add products to cart
+        function addToCart(productName, price) {
+            const product = { name: productName, price: price, quantity: 1 };
+            const existingProduct = cart.find(p => p.name === productName);
+
+            if (existingProduct) {
+                existingProduct.quantity++;
+            } else {
+                cart.push(product);
+            }
+
+            localStorage.setItem("cart", JSON.stringify(cart));
+            renderCart();
+        }
+
+        // Function to render the cart
+        function renderCart() {
+            const cartItems = document.getElementById("cartItems");
+            cartItems.innerHTML = cart.map(item => `
+                <div class="cart-item mb-4">
+                    <p>${item.name} - $${item.price.toFixed(2)} x ${item.quantity}</p>
+                    <button onclick="removeFromCart('${item.name}')" class="text-blue-600">Remove</button>
+                </div>
+            `).join("");
+
+            const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            document.getElementById("cartTotal").textContent = total.toFixed(2);
+        }
+
+        // Feature to remove products from cart
+        function removeFromCart(productName) {
+            cart = cart.filter(item => item.name !== productName);
+            localStorage.setItem("cart", JSON.stringify(cart));
+            renderCart();
+        }
+
+        // Function to show/hide cart
+        function toggleCart() {
+            const cartModal = document.getElementById("cartModal");
+            cartModal.classList.toggle("hidden");
+        }
+
+        // Function to pay
+        function payNow() {
+            alert("Thank you for your purchase!");
+            cart = [];
+            localStorage.setItem("cart", JSON.stringify(cart));
+            renderCart();
+            toggleCart();
+        }
+
+        // Events
+        document.getElementById("searchBar").addEventListener("input", (event) => {
+            const searchText = event.target.value;
+            const filteredProducts = products.filter(product =>
+                product.name.toLowerCase().includes(searchText.toLowerCase())
+            );
+            renderProducts(filteredProducts);
+        });
+
+        document.getElementById("filterCategory").addEventListener("change", applyFiltersAndSort);
+        document.getElementById("sortBy").addEventListener("change", applyFiltersAndSort);
+        document.getElementById("loadMore").addEventListener("click", loadMoreProducts);
+
+        // Initialization
+        loadMoreProducts();
+        renderCart();
+    </script>
+</body>
+
+</html>

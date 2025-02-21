@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+    <header class="bg-blue-800 p-4 text-white flex justify-between items-center">
+        <h1 class="text-2xl font-bold">Shopping Cart</h1>
+        <nav>
+            <a href="/src/main/resources/templates/start_template.html" class="mx-2">Home</a>
+            <a href="/profile" class="mx-2">Profile</a>
+        </nav>
+    </header>
+
+    <main class="p-6 max-w-6xl mx-auto">
+        <!-- Cart Products -->
+        <div class="bg-white p-6 rounded shadow mb-6">
+            <h2 class="text-xl font-semibold mb-4">Your Cart</h2>
+            <div class="space-y-4">
+                <!-- Product 1 -->
+                <div class="flex items-center justify-between border-b pb-4">
+                    <div class="flex items-center">
+                        <img src="https://via.placeholder.com/80" alt="Product Image" class="w-16 h-16 object-cover rounded">
+                        <div class="ml-4">
+                            <h3 class="font-semibold">Product Name 1</h3>
+                            <p class="text-sm text-gray-600">Quantity: 2</p>
+                            <p class="text-sm text-gray-600">Price: $25.00</p>
+                        </div>
+                    </div>
+                    <button class="text-red-500 hover:text-red-700">Remove</button>
+                </div>
+
+                <!-- Product 2 -->
+                <div class="flex items-center justify-between border-b pb-4">
+                    <div class="flex items-center">
+                        <img src="https://via.placeholder.com/80" alt="Product Image" class="w-16 h-16 object-cover rounded">
+                        <div class="ml-4">
+                            <h3 class="font-semibold">Product Name 2</h3>
+                            <p class="text-sm text-gray-600">Quantity: 1</p>
+                            <p class="text-sm text-gray-600">Price: $15.00</p>
+                        </div>
+                    </div>
+                    <button class="text-red-500 hover:text-red-700">Remove</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="bg-white p-6 rounded shadow">
+            <h2 class="text-xl font-semibold mb-4">Order Summary</h2>
+            <div class="space-y-2">
+                <div class="flex justify-between">
+                    <span>Subtotal</span>
+                    <span>$65.00</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Shipping</span>
+                    <span>$5.00</span>
+                </div>
+                <div class="flex justify-between font-semibold">
+                    <span>Total</span>
+                    <span>$70.00</span>
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="mt-6 flex flex-col md:flex-row gap-4">
+                <a href="/src/main/resources/templates/start_template.html" class="bg-gray-500 text-white p-2 rounded text-center hover:bg-gray-600 transition duration-300">
+                    Continue Shopping
+                </a>
+                <a href="/checkout" class="bg-blue-800 text-white p-2 rounded text-center hover:bg-blue-900 transition duration-300">
+                    Proceed to Checkout
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white text-center p-4 mt-6">
+        &copy; 2025 Online Shop - All rights reserved
+    </footer>
+</body>
+
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XPRESSALY</title>
+    <link rel="stylesheet" href="/src/main/resources/static/css/App.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    
+
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="left-section">
+            <!-- Name and logo -->
+            <div class="logo-container">
+                <h1 class="header">
+                    <img src="/src/main/resources/static/Images/Logos/logotipo.png" alt="Logo">
+                </h1>
+            </div>
+
+            <!-- Image carousel -->
+            <div class="carousel-container">
+                <div class="carousel">
+                    <img src="/src/main/resources/static/Images/ImgPrueba.jpg" alt="Image 1">
+                    <img src="/src/main/resources/static/Images/little-owl-egg.jpg" alt="Image 2">
+                    <img src="/src/main/resources/static/Images/low-angle-shot-cathedral-ceiling-with-windows-black-white.jpg" alt="Image 3">
+                    <img src="/src/main/resources/static/Images/view-three-dimensional-animated-cartoon-bird.jpg" alt="Image 4">
+                    <img src="/src/main/resources/static/Images/baby-londok-calotes-closeup-dry-leaves.jpg" alt="Image 5">
+                    <img src="/src/main/resources/static/Images/summer-girl-with-retro-camera.jpg" alt="Image 6">
+                </div>
+            </div>
+
+            <!-- Welcome text -->
+            <p class="description">HELLO!!</p>
+        </div>
+
+        <div class="right-section">
+            <form class="auth-form" action="signin" method="post">
+                <h2>Log in</h2>
+                <input type="text" name="email" placeholder="Email" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn-submit">Sign in</button>
+                <p class="signup-prompt">You don't have an account? <a href="#" id="openSignupModal">Register</a></p>
+            </form>
+        </div>
+            <!-- Register -->
+        <div id="signupModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Register</h2>
+                <form class="auth-form" action="register" method="post">
+                    <input type="text" name="email" placeholder="Email" required>
+                    <input type="password" name="password" placeholder="Password" minlength="8" required>
+                    <input type="tel" name="phone" placeholder="Phone Number" required>
+                    <input type="number" name="age" placeholder="Age" min="1" max="120" required>
+                    <input type="text", name="name", placeholder="Name" required>
+                    <input type="text", name="surname", placeholder="Surname" required>
+                    <input type="text", name="address", placeholder="Address" required>
+                    <button type="submit" class="btn-submit">Register</button>
+                </form>
+            </div>
+        </div>
+        <script>
+            // Get the modal
+            var modal = document.getElementById("signupModal");
+    
+            // Get the link that opens the modal
+            var btn = document.getElementById("openSignupModal");
+    
+            // Get the <span> element that closes the modal
+            var span = document.getElementsByClassName("close")[0];
+    
+            // When the user clicks the link, it opens the modal
+            btn.onclick = function(event) {
+                event.preventDefault(); // Prevent the link from reloading the page
+                modal.style.display = "block";
+            }
+    
+            // When the user clicks <span> (x), close the modal
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+    
+            // When the user clicks outside the modal, close it
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const images = document.querySelectorAll(".carousel img");
+            let index = 0;
+
+            function updateCarousel() {
+                // Clean up previous classes and styles
+                images.forEach((img) => {
+                    img.classList.remove("active", "behind");
+                    img.style.transform = "scale(0.8)";
+                    img.style.filter = "blur(5px)";
+                    img.style.opacity = "0.5";
+                });
+
+                // Calculate the indices of the centered and behind images
+                const behindIndex = (index - 1 + images.length) % images.length;
+                const centerIndex = index % images.length;
+
+                // Assign classes and styles for centered and behind images
+                images[centerIndex].classList.add("active"); // Active image (center)
+                images[behindIndex].classList.add("behind"); // Image behind the active
+
+                // Increase index for next iteration
+                index = (index + 1) % images.length;
+            }
+
+            // Run update function every 2 seconds
+            setInterval(updateCarousel, 2000);
+            updateCarousel(); // Run function once at startup
+        });
+        
+
+    </script>
+</body>
+</html>
