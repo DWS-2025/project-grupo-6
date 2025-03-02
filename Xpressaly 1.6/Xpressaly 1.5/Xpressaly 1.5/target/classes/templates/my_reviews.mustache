@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Reviews</title>
+</head>
+<body>
+    {{> common/header}}
+    <h1>Mis Reseñas</h1>
+
+    {{#myReviews}}
+        <p>Tienes reseñas:</p>
+        <ul>
+            {{#myReviews}}
+                <li>{{.}}</li>
+            {{/myReviews}}
+        </ul>
+    {{/myReviews}}
+
+    {{^myReviews}}
+        <p>No tienes reseñas aún.</p>
+    {{/myReviews}}
+
+    {{> common/footer}}
+</body>
+</html>

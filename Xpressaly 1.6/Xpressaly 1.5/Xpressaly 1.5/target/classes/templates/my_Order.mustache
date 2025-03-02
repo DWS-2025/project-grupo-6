@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Carrito</title>
+    <link rel="stylesheet" href="/css/my_order.css">
+</head>
+<body>
+    {{> common/header}}
+    <h1>Mi Carrito</h1>
+    {{#order.products}}
+        <div class="order-container product-item">
+            <div class="product-info">
+                <h3>{{name}}</h3>
+                <p>Precio: ${{price}}</p>
+                <div class="quantity-control">
+                    <label for="contador{{id}}">Cantidad:</label>
+                    <div class="button-container">
+                        <button type="button" class="button-3d" onclick="updateQuantity('{{id}}', -1)">
+                            <div class="button-top">
+                                <span class="material-icons">❮</span>
+                            </div>
+                            <div class="button-bottom"></div>
+                            <div class="button-base"></div>
+                        </button>
+                        <input type="number" id="contador{{id}}" name="amount" value="{{amount}}" min="1" class="quantity-input" readonly>
+                        <button type="button" class="button-3d" onclick="updateQuantity('{{id}}', 1)">
+                            <div class="button-top">
+                                <span class="material-icons">❯</span>
+                            </div>
+                            <div class="button-bottom"></div>
+                            <div class="button-base"></div>
+                        </button>
+                    </div>
+                </div>
+                <button type="button" onclick="removeFromCart('{{id}}')">Eliminar del Carrito</button>
+            </div>
+            <img src="{{mainImage}}" alt="{{name}}" class="product-image">
+        </div>
+    {{/order.products}}
+    {{#order.hasProducts}}
+        <div class="order-summary">
+            <h3>Resumen del Pedido</h3>
+            <ul>
+                {{#order.products}}
+                    <li>
+                        <strong>{{name}}</strong> - Cantidad: {{amount}} - Precio: ${{price}} 
+                    </li>
+                {{/order.products}}
+            </ul>
+            <p><strong>Total del Pedido: {{total}} </strong></p>
+        </div>
+        <div class="address-form">
+            <h3>Dirección de Envío</h3>
+            <form action="/confirm-order" method="post">
+                <input type="text" name="address" value="{{order.address}}" placeholder="Ingrese su dirección de envío">
+                <button type="submit">Confirmar Pedido</button>
+            </form>
+        </div>
+        <button type="button" onclick="deleteOrder()">Borrar pedido</button>
+    {{/order.hasProducts}}  
+    {{^order.products}}
+        <div class="empty-cart">
+            <p>No hay productos en tu carrito.</p>
+        </div>
+    {{/order.products}}
+    <div class="navigation-buttons">
+        <button type="button" onclick="window.location.href='/products'">Volver a la Lista de Productos</button>
+        <button type="button" onclick="window.location.href='/'">Volver a la Página de Inicio</button>
+    </div>
+    {{> common/footer}}
+    <script>
+        function updateQuantity(productId, change) {
+            const input = document.getElementById(`contador${productId}`);
+            let value = parseInt(input.value) + change;
+            if (value < 1) value = 1;
+            input.value = value;
+
+            // Enviar la actualización al servidor
+            fetch('/update-amount', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    productId: productId,
+                    amount: value
+                })
+            })
+            .then(response => response.json()) // Convertir la respuesta a JSON
+            .then(data => {
+                if (data.success) {
+                    // Actualizar el resumen del pedido dinámicamente
+                    updateOrderSummary(data);
+                } else {
+                    alert("Hubo un error al actualizar la cantidad.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        }
+
+        function updateOrderSummary(data) {
+            const orderSummary = document.querySelector('.order-summary ul');
+            const totalElement = document.querySelector('.order-summary p');
+
+            // Limpiar el resumen actual
+            orderSummary.innerHTML = '';
+
+            // Añadir los productos actualizados
+            data.products.forEach(product => {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>${product.name}</strong> - Cantidad: ${product.amount} - Precio: $${product.price}`;
+                orderSummary.appendChild(li);
+            });
+
+            // Actualizar el total del pedido
+            totalElement.innerHTML = `<strong>Total del Pedido: $${data.total}</strong>`;
+        }
+
+        function removeFromCart(productId) {
+            fetch('/remove-from-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    productId: productId
+                })
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                }
+            });
+        }
+
+        function deleteOrder() {
+            fetch('/delete-order', {
+                method: 'POST',
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
