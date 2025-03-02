@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    
+</head>
+
+<body>
+    {{> common/header}}
+
+    <main>
+        <!-- Profile Picture -->
+        <div class="profile-section">
+            <div class="profile-picture">
+                👤
+            </div>
+            <p id="userName">{{name}} {{surname}}</p>
+        </div>
+
+        <!-- Personal data section -->
+        <div class="personal-data">
+            <h2>Personal Data</h2>
+            <form action="/update-profile" method="post">
+                <label>Name:</label>
+                <input type="text" name="firstName" value="{{name}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
+
+                <label>Surname:</label>
+                <input type="text" name="lastName" value="{{surname}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
+
+                <label>Email:</label>
+                <input type="email" name="email" value="{{email}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
+
+                <label>Address:</label>
+                <input type="text" name="address" value="{{address}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
+
+                <label>Phone Number:</label>
+                <input type="text" name="phone" value="{{phone}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
+
+                <label>Age:</label>
+                <input type="number" name="age" value="{{age}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
+
+                <button type="submit" class="update-profile-btn">Update Profile</button>
+            </form>
+        </div>
+
+        <!-- Options menu -->
+        <div class="options-menu">
+            <a href="/orders" class="option-card">
+                <h3>My orders</h3>
+                <p>View orders placed and in progress.</p>
+            </a>
+        </div>
+
+        <!-- Reviews Section -->
+        <div class="reviews-section">
+            <h2>My Reviews</h2>
+            {{#reviews}}
+            <div class="review-card">
+                <h3>{{productName}}</h3>
+                <div class="rating">
+                    <span class="star">★</span>
+                    <span class="rating-value">{{rating}}/5</span>
+                </div>
+                <p class="review-comment">{{comment}}</p>
+                <span class="review-date">{{date}}</span>
+            </div>
+            {{/reviews}}
+            {{^reviews}}
+            <p class="no-reviews">No reviews yet.</p>
+            {{/reviews}}
+        </div>
+    </main>
+
+    {{> common/footer}}
+
+    <script>
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById("passwordInput");
+            const toggleButton = document.querySelector(".password-container button");
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggleButton.textContent = "Hide";
+            } else {
+                passwordInput.type = "password";
+                toggleButton.textContent = "Show";
+            }
+        }
+    </script>
+</body>
+
+</html>
