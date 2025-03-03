@@ -1,0 +1,360 @@
+* {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* From Uiverse.io by fthisilak */
+.pay-btn {
+  position: relative;
+  padding: 12px 24px;
+  font-size: 16px;
+  background: #294156; /* Navy */
+  color: #F5EFEB;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+}
+
+.pay-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(41, 65, 86, 0.6); /* Navy shadow */
+}
+
+.icon-container {
+  position: relative;
+  width: 24px;
+  height: 24px;
+}
+
+.icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  color: #567C8D; /* Teal */
+  opacity: 0;
+  visibility: hidden;
+}
+
+.default-icon {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Hover animations */
+.pay-btn:hover .icon {
+  animation: none;
+}
+
+.pay-btn:hover .wallet-icon {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.pay-btn:hover .card-icon {
+  animation: iconRotate 2.5s infinite;
+  animation-delay: 0s;
+}
+
+.pay-btn:hover .payment-icon {
+  animation: iconRotate 2.5s infinite;
+  animation-delay: 0.5s;
+}
+
+.pay-btn:hover .dollar-icon {
+  animation: iconRotate 2.5s infinite;
+  animation-delay: 1s;
+}
+
+.pay-btn:hover .check-icon {
+  animation: iconRotate 2.5s infinite;
+  animation-delay: 1.5s;
+}
+
+/* Active state - show only checkmark */
+.pay-btn:active .icon {
+  animation: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.pay-btn:active .check-icon {
+  animation: checkmarkAppear 0.6s ease forwards;
+  visibility: visible;
+}
+
+.btn-text {
+  font-weight: 600;
+  font-family:
+      system-ui,
+      -apple-system,
+      sans-serif;
+}
+
+@keyframes iconRotate {
+  0% {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px) scale(0.5);
+  }
+  5% {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+  }
+  15% {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+  }
+  20% {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px) scale(0.5);
+  }
+  100% {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px) scale(0.5);
+  }
+}
+
+@keyframes checkmarkAppear {
+  0% {
+      opacity: 0;
+      transform: scale(0.5) rotate(-45deg);
+  }
+  50% {
+      opacity: 0.5;
+      transform: scale(1.2) rotate(0deg);
+  }
+  100% {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+  }
+}
+
+/* From Uiverse.io by vinodjangid07 */
+.Btn {
+  width: 130px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #294156; /* Navy */
+  border: none;
+  color: #F5EFEB;
+  font-weight: 600;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.103);
+  position: relative;
+  overflow: hidden;
+  transition-duration: .3s;
+}
+
+.svgIcon {
+  width: 16px;
+}
+
+.svgIcon path {
+  fill: #F5EFEB;
+}
+
+.Btn::before {
+  width: 130px;
+  height: 130px;
+  position: absolute;
+  content: "";
+  background-color: #F5EFEB;
+  border-radius: 50%;
+  left: -100%;
+  top: 0;
+  transition-duration: .3s;
+  mix-blend-mode: difference;
+}
+
+.Btn:hover::before {
+  transition-duration: .3s;
+  transform: translate(100%,-50%);
+  border-radius: 0;
+}
+
+.Btn:active {
+  transform: translate(5px,5px);
+  transition-duration: .3s;
+}
+
+.button {
+  --width: 100px;
+  --height: 35px;
+  --tooltip-height: 35px;
+  --tooltip-width: 90px;
+  --gap-between-tooltip-to-button: 18px;
+  --button-color: #294156; /* Navy */
+  --tooltip-color: #567C8D; /* Teal */
+  width: var(--width);
+  height: var(--height);
+  background: var(--button-color);
+  position: relative;
+  text-align: center;
+  border-radius: 0.45em;
+  font-family: "Lucida Console", "Courier New", monospace;
+  transition: background 0.3s;
+}
+
+.button::before {
+  position: absolute;
+  content: attr(data-tooltip);
+  width: var(--tooltip-width);
+  height: var(--tooltip-height);
+  background-color: #294156; /* Navy */
+  font-size: 0.9rem;
+  color: #CBD3E6; /* Sky Blue */
+  border-radius: .25em;
+  line-height: var(--tooltip-height);
+  bottom: calc(var(--height) + var(--gap-between-tooltip-to-button) + 10px);
+  left: calc(50% - var(--tooltip-width) / 2);
+}
+
+.button::after {
+  position: absolute;
+  content: '';
+  width: 0;
+  height: 0;
+  border: 10px solid transparent;
+  border-top-color: #294156; /* Navy */
+  left: calc(50% - 10px);
+  bottom: calc(100% + var(--gap-between-tooltip-to-button) - 10px);
+}
+
+.button::after,
+.button::before {
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.5s;
+}
+
+.text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-wrapper,
+.text,
+.icon {
+  overflow: hidden;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  color: #F5EFEB;
+}
+
+.text {
+  top: 0
+}
+
+.text,
+.icon {
+  transition: top 0.5s;
+}
+
+.icon {
+  color: #567C8D; /* Teal */
+  top: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.button:hover {
+  background: #294156; /* Navy */
+}
+
+.button:hover .text {
+  top: -100%;
+}
+
+.button:hover .icon {
+  top: 0;
+}
+
+.button:hover:before,
+.button:hover:after {
+  opacity: 1;
+  visibility: visible;
+}
+
+.button:hover:after {
+  bottom: calc(var(--height) + var(--gap-between-tooltip-to-button) - 20px);
+}
+
+.button:hover:before {
+  bottom: calc(var(--height) + var(--gap-between-tooltip-to-button));
+}
+
+/* General button styles for Wellcome.mustache */
+button {
+  background-color: #294156; /* Navy */
+  color: #FFFFFF;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+button:hover {
+  background-color: #567C8D; /* Teal */
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(41, 65, 86, 0.6); /* Navy shadow */
+}
+
+form button[type="submit"] {
+  background-color: #567C8D; /* Teal */
+}
+
+form button[type="submit"]:hover {
+  background-color: #294156; /* Navy */
+}
+
+.cart-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background-color: #294156; /* Navy */
+  padding: 1rem 2rem;
+  border-radius: 25px;
+  box-shadow: 0 4px 6px rgba(41, 65, 86, 0.3);
+  transition: all 0.3s ease;
+}
+
+.cart-button:hover {
+  background-color: #567C8D; /* Teal */
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(41, 65, 86, 0.6);
+}
