@@ -32,7 +32,10 @@ public class OrderController {
         User currentUser = userService.getUser();
 
         if (currentOrder == null || !currentOrder.getUser().equals(currentUser)) {
-            currentOrder = new Order(currentUser, "Default address"); // Create new order if it does not exist
+            currentOrder = new Order(currentUser, currentUser.getAddress()); // Create new order with user's profile address
+        } else {
+            // Update the address to match the current user's address
+            currentOrder.setAddress(currentUser.getAddress());
         }
 
         model.addAttribute("products", productService.getAllProducts());
@@ -47,7 +50,10 @@ public class OrderController {
         User currentUser = userService.getUser();
 
         if (currentOrder == null || !currentOrder.getUser().equals(currentUser)) {
-            currentOrder = new Order(currentUser, "Default address");
+            currentOrder = new Order(currentUser, currentUser.getAddress()); // Create new order with user's profile address
+        } else {
+            // Update the address to match the current user's address
+            currentOrder.setAddress(currentUser.getAddress());
         }
 
         if(currentOrder.getProducts().contains(product)){
@@ -131,7 +137,7 @@ public class OrderController {
         currentOrder.setAddress(address);
         userService.getUser().addOrder(currentOrder);
         Order confirmedOrder = currentOrder;
-        currentOrder=new Order(userService.getUser(), "Default address");
+        currentOrder=new Order(userService.getUser(), userService.getUser().getAddress());
         model.addAttribute("order", confirmedOrder);
         model.addAttribute("address", address);
         return "confirm_order";
