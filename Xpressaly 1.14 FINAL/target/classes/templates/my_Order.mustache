@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Cart</title>
+    <link rel="stylesheet" href="/css/my_order.css">
+</head>
+<body>
+    {{> common/header}}
+    <div class="main-content">
+    <h1>My Cart</h1>
+    {{#order.hasProducts}}
+    <div class="order-summary">
+        <!-- Parte izquierda: Resumen del pedido -->
+        <div class="summary-left">
+            <h3>Order Summary</h3>
+            <ul>
+                {{#order.products}}
+                <li>
+                    <strong>{{name}}</strong> - Quantity: {{amount}} - Price: ${{price}}
+                </li>
+                {{/order.products}}
+            </ul>
+            <p><strong>Order Total: {{total}}</strong></p>
+        </div>
+
+        <!-- Parte derecha: Dirección y botón de confirmación -->
+        <div class="summary-right">
+            <div class="address-form">
+    <h3>Mailing address</h3>
+    <form action="/confirm-order" method="post">
+        <input type="text" name="address" value="{{order.address}}" placeholder="Enter your shipping address">
+        <button type="submit">Confirm Order</button>
+    </form>
+</div>
+        </div>
+    </div>
+    {{/order.hasProducts}}
+    {{#order.products}}
+    <div class="order-container product-item">
+        <div class="product-info">
+            <h3>{{name}}</h3>
+            <p>Price: ${{price}}</p>
+            <form action="/update-amount" method="post">
+                <label for="counter{{id}}">Quantity:</label>
+                <input type="number" id="counter_{{id}}" name="amount" value="{{amount}}" min="1" class="quantity-input">
+                <input type="hidden" name="productId" value="{{id}}">
+                <button type="submit">Update Summary</button>
+            </form>
+            <form action="/remove-from-order" method="post">
+                <input type="hidden" name="productId" value="{{id}}">
+                <button type="submit">Remove from Cart</button>
+            </form>
+        </div>
+        <img src="{{mainImage}}" alt="{{name}}" class="product-image">
+    </div>
+    {{/order.products}}
+    {{^order.products}}
+    <div class="empty-cart">
+        <p>There are no products in your cart.</p>
+    </div>
+    {{/order.products}}
+
+</div>
+    {{> common/footer}}
+    <script>
+        function updateQuantity(productId, change) {
+            const input = document.getElementById(`contador${productId}`);
+            let value = parseInt(input.value) + change;
+            if (value < 1) value = 1;
+            input.value = value;
+
+            // Send update to server
+            fetch('/update-amount', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    productId: productId,
+                    amount: value
+                })
+            })
+            .then(response => response.json()) // Convert response to JSON
+            .then(data => {
+                if (data.success) {
+                    // Update order summary dynamically
+                    updateOrderSummary(data);
+                } else {
+                    alert("There was an error updating the quantity.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        }
+
+        function updateOrderSummary(data) {
+            const orderSummary = document.querySelector('.order-summary ul');
+            const totalElement = document.querySelector('.order-summary p');
+
+            // Clear current summary
+            orderSummary.innerHTML = '';
+
+            // Add updated products
+            data.products.forEach(product => {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>${product.name}</strong> - Quantity: ${product.amount} - Price: $${product.price}`;
+                orderSummary.appendChild(li);
+            });
+
+            // Update order total
+            totalElement.innerHTML = `<strong>Order Total: $${data.total}</strong>`;
+        }
+
+        function removeFromCart(productId) {
+            fetch('/remove-from-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    productId: productId
+                })
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                }
+            });
+        }
+
+        function deleteOrder() {
+            fetch('/delete-order', {
+                method: 'POST',
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
