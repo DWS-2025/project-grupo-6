@@ -21,6 +21,7 @@ public class AuthController {
 
     @GetMapping("/login")
     public String showLoginForm() {
+        userService.setCurrentUser(null);
         return "login";
     }
 
