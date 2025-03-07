@@ -1,13 +1,13 @@
-# Xpressaly
+# Xpressaly 🛒
 
-## Contributors
+## Contributors 
 
 | Name | Email | GitHub |
 |-------|-------|--------|
-| Remus Dan Andrei Narita | rd.narita.2023@alumnos.urjc.es | @Ten1O0 |
-| Daniel Navarro Martín | d.navarrom.2023@alumnos.urjc.es | @daniel-navarro-ls |
-| Laura Sánchez Santiago | l.sanchezsan.2023@alumnos.urjc.es | @Laura-261 |
-| Fernando Torres León | f.torres.2023@alumnos.urjc.es | @fernandotorres-sudo |
+| Remus Dan Andrei Narita | rd.narita.2023@alumnos.urjc.es | [@Ten1O0](https://github.com/Ten1O0) |
+| Daniel Navarro Martín | d.navarrom.2023@alumnos.urjc.es | [@daniel-navarro-ls](https://github.com/daniel-navarro-ls) |
+| Laura Sánchez Santiago | l.sanchezsan.2023@alumnos.urjc.es | [@Laura-261](https://github.com/Laura-261) |
+| Fernando Torres León | f.torres.2023@alumnos.urjc.es | [@fernandotorres-sudo](https://github.com/fernandotorres-sudo) |
 
 ## Application Overview
 
