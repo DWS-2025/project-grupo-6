@@ -22,7 +22,41 @@
 - **User**: 
 
 ### Images
-- **Product**: one main image for each product.
+- **PRODUCT**: one main image for each product.
 
 ## Entities Diagram
 <img width="800" alt="EntitiesDiagram" src="https://github.com/user-attachments/assets/c0d967fb-986f-460d-908a-bbe40cc9e612" />
+
+## Collaborative Development
+
+### Dan Narita
+- **Tasks performed:**
+  - 
+- **Significant commits:**
+  1. 
+- **Most contributed files:**
+  1. 
+
+### Daniel Navarro
+- **Tasks performed:**
+  - 
+- **Significant commits:**
+  1. 
+- **Most contributed files:**
+  1. 
+
+### Laura Sánchez
+- **Tasks performed:**
+  - 
+- **Significant commits:**
+  1. 
+- **Most contributed files:**
+  1. 
+
+### Fernando Torres
+- **Tasks performed:**
+  - 
+- **Significant commits:**
+  1. 
+- **Most contributed files:**
+  1.
