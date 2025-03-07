@@ -12,10 +12,10 @@
 ## Application Overview
 
 ### Entities
-- **User**: 
-- **Product**: 
-- **Review**: 
-- **Order**:
+- **USER**: users can place orders, add products to their cart and write product reviews.
+- **PRODUCT**: products can be added to a user's cart, reviewed and included in orders.
+- **ORDER**: an order contains one or more products and is placed by a user.
+- **REVIEW**: a review is written by a user for a product.
 
 ### User Permissions
 - **Admin**: 
@@ -24,6 +24,5 @@
 ### Images
 - **Product**: one main image for each product.
 
-## Database Diagram
-<img width="800" alt="GraficoEntidadesENG" src="https://github.com/user-attachments/assets/36baae0e-21b8-49c8-a1b4-6d3e85c878cc" />
-
+## Entities Diagram
+<img width="800" alt="EntitiesDiagram" src="https://github.com/user-attachments/assets/c0d967fb-986f-460d-908a-bbe40cc9e612" />
