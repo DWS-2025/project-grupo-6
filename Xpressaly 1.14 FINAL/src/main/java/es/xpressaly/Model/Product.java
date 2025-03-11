@@ -10,16 +10,16 @@ public class Product {
     private String description;
     private double price;
     private int stock;
-    private String mainImage;
+    private String imagePath;
     private List<Review> reviews; // List of comments for each product
 
-    public Product(String name, String description, double price, int stock, String mainImage) {
+    public Product(String name, String description, double price, int stock, String imagePath) {
         this.id = ++idCounter;
         this.name = name;
         this.description = description;
         this.price = price;
         this.stock = stock;
-        this.mainImage = mainImage;
+        this.imagePath = imagePath;
         this.reviews = new ArrayList<>();  // We initialize the list of reviews
     }
 
@@ -31,7 +31,8 @@ public class Product {
     public double getPrice() { return price; }
     public int getStock() { return stock; }
     public void setStock(int stock){this.stock=stock;}
-    public String getMainImage() { return mainImage; }
+    public String getImagePath() { return imagePath; }
+    public void setImagePath(String imagePath) {this.imagePath=imagePath}
     public List<Review> getReviews() { return reviews; }
 
     public void addReview(Review review) {
