@@ -27,13 +27,13 @@ main {
     padding-left: 20px;
     padding-right: 20px;
     display: flex;
-    flex-direction: column; /* Cambia a una columna para que el resumen esté arriba */
+    flex-direction: column; /* Switch to a column so the summary is on top */
     gap: 30px;
 }
 
 .products-section {
     max-height: calc(100vh - 200px);
-    overflow-y: auto; /* Permite el desplazamiento vertical de los productos */
+    overflow-y: auto; /* Allows the vertical movement of products */
     padding-right: 20px;
 }
 
@@ -42,7 +42,7 @@ main {
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(41, 65, 86, 0.1);
-    margin-bottom: 30px; /* Espacio entre el resumen y los productos */
+    margin-bottom: 30px; /* Space between summary and products */
 }
 
 .order-summary {
@@ -52,36 +52,19 @@ main {
     box-shadow: 0 4px 6px rgba(41, 65, 86, 0.1);
     margin-bottom: 30px;
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Divide en dos columnas */
-    gap: 30px; /* Espacio entre las columnas */
-}
-
-.order-summary .summary-left {
-    /* Estilos para la parte izquierda (resumen del pedido) */
-}
-.error-message {
-    background-color: #fee2e2;
-    border: 1px solid #ef4444;
-    color: #b91c1c;
-    padding: 1rem;
-    border-radius: 0.375rem;
-    margin-bottom: 1rem;
-    position: relative;
-}
-
-.error-message span {
-    display: block;
+    grid-template-columns: 1fr 1fr; /* Divide into two columns */
+    gap: 30px; /* Space between columns */
 }
 
 .order-summary .summary-right {
-    /* Estilos para la parte derecha (dirección y botón) */
+    /* Styles for the right side (address and button) */
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Espacio entre los elementos */
+    gap: 20px; /* Space between elements */
 }
 
 .address-form {
-    margin-top: 0; /* Elimina el margen superior */
+    margin-top: 0; /* Remove the top margin */
     padding: 20px;
     background-color: var(--beige);
     border-radius: 10px;
@@ -365,4 +348,39 @@ button:hover {
 
 .button-3d:active .button-base {
     border-radius: 10px 10px 8px 8px / 8px;
+}
+
+.bg-red-100 {
+    background-color: #fee2e2;
+    margin-bottom: 1rem;
+}
+
+.border-red-400 {
+    border: 1px solid #f87171;
+}
+
+.text-red-700 {
+    color: #b91c1c;
+}
+
+.px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.py-3 {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.rounded {
+    border-radius: 0.25rem;
+}
+
+.relative {
+    position: relative;
+}
+
+.mb-4 {
+    margin-bottom: 1rem;
 }
