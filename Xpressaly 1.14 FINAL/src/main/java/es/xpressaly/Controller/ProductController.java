@@ -36,6 +36,7 @@ public class ProductController {
     @Autowired
     private OrderController orderController;    
 
+    private static final Path IMAGES_FOLDER = Paths.get(System.getProperty("user.dir"), "images");//Directory where images are stored
     // Show product list
     @GetMapping("/products")
     public String showProducts(Model model) {
@@ -73,9 +74,13 @@ public class ProductController {
                              @RequestParam String description,
                              @RequestParam double price,
                              @RequestParam int stock,
-                             @RequestParam String mainImage) {
-
-        Product newProduct = new Product(name, description, price, stock, mainImage);
+                             @RequestParam MultipartFile mainImage) {
+        
+        Files.createDirectories(IMAGES_FOLDER);
+        Path imagePath = IMAGES_FOLDER.resolve(name+".jpg");
+        mainImage.transferTo(imagePath);
+        
+        Product newProduct = new Product(name, description, price, stock, imagePath.toString());
         productService.addProduct(newProduct);
 
         return "redirect:/products";
