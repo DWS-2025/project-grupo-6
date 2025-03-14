@@ -39,7 +39,7 @@
 
 ### Daniel Navarro
 - **Tasks performed:**
-  - 
+  - Functioning image service in Product.
 - **Significant commits:**
   1. 
 - **Most contributed files:**
