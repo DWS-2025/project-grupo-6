@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import es.xpressaly.Model.User;
 import es.xpressaly.Model.Review;
 import es.xpressaly.Service.UserService;
-import es.xpressaly.Service.ProductService;
 
 import java.util.List;
 import java.util.Map;
@@ -21,9 +20,6 @@ import java.util.ArrayList;
 public class UserController {
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private ProductService productService;
 
     @GetMapping("/profile")
     public String showProfile(Model model) {
