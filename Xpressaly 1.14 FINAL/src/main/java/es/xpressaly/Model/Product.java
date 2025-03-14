@@ -32,7 +32,7 @@ public class Product {
     public int getStock() { return stock; }
     public void setStock(int stock){this.stock=stock;}
     public String getImagePath() { return imagePath; }
-    public void setImagePath(String imagePath) {this.imagePath=imagePath}
+    public void setImagePath(String imagePath) {this.imagePath=imagePath; }
     public List<Review> getReviews() { return reviews; }
 
     public void addReview(Review review) {
