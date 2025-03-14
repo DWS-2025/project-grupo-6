@@ -91,7 +91,11 @@ public class ProductController {
     public String deleteProduct(@RequestParam Long productId) {
         Order currentOrder = orderController.getCurrentOrder();
         Product product=currentOrder.findProductById(productId);
-        currentOrder.removeProduct(product);
+        if(currentOrder!=null){//if orderr's not empty, delete the product
+            currentOrder.removeProduct(product);
+        }
+        Path imagePath=IMAGES_FOLDER.resolve(product.getName()+".jpg");
+        Files.delete(imagePath);
         productService.deleteProduct(productId);
         return "redirect:/products";
     }
