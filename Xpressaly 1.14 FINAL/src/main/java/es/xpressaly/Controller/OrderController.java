@@ -6,13 +6,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import es.xpressaly.Model.Order;
-import es.xpressaly.Model.OrderUpdateResponse;
 import es.xpressaly.Model.Product;
 import es.xpressaly.Model.User;
 import es.xpressaly.Service.ProductService;
 import es.xpressaly.Service.UserService;
-
-import org.springframework.http.ResponseEntity;
 
 
 @Controller
