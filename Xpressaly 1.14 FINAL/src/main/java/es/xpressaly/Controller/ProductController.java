@@ -74,13 +74,14 @@ public class ProductController {
                              @RequestParam String description,
                              @RequestParam double price,
                              @RequestParam int stock,
-                             @RequestParam MultipartFile mainImage) {
+                             @RequestParam MultipartFile mainImage) throws IOException {
         
         Files.createDirectories(IMAGES_FOLDER);
         Path imagePath = IMAGES_FOLDER.resolve(name+".jpg");
         mainImage.transferTo(imagePath);
-        
-        Product newProduct = new Product(name, description, price, stock, imagePath.toString());
+
+        String relativeImagePath = "/Images/" + name + ".jpg";
+        Product newProduct = new Product(name, description, price, stock, relativeImagePath);
         productService.addProduct(newProduct);
 
         return "redirect:/products";
@@ -88,9 +89,9 @@ public class ProductController {
 
     // Delete a product
     @PostMapping("/delete-product")
-    public String deleteProduct(@RequestParam Long productId) {
+    public String deleteProduct(@RequestParam Long productId) throws IOException {
         Order currentOrder = orderController.getCurrentOrder();
-        Product product=currentOrder.findProductById(productId);
+        Product product = productService.getProductById(productId);
         if(currentOrder!=null){//if orderr's not empty, delete the product
             currentOrder.removeProduct(product);
         }
