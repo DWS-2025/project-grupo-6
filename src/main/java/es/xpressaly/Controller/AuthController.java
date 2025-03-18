@@ -17,6 +17,7 @@ import java.util.Map;
 @Controller
 public class AuthController {
 
+
     private final UserService userService;
 
     public AuthController(UserService userService) {
