@@ -3,6 +3,8 @@ package es.xpressaly.Model;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
 public class Product {
     private static Long idCounter = 0L;
     private Long id;
@@ -13,7 +15,7 @@ public class Product {
     private String imagePath;
     private List<Review> reviews; // List of comments for each product
 
-    public Product(String name, String description, double price, int stock, String imagePath) {
+    public Product(String name, String description, double price, int stock, String imagePath ) {
         this.id = ++idCounter;
         this.name = name;
         this.description = description;
@@ -23,8 +25,9 @@ public class Product {
         this.reviews = new ArrayList<>();  // We initialize the list of reviews
     }
 
+
     public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; } // <-- Added to be able to modify the ID manually
+    public void setId(Long id) { this.id = id; } 
 
     public String getName() { return name; }
     public String getDescription() { return description; }
@@ -32,7 +35,7 @@ public class Product {
     public int getStock() { return stock; }
     public void setStock(int stock){this.stock=stock;}
     public String getImagePath() { return imagePath; }
-    public void setImagePath(String imagePath) {this.imagePath=imagePath; }
+    public void setImagePath(String imagePath) { this.imagePath = imagePath; }
     public List<Review> getReviews() { return reviews; }
 
     public void addReview(Review review) {

@@ -43,7 +43,7 @@
             <form action="/login" method="post" class="auth-form">
                 <h2>Log in</h2>
                 {{#error}}
-                <div class="error-message">{{error}}</div>
+                <div class="error-message" style="color: #ff4444; margin-bottom: 15px; font-size: 14px;">{{error}}</div>
                 {{/error}}
                 <input type="text" name="email" placeholder="Email" required>
                 <input type="password" name="password" placeholder="Password" required>
@@ -91,10 +91,85 @@
             }
         }
 
+        // Notification styles
+        const styleSheet = document.createElement("style");
+        styleSheet.textContent = `
+            .notification {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                color: white;
+                border-radius: 5px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                opacity: 0;
+                transform: translateY(-20px);
+                transition: opacity 0.3s, transform 0.3s;
+                z-index: 1000;
+            }
+
+            .notification.show {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            .notification.success {
+                background-color: #4CAF50;
+            }
+
+            .notification.error {
+                background-color: #ff4444;
+            }
+        `;
+        document.head.appendChild(styleSheet);
+
+        // Notification element
+        const notificationDiv = document.createElement("div");
+        notificationDiv.id = "notification";
+        notificationDiv.className = "notification";
+        document.body.appendChild(notificationDiv);
+
+        function showNotification(message, type = 'error') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
         function handleRegistration(event) {
             event.preventDefault();
             const form = event.target;
             const formData = new FormData(form);
+
+            // Basic client-side validation
+            const email = formData.get('email');
+            const password = formData.get('password');
+            const phoneNumber = formData.get('phoneNumber');
+            const age = formData.get('age');
+
+            if (!email.includes('@')) {
+                showNotification('Please enter a valid email address');
+                return false;
+            }
+
+            if (password.length < 8) {
+                showNotification('Password must be at least 8 characters long');
+                return false;
+            }
+
+            if (!/^\d+$/.test(phoneNumber)) {
+                showNotification('Phone number must contain only digits');
+                return false;
+            }
+
+            if (age < 18 || age > 120) {
+                showNotification('Please enter a valid age between 18 and 120');
+                return false;
+            }
     
             fetch('/register', {
                 method: 'POST',
@@ -104,38 +179,40 @@
                 body: new URLSearchParams(formData)
             })
             .then(response => {
-                const contentType = response.headers.get('content-type');
                 if (!response.ok) {
-                    if (contentType && contentType.includes('application/json')) {
-                        return response.json().then(data => {
-                            throw new Error(data.message || data.error || 'Registration failed');
-                        });
-                    } else {
-                        throw new Error('Registration failed: Server error');
-                    }
+                    return response.text().then(text => {
+                        try {
+                            return JSON.parse(text);
+                        } catch {
+                            throw new Error(text || 'Registration failed');
+                        }
+                    });
                 }
-                return contentType && contentType.includes('application/json') 
-                    ? response.json()
-                    : { success: response.ok };
+                return response.json();
             })
             .then(data => {
-                if (data.success) {
-                    localStorage.setItem('userData', JSON.stringify({
-                        email: formData.get('email'),
-                        phoneNumber: formData.get('phoneNumber'),
-                        age: formData.get('age'),
-                        firstName: formData.get('firstName'),
-                        lastName: formData.get('lastName'),
-                        address: formData.get('address')
-                    }));
-                    window.location.href = '/products';
-                } else {
-                    alert(data.message || 'Registration failed: ' + (data.error || 'Please try again.'));
+                if (data.error) {
+                    throw new Error(data.error);
                 }
+                
+                localStorage.setItem('userData', JSON.stringify({
+                    email: formData.get('email'),
+                    phoneNumber: formData.get('phoneNumber'),
+                    age: formData.get('age'),
+                    firstName: formData.get('firstName'),
+                    lastName: formData.get('lastName'),
+                    address: formData.get('address')
+                }));
+                
+                // Show success message before redirecting
+                showNotification('Registration successful! Redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/products';
+                }, 1500);
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert(error.message || 'Registration failed. Please try again.');
+                showNotification(error.message || 'Registration failed. Please try again.');
             });
     
             return false;

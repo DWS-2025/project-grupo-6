@@ -6,8 +6,6 @@ import es.xpressaly.Model.Product;
 import es.xpressaly.Model.Review;
 import es.xpressaly.Model.User;
 
-import java.util.List;
-
 @Service
 public class ReviewService {
 
@@ -20,9 +18,24 @@ public class ReviewService {
     }
 
     public void addReview(Long productId, Review review) {
+        validateReview(review);
         Product product = productService.getProductById(productId);
         if (product != null) {
-            product.addReview(review);  // Add the review to the product
+            product.addReview(review);
+        } else {
+            throw new IllegalArgumentException("The specified product does not exist");
+        }
+    }
+
+    private void validateReview(Review review) {
+        if (review.getComment() == null || review.getComment().trim().isEmpty()) {
+            throw new IllegalArgumentException("Comment cannot be empty");
+        }
+        if (review.getComment().length() > 500) {
+            throw new IllegalArgumentException("Comment cannot exceed 500 characters");
+        }
+        if (review.getRating() < 1 || review.getRating() > 5) {
+            throw new IllegalArgumentException("Rating must be between 1 and 5 stars");
         }
     }
 

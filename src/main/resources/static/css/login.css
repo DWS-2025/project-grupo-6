@@ -212,15 +212,28 @@ body {
 .modal-content .btn-submit:hover {
     background-color: #567C8D;
 }
-/* Botón para cerrar el modal */
+
+/* Close button styles */
 .close {
-    color: #aaa;
-    float: right;
+    position: absolute;
+    right: 20px;
+    top: 15px;
     font-size: 28px;
     font-weight: bold;
+    color: #333;
     cursor: pointer;
 }
 
+.close:hover {
+    color: #567C8D;
+}
+
+/* Error message styles */
+.error-message {
+    color: #ff4444;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
 .close:hover,
 .close:focus {
     color: black;

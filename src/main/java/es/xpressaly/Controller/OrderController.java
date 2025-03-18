@@ -11,7 +11,6 @@ import es.xpressaly.Model.User;
 import es.xpressaly.Service.ProductService;
 import es.xpressaly.Service.UserService;
 
-
 @Controller
 public class OrderController {
 
@@ -122,41 +121,77 @@ public class OrderController {
     
     //Update products' amount
     @PostMapping("/update-amount")
-    public String updateAmount(Model model, @RequestParam int amount,@RequestParam Long productId) {
-        Product productInStock = productService.getProductById(productId);
-        Product productInOrder = currentOrder.findProductById(productId);
-
-        if (productInOrder != null) {
-            // Check if requested amount exceeds available stock
-            if (amount > productInStock.getStock()) {
-                model.addAttribute("errorMessage", "We're sorry, we do not have enough stock at the moment, try later");
-                model.addAttribute("order", currentOrder);
-                model.addAttribute("total", currentOrder.getTotal());
-                return "my_Order";
-            }
-            productInOrder.setAmount(amount);
+    public String updateAmount(Model model, @RequestParam int amount, @RequestParam Long productId) {
+        if (currentOrder == null) {
+            model.addAttribute("error", "No active order");
+            return "redirect:/products";
         }
+
+        if (amount < 1) {
+            model.addAttribute("error", "Quantity must be greater than 0");
+            model.addAttribute("order", currentOrder);
+            model.addAttribute("total", currentOrder.getTotal());
+            return "my_Order";
+        }
+
+        Product productInStock = productService.getProductById(productId);
+        if (productInStock == null) {
+            model.addAttribute("error", "Product not found");
+            return "redirect:/products";
+        }
+
+        Product productInOrder = currentOrder.findProductById(productId);
+        if (productInOrder == null) {
+            model.addAttribute("error", "Product is not in the current order");
+            return "redirect:/view-order";
+        }
+
+        if (amount > productInStock.getStock()) {
+            model.addAttribute("errorMessage", "We're sorry, we do not have enough stock at the moment, try later");
+            model.addAttribute("order", currentOrder);
+            model.addAttribute("total", currentOrder.getTotal());
+            return "my_Order";
+        }
+
+        productInOrder.setAmount(amount);
         currentOrder.calculateTotal(currentOrder);
         model.addAttribute("order", currentOrder);
         model.addAttribute("total", currentOrder.getTotal());
         return "my_Order";
     }
-    
-    //Confirmed payment
+
     @PostMapping("/confirm-order")
     public String confirmOrder(Model model, @RequestParam String address) {
+        if (currentOrder == null || currentOrder.getProducts().isEmpty()) {
+            model.addAttribute("error", "No products in the order");
+            return "redirect:/view-order";
+        }
 
-        for (Product product : productService.getAllProducts()) {
-            if(currentOrder.getProducts().contains(product)){
-                product.setStock(product.getStock()-currentOrder.findProductById(product.getId()).getAmount());
+        if (address == null || address.trim().isEmpty()) {
+            model.addAttribute("error", "Shipping address is required");
+            return "redirect:/view-order";
+        }
+
+        // Verify stock availability before confirming
+        for (Product orderProduct : currentOrder.getProducts()) {
+            Product stockProduct = productService.getProductById(orderProduct.getId());
+            if (stockProduct == null || orderProduct.getAmount() > stockProduct.getStock()) {
+                model.addAttribute("error", "Some products do not have enough stock");
+                return "redirect:/view-order";
             }
+        }
 
+        // Update stock levels
+        for (Product product : productService.getAllProducts()) {
+            if (currentOrder.getProducts().contains(product)) {
+                product.setStock(product.getStock() - currentOrder.findProductById(product.getId()).getAmount());
+            }
         }
 
         currentOrder.setAddress(address);
         userService.getUser().addOrder(currentOrder);
         Order confirmedOrder = currentOrder;
-        currentOrder=new Order(userService.getUser(), userService.getUser().getAddress());
+        currentOrder = new Order(userService.getUser(), userService.getUser().getAddress());
         model.addAttribute("order", confirmedOrder);
         model.addAttribute("address", address);
         return "confirm_order";

@@ -16,9 +16,9 @@ public class ProductService {
     public ProductService() {
         if (products.isEmpty()) {
             initializeDefaultProducts();
-        }
-    }
 
+        }
+    }        
     private void initializeDefaultProducts() {
         addProduct(new Product("Wireless mouse", "2.4G Wireless Bluetooth Mouse Ergonomic 800/1200/1600DPI 6 Silent Buttons for MacBook Tablet Laptops Computer PC", 50, 25, "/Images/Wireless mouse.jpg"));
         addProduct(new Product("Keyboard", "Subblim Business Slim Silent, Spanish Keyboard Layout (QWERTY), Plug & Play via USB, Flat Design, Silent Typing, Black", 40, 2, "/Images/Keyboard.jpg"));
@@ -94,8 +94,30 @@ public class ProductService {
     }
 
     public void addProduct(Product product) {
+        validateProduct(product);
         product.setId(nextId++);  // We assign a unique ID
         products.add(product);
+    }
+
+    private void validateProduct(Product product) {
+        if (product.getName() == null || product.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Product name cannot be empty");
+        }
+        if (product.getName().length() > 100) {
+            throw new IllegalArgumentException("Product name cannot exceed 100 characters");
+        }
+        if (product.getDescription() == null || product.getDescription().trim().isEmpty()) {
+            throw new IllegalArgumentException("Product description cannot be empty");
+        }
+        if (product.getPrice() < 0) {
+            throw new IllegalArgumentException("Product price cannot be negative");
+        }
+        if (product.getStock() < 0) {
+            throw new IllegalArgumentException("Product stock cannot be negative");
+        }
+        if (product.getImagePath() == null || product.getImagePath().trim().isEmpty()) {
+            throw new IllegalArgumentException("Product image path cannot be empty");
+        }
     }
 
     public void deleteProduct(Long productId) {

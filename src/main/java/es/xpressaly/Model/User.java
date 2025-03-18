@@ -15,10 +15,12 @@ public class User {
     private int phoneNumber;
     private List<Review> reviews;
     private List<Order> orders;
+    private UserRole role;
 
     public User() {
         this.reviews = new ArrayList<>();
         this.orders = new ArrayList<>();
+        this.role = UserRole.USER; // Default role is USER
     }
 
     public User(String firstName, String lastName, String email, String password, String address, int phoneNumber, int age) {
@@ -31,13 +33,12 @@ public class User {
         this.age = age;
         this.reviews = new ArrayList<>();
         this.orders = new ArrayList<>();
+        this.role = UserRole.USER; // Default role is USER
     } 
     
     public List<Order> getOrders() { return orders; }
     public void setOrders(List<Order> orders) { this.orders = orders; }
-    public void addOrder(Order order){
-        this.orders.add(order);
-    }
+    public void addOrder(Order order){ this.orders.add(order); }
     public int getAge() { return age; }
     public void setAge(int age) { this.age = age; }
     public Long getId() { return id; }
@@ -54,8 +55,14 @@ public class User {
     public void setAddress(String address) { this.address = address; }
     public int getPhoneNumber() { return phoneNumber; }
     public void setPhoneNumber(int phoneNumber) { this.phoneNumber = phoneNumber; }
+    public UserRole getRole() { return role; }
+    public void setRole(UserRole role) { this.role = role; }
     
     public List<Review> getReviews() { return reviews; }
     public void setReviews(List<Review> reviews) { this.reviews = reviews; }
     public void addReview(Review review) { this.reviews.add(review); }
+
+    public boolean isAdmin() {
+        return this.role == UserRole.ADMIN;
+    }
 }

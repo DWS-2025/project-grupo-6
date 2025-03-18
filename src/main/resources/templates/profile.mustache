@@ -232,29 +232,103 @@
         }
 
         document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const firstName = document.querySelector('input[name="firstName"]').value;
+            const lastName = document.querySelector('input[name="lastName"]').value;
+            const email = document.querySelector('input[name="email"]').value;
+            const phone = document.querySelector('input[name="phone"]').value;
+            const age = document.querySelector('input[name="age"]').value;
+            const address = document.querySelector('input[name="address"]').value;
             const currentPassword = document.getElementById('currentPasswordInput').value;
             const newPassword = document.getElementById('passwordInput').value;
             const confirmPassword = document.getElementById('confirmPasswordInput').value;
 
+            // Validate required fields
+            if (!firstName || !lastName || !email) {
+                alert('Name, Surname and Email are required fields.');
+                return;
+            }
+
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            // Validate phone number (optional field)
+            if (phone) {
+                const phoneRegex = /^[0-9+\-\s()]*$/;
+                if (!phoneRegex.test(phone)) {
+                    alert('Please enter a valid phone number.');
+                    return;
+                }
+            }
+
+            // Validate age (optional field)
+            if (age) {
+                const ageNum = parseInt(age);
+                if (isNaN(ageNum) || ageNum < 0 || ageNum > 120) {
+                    alert('Please enter a valid age between 0 and 120.');
+                    return;
+                }
+            }
+
+            // Password validation
             if (newPassword && confirmPassword) {
                 if (newPassword.length < 8) {
-                    e.preventDefault();
                     alert('The password must be at least 8 characters.');
                     return;
                 }
 
                 if (newPassword !== confirmPassword) {
-                    e.preventDefault();
                     alert('The new passwords do not match. Please verify that they are the same.');
                     return;
                 }
 
                 if (newPassword === currentPassword) {
-                    e.preventDefault();
                     alert('The new password cannot be the same as the current password.');
                     return;
                 }
             }
+
+            // Create form data
+            const formData = new FormData();
+            formData.append('firstName', firstName);
+            formData.append('lastName', lastName);
+            formData.append('email', email);
+            formData.append('phone', phone);
+            formData.append('age', age);
+            formData.append('address', address);
+            if (newPassword) {
+                formData.append('password', newPassword);
+            }
+
+            // Submit form using fetch
+            fetch('/update-profile', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(text || 'Profile update failed');
+                    });
+                }
+                return response.text();
+            })
+            .then(() => {
+                alert('Profile updated successfully!');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            })
+            .catch(error => {
+                alert('Error updating profile: ' + error.message);
+            });
         });
     </script>
 </body>
