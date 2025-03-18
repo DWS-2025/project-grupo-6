@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page not found</title>
+    <link rel="stylesheet" href="/css/error.css">
+</head>
+<body>
+    <div class="error-container">
+        <div class="glitch-wrapper">
+            <div class="glitch" th:data-text="${status}" th:text="${status}">404</div>
+        </div>
+        <div class="error-text">
+            <h2 th:text="${error}">Page Not Found</h2>
+            <p th:text="${message}">We can't find the page you're looking for.</p>
+        </div>
+        <a href="/products" class="back-button">Back to Home</a>
+    </div>
+    {{> common/footer}}
+</body>
+</html>
