@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import es.xpressaly.Model.Order;
 import es.xpressaly.Model.Product;
@@ -16,7 +17,10 @@ import es.xpressaly.Service.ProductService;
 import es.xpressaly.Service.ReviewService;
 import es.xpressaly.Service.UserService;
 
-
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
