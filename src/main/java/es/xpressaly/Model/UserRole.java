@@ -1,4 +1,4 @@
-package main.java.es.xpressaly.Model;
+package es.xpressaly.Model;
 
 public enum UserRole {
     ADMIN,
