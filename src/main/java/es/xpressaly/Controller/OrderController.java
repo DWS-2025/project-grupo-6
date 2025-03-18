@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import es.xpressaly.Model.Order;
 import es.xpressaly.Model.Product;
 import es.xpressaly.Model.User;
+import es.xpressaly.Model.UserRole;
 import es.xpressaly.Service.ProductService;
 import es.xpressaly.Service.UserService;
 
@@ -38,6 +39,7 @@ public class OrderController {
 
         model.addAttribute("products", productService.getAllProducts());
         model.addAttribute("order", currentOrder);
+        model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
         return "Wellcome";
     }
 
@@ -83,12 +85,16 @@ public class OrderController {
         
         model.addAttribute("products", productService.getAllProducts());
         model.addAttribute("order", currentOrder);
+        model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
         return "redirect:/view_order_products";
     }
 
     // View current order
     @GetMapping("/view-order")
     public String viewOrder(Model model) {
+        User currentUser = userService.getUser();
+        model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
+        
         if (currentOrder == null) {
             model.addAttribute("message", "You don't have any orders.");
             return "my_Order";
@@ -113,11 +119,13 @@ public class OrderController {
     //Delete order
     @GetMapping("/delete-order")
     public String deleteOrder(Model model) {
+        User currentUser = userService.getUser();
         while (currentOrder.hasProducts()) {
             currentOrder.removeProduct(currentOrder.getProducts().get(0));
         }
         model.addAttribute("products", productService.getAllProducts());
         model.addAttribute("order", currentOrder);
+        model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
         return "Wellcome";
     }
     

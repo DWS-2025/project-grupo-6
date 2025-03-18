@@ -5,6 +5,8 @@
             <a href="/products" class="mx-2">Home</a>
             <a href="/view-order" class="mx-2">Cart</a>
             <a href="/profile" class="mx-2">Profile</a>
+            {{#isAdmin}}
             <a href="/create-product" class="mx-2 bg-[#567C8D] text-white px-4 py-2 rounded hover:bg-[#294156]">Add Product</a>
+            {{/isAdmin}}
         </nav>
 </header>

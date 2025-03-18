@@ -72,6 +72,7 @@ public class ProductController {
         if (currentUser == null || !currentUser.isAdmin()) {
             return "redirect:/products";
         }
+        model.addAttribute("isAdmin", true);
         return "add_product";
     }
 

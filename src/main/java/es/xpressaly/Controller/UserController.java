@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import es.xpressaly.Model.User;
+import es.xpressaly.Model.UserRole;
 import es.xpressaly.Model.Review;
 import es.xpressaly.Service.UserService;
 
@@ -35,6 +36,7 @@ public class UserController {
         model.addAttribute("age", user.getAge());
         model.addAttribute("orders", user.getOrders());
         model.addAttribute("password", user.getPassword());
+        model.addAttribute("isAdmin", user.getRole() == UserRole.ADMIN);
 
         // Get user's reviews and add product information
         List<Map<String, Object>> reviewsWithProducts = new ArrayList<>();
