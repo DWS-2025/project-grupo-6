@@ -12,6 +12,7 @@ public class Review {
 
     public Review() {}
 
+
     public Review(String user, String comment, int rating, List<String> images) {
         this.id = ++reviewIdCounter;  // We assign a unique ID for each review
         this.user = user;

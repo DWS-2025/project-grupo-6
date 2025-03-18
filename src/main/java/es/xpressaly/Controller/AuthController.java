@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpSession;
 @Controller
 public class AuthController {
 
+
     private final UserService userService;
 
     public AuthController(UserService userService) {
