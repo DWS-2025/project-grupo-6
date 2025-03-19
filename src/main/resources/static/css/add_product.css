@@ -1,10 +1,21 @@
+:root {
+    --primary: #294156;
+    --primary-hover: #567C8D;
+    --background: #f8fafc;
+    --form-bg: #ffffff;
+    --text: #333333;
+    --border: #e2e8f0;
+    --shadow: rgba(0, 0, 0, 0.1);
+}
+
 body {
     margin: 0;
     padding: 0;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background-color: #f5f5f5;
+    background-color: var(--background);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
 header {
@@ -15,65 +26,127 @@ header {
 
 .form-container {
     flex: 1;
-    padding: 2rem;
-    margin: 20px auto;
+    padding: 2.5rem;
+    margin: 2rem auto;
     max-width: 600px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: var(--form-bg);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px var(--shadow);
+    transition: transform 0.3s ease;
+}
+
+.form-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px var(--shadow);
 }
 
 .form-container h1 {
-    color: #294156;
+    color: var(--primary);
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.5px;
 }
 
 .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.8rem;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 0.5rem;
-    color: #333;
+    margin-bottom: 0.75rem;
+    color: var(--text);
     font-weight: 500;
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+}
+
+.form-group:focus-within label {
+    color: var(--primary);
 }
 
 .form-group input {
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    padding: 0.875rem;
+    border: 2px solid var(--border);
+    border-radius: 8px;
     font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: var(--form-bg);
+    color: var(--text);
+}
+
+.form-group input:hover {
+    border-color: var(--primary-hover);
 }
 
 .form-group input:focus {
     outline: none;
-    border-color: #294156;
-    box-shadow: 0 0 0 2px rgba(41, 65, 86, 0.1);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(41, 65, 86, 0.1);
+}
+
+input[type="file"] {
+    padding: 0.6rem;
+    cursor: pointer;
+}
+
+input[type="file"]::-webkit-file-upload-button {
+    background-color: var(--primary);
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+input[type="file"]::-webkit-file-upload-button:hover {
+    background-color: var(--primary-hover);
 }
 
 button[type="submit"] {
     width: 100%;
     padding: 1rem;
-    background-color: #294156;
+    background-color: var(--primary);
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
     font-size: 1rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
 }
 
 button[type="submit"]:hover {
-    background-color: #567C8D;
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px var(--shadow);
+}
+
+button[type="submit"]:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px var(--shadow);
 }
 
 footer {
     margin-top: auto;
     text-align: center;
-    padding: 1rem;
-    background-color: #294156;
+    padding: 1.5rem;
+    background-color: var(--primary);
     color: white;
+}
+
+@media (max-width: 640px) {
+    .form-container {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .form-container h1 {
+        font-size: 1.75rem;
+    }
 }

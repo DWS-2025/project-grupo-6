@@ -34,6 +34,17 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+main {
+    max-width: 1200px;
+    margin: 7rem auto 2rem;
+    padding: 0 2rem;
 }
 
 header img {
@@ -66,12 +77,6 @@ header nav a:last-child:hover {
 
 header nav a:not(:last-child):hover {
     color: var(--sky-blue);
-}
-
-main {
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 2rem;
 }
 
 .profile-section {
