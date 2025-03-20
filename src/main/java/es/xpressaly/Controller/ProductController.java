@@ -49,6 +49,7 @@ public class ProductController {
         User currentUser = userService.getUser();
         model.addAttribute("products", initialProducts);
         model.addAttribute("isAdmin", currentUser != null && currentUser.isAdmin());
+        model.addAttribute("cartItemCount", orderController.getCartItemCount());
         return "Wellcome";
     }
 
@@ -73,6 +74,7 @@ public class ProductController {
             return "redirect:/products";
         }
         model.addAttribute("isAdmin", true);
+        model.addAttribute("cartItemCount", orderController.getCartItemCount());
         return "add_product";
     }
 
@@ -191,6 +193,7 @@ public class ProductController {
         model.addAttribute("reviews", product.getReviews());
         model.addAttribute("username", currentUser.getFirstName() + " " + currentUser.getLastName());
         model.addAttribute("isAdmin", currentUser.isAdmin());
+        model.addAttribute("cartItemCount", orderController.getCartItemCount());
 
         return "Product";
     }

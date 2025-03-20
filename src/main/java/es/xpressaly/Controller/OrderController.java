@@ -26,6 +26,15 @@ public class OrderController {
     private Order currentOrder; // User's current order
 
     // View products and add to order
+    public int getCartItemCount() {
+        if (currentOrder == null || currentOrder.getProducts() == null) {
+            return 0;
+        }
+        return currentOrder.getProducts().stream()
+                .mapToInt(Product::getAmount)
+                .sum();
+    }
+
     @GetMapping("/view_order_products")
     public String showProducts(Model model) {
         User currentUser = userService.getUser();
@@ -40,6 +49,7 @@ public class OrderController {
         model.addAttribute("products", productService.getAllProducts());
         model.addAttribute("order", currentOrder);
         model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
+        model.addAttribute("cartItemCount", getCartItemCount());
         return "Wellcome";
     }
 
@@ -53,6 +63,7 @@ public class OrderController {
         if (product.getStock() <= 0) {
             model.addAttribute("errorMessage", "We're sorry, we do not have enough stock at the moment, try later");
             model.addAttribute("products", productService.getAllProducts());
+            model.addAttribute("cartItemCount", getCartItemCount());
             return "Wellcome";
         }
 
@@ -72,6 +83,7 @@ public class OrderController {
                     if (currentAmount + 1 > product.getStock()) {
                         model.addAttribute("errorMessage", "We're sorry, we do not have enough stock at the moment, try later");
                         model.addAttribute("products", productService.getAllProducts());
+                        model.addAttribute("cartItemCount", getCartItemCount());
                         return "Wellcome";
                     }
                     p.setAmount(currentAmount + 1); // Increase the quantity by 1
@@ -86,6 +98,7 @@ public class OrderController {
         model.addAttribute("products", productService.getAllProducts());
         model.addAttribute("order", currentOrder);
         model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
+        model.addAttribute("cartItemCount", getCartItemCount());
         return "redirect:/view_order_products";
     }
 
@@ -94,6 +107,7 @@ public class OrderController {
     public String viewOrder(Model model) {
         User currentUser = userService.getUser();
         model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
+        model.addAttribute("cartItemCount", getCartItemCount());
         
         if (currentOrder == null) {
             model.addAttribute("message", "You don't have any orders.");
@@ -113,6 +127,7 @@ public class OrderController {
             currentOrder.removeProduct(product);
         }
         model.addAttribute("order", currentOrder);
+        model.addAttribute("cartItemCount", getCartItemCount());
         return "redirect:/view-order";
     }
 
@@ -126,6 +141,7 @@ public class OrderController {
         model.addAttribute("products", productService.getAllProducts());
         model.addAttribute("order", currentOrder);
         model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
+        model.addAttribute("cartItemCount", getCartItemCount());
         return "Wellcome";
     }
     

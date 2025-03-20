@@ -40,7 +40,7 @@
                     <p class="text-[#567C8D]/70 text-sm font-light">Stock: {{stock}}</p>
                 </div>
                 <div class="product-buttons space-y-2 p-4 pt-0">
-                    <form action="/add-to-order" method="post" class="block">
+                    <form action="/add-to-order" method="post" class="block add-to-cart-form">
                         <input type="hidden" name="productId" value="{{id}}">
                         <button type="submit" class="w-full bg-[#294156] text-white px-4 py-2 rounded hover:bg-[green] transition-colors">Add to Cart</button>
                     </form>
@@ -60,3 +60,61 @@
 </body>
 </html>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.add-to-cart-form').forEach(form => {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const button = this.querySelector('button');
+            const originalText = button.textContent;
+            const originalColor = button.style.backgroundColor; // Guardar el color original
+            const stock = this.closest('.product-card').querySelector('.product-info p:nth-child(3)').textContent;
+            const stockNumber = parseInt(stock.replace('Stock: ', ''), 10);
+
+            if (stockNumber <= 0) {
+                button.textContent = 'Out of Stock';
+                button.style.backgroundColor = 'red';
+                button.disabled = true;
+
+                // Restaurar el botón después de 1 segundo
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.backgroundColor = originalColor;
+                    button.disabled = false;
+                }, 1000); // 1000 ms = 1 segundo
+
+                return; // Detener la ejecución del código
+            }
+
+            button.disabled = true;
+            
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: new FormData(this)
+                });
+                
+                if (response.ok) {
+                    button.textContent = 'Added!';
+                    button.style.backgroundColor = 'green';
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.style.backgroundColor = originalColor;
+                        button.disabled = false;
+                    }, 1000);
+                } else {
+                    throw new Error('Failed to add to cart');
+                }
+            } catch (error) {
+                button.textContent = 'Error';
+                button.style.backgroundColor = 'red';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.backgroundColor = originalColor;
+                    button.disabled = false;
+                }, 2000);
+            }
+        });
+    });
+});
+</script>

@@ -10,4 +10,3 @@ public class XpressalyApplication {
         SpringApplication.run(XpressalyApplication.class, args);
     }
 }
-//prueba 11:30 18/3/2025

@@ -54,7 +54,9 @@
                 <button type="submit">Remove from Cart</button>
             </form>
         </div>
-        <img src="{{imagePath}}" alt="{{name}}" class="product-image">
+        <a href="/product-details?id={{id}}" class="product-link">
+            <img src="{{imagePath}}" alt="{{name}}" class="product-image">
+        </a>
     </div>
     {{/order.products}}
     {{^order.products}}

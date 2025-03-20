@@ -23,6 +23,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private OrderController orderController;
+
     
 
     @GetMapping("/profile")
@@ -37,6 +40,7 @@ public class UserController {
         model.addAttribute("orders", user.getOrders());
         model.addAttribute("password", user.getPassword());
         model.addAttribute("isAdmin", user.getRole() == UserRole.ADMIN);
+        model.addAttribute("cartItemCount", orderController.getCartItemCount());
 
         // Get user's reviews and add product information
         List<Map<String, Object>> reviewsWithProducts = new ArrayList<>();

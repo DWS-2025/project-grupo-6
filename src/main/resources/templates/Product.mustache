@@ -32,62 +32,96 @@
                     </div>
                     <form id="addToCartForm" action="/add-to-order" method="post" class="add-to-cart-form">
                         <input type="hidden" name="productId" value="{{product.id}}">
-                        <button type="submit" class="btn btn-primary">Add to Cart</button>
+                        <button type="submit" class="btn btn-primary ">Add to Cart</button>
                         
                         <div class="notification" id="outOfStockNotification" style="background-color: #ff4444;">Out of Stock</div>
                         <div class="notification" id="addNotification">Added!</div>
                     </form>
                     
                     <script>
-                        document.getElementById('addToCartForm').addEventListener('submit', function(e) {
+                        document.getElementById('addToCartForm').addEventListener('submit', async function(e) {
                             e.preventDefault();
-                            const formData = new FormData(this);
-                            const notification = document.getElementById('addNotification');
-                            const outOfStockNotification = document.getElementById('outOfStockNotification');
+                            const button = this.querySelector('button');
+                            const originalText = button.textContent;
+                            const originalColor = button.style.backgroundColor;
                             const currentStock = parseInt('{{product.stock}}');
-                            
-                            // First, check if there's any stock available
+
+                            // Verificar si no hay stock
                             if (currentStock <= 0) {
-                                outOfStockNotification.classList.add('show');
+                                button.textContent = 'Out of Stock';
+                                button.style.backgroundColor = 'red';
+                                button.disabled = true;
+
+                                // Restaurar el botón después de 1 segundo
                                 setTimeout(() => {
-                                    outOfStockNotification.classList.remove('show');
-                                }, 2000);
-                                return;
+                                    button.textContent = originalText;
+                                    button.style.backgroundColor = originalColor;
+                                    button.disabled = false;
+                                }, 1000); // 1000 ms = 1 segundo
+
+                                return; // Detener la ejecución del código
                             }
 
-                            // Get the current cart quantity for this product
-                            fetch('/get-cart-quantity?productId={{product.id}}')
-                                .then(response => response.json())
-                                .then(data => {
-                                    const cartQuantity = data.quantity || 0;
-                                    
-                                    // Check if adding one more would exceed the stock
-                                    if (cartQuantity + 1 > currentStock) {
-                                        outOfStockNotification.classList.add('show');
-                                        setTimeout(() => {
-                                            outOfStockNotification.classList.remove('show');
-                                        }, 1000);
-                                        return;
-                                    }
-                            
-                                    fetch('/add-to-order', {
-                                        method: 'POST',
-                                        body: formData
-                                    })
-                                    .then(response => {
-                                        if (response.ok && currentStock > 0) {
-                                            notification.classList.add('show');
-                                            setTimeout(() => {
-                                                notification.classList.remove('show');
-                                            }, 1000);
-                                        } else if (!response.ok) {
-                                            console.error('Error adding product to cart');
-                                        }
-                                    })
-                                    .catch(error => {
-                                        console.error('Error:', error);
-                                    });
+                            button.disabled = true;
+
+                            try {
+                                // Verificar la cantidad en el carrito
+                                const cartResponse = await fetch('/get-cart-quantity?productId={{product.id}}');
+                                const cartData = await cartResponse.json();
+                                const cartQuantity = cartData.quantity || 0;
+
+                                // Verificar si agregar uno más excede el stock
+                                if (cartQuantity + 1 > currentStock) {
+                                    button.textContent = 'Out of Stock';
+                                    button.style.backgroundColor = 'red';
+
+                                    // Restaurar el botón después de 1 segundo
+                                    setTimeout(() => {
+                                        button.textContent = originalText;
+                                        button.style.backgroundColor = originalColor;
+                                        button.disabled = false;
+                                    }, 1000); // 1000 ms = 1 segundo
+
+                                    return;
+                                }
+
+                                // Si hay stock, enviar el formulario
+                                const response = await fetch('/add-to-order', {
+                                    method: 'POST',
+                                    body: new FormData(this)
                                 });
+
+                                if (response.ok) {
+                                    button.textContent = 'Added!';
+                                    button.style.backgroundColor = 'green';
+
+                                    // Restaurar el botón después de 1 segundo
+                                    setTimeout(() => {
+                                        button.textContent = originalText;
+                                        button.style.backgroundColor = originalColor;
+                                        button.disabled = false;
+                                    }, 1000); // 1000 ms = 1 segundo
+
+                                    // Actualizar el contador del carrito en el header
+                                    const cartCounter = document.querySelector('.cart-counter');
+                                    if (cartCounter && data.cartSize) {
+                                        cartCounter.textContent = data.cartSize;
+                                    }
+                                } else {
+                                    throw new Error('Failed to add to cart');
+                                }
+                            } catch (error) {
+                                console.error('Error:', error);
+                                button.textContent = 'Error';
+                                button.style.backgroundColor = 'red';
+
+                                // Restaurar el botón después de 2 segundos
+                                setTimeout(() => {
+                                    button.textContent = originalText;
+                                    button.style.backgroundColor = originalColor;
+                                    button.disabled = false;
+                                }, 2000); // 2000 ms = 2 segundos
+                            }
                         });
                     </script>
                 </div>
