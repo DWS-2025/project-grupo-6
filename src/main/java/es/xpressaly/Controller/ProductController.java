@@ -40,7 +40,7 @@ public class ProductController {
     @Autowired
     private OrderController orderController;    
 
-    private static final Path IMAGES_FOLDER = Paths.get(System.getProperty("user.dir"), "Xpressaly 1.14 FINAL/src/main/resources/static/Images");
+    private static final Path IMAGES_FOLDER = Paths.get(System.getProperty("user.dir"), "src/main/resources/static/Images");
 
     // Show product list
     @GetMapping("/products")
