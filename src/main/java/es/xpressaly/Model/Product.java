@@ -2,32 +2,52 @@ package es.xpressaly.Model;
 
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.persistence.*;
 
-
-
+@Entity
+@Table(name = "products")
 public class Product {
-    private static Long idCounter = 0L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String name;
+
+    @Column(length = 1000)
     private String description;
+
+    @Column(nullable = false)
     private double price;
+
+    @Column(nullable = false)
     private int stock;
+
+
+
     private String imagePath;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews; // List of comments for each product
 
+    public Product() {
+        // default constructor
+    }
+
     public Product(String name, String description, double price, int stock, String imagePath ) {
-        this.id = ++idCounter;
         this.name = name;
         this.description = description;
         this.price = price;
         this.stock = stock;
         this.imagePath = imagePath;
         this.reviews = new ArrayList<>();  // We initialize the list of reviews
+
     }
 
 
+
     public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; } 
+    public void setId(Long id) { this.id = id; }
 
     public String getName() { return name; }
     public String getDescription() { return description; }
