@@ -2,10 +2,16 @@ package es.xpressaly.Model;
 
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "users")
 public class User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(unique = true)
     private String firstName;
     private String lastName;
     private String email;
@@ -13,8 +19,13 @@ public class User {
     private String address;
     private int age;
     private int phoneNumber;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Order> orders;
+
+    @Enumerated(EnumType.STRING)
     private UserRole role;
 
     public User() {
