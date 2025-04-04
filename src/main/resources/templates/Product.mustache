@@ -33,7 +33,6 @@
                     <form id="addToCartForm" action="/add-to-order" method="post" class="add-to-cart-form">
                         <input type="hidden" name="productId" value="{{product.id}}">
                         <button type="submit" class="btn btn-primary ">Add to Cart</button>
-                        
                         <div class="notification" id="outOfStockNotification" style="background-color: #ff4444;">Out of Stock</div>
                         <div class="notification" id="addNotification">Added!</div>
                     </form>
@@ -46,46 +45,46 @@
                             const originalColor = button.style.backgroundColor;
                             const currentStock = parseInt('{{product.stock}}');
 
-                            // Verificar si no hay stock
+                            // Check if out of stock
                             if (currentStock <= 0) {
                                 button.textContent = 'Out of Stock';
                                 button.style.backgroundColor = 'red';
                                 button.disabled = true;
 
-                                // Restaurar el botón después de 1 segundo
+                                // Restore button after 1 second
                                 setTimeout(() => {
                                     button.textContent = originalText;
                                     button.style.backgroundColor = originalColor;
                                     button.disabled = false;
-                                }, 1000); // 1000 ms = 1 segundo
+                                }, 1000); // 1000 ms = 1 second
 
-                                return; // Detener la ejecución del código
+                                return; // Stop code execution
                             }
 
                             button.disabled = true;
 
                             try {
-                                // Verificar la cantidad en el carrito
+                                // Check the quantity in the cart
                                 const cartResponse = await fetch('/get-cart-quantity?productId={{product.id}}');
                                 const cartData = await cartResponse.json();
                                 const cartQuantity = cartData.quantity || 0;
 
-                                // Verificar si agregar uno más excede el stock
+                                // Check if adding one more exceeds the stock
                                 if (cartQuantity + 1 > currentStock) {
                                     button.textContent = 'Out of Stock';
                                     button.style.backgroundColor = 'red';
 
-                                    // Restaurar el botón después de 1 segundo
+                                    // Restore button after 1 second
                                     setTimeout(() => {
                                         button.textContent = originalText;
                                         button.style.backgroundColor = originalColor;
                                         button.disabled = false;
-                                    }, 1000); // 1000 ms = 1 segundo
+                                    }, 1000); // 1000 ms = 1 second
 
                                     return;
                                 }
 
-                                // Si hay stock, enviar el formulario
+                                // If there is stock, send the form
                                 const response = await fetch('/add-to-order', {
                                     method: 'POST',
                                     body: new FormData(this)
@@ -95,14 +94,14 @@
                                     button.textContent = 'Added!';
                                     button.style.backgroundColor = 'green';
 
-                                    // Restaurar el botón después de 1 segundo
+                                    // Restore button after 1 second
                                     setTimeout(() => {
                                         button.textContent = originalText;
                                         button.style.backgroundColor = originalColor;
                                         button.disabled = false;
-                                    }, 1000); // 1000 ms = 1 segundo
+                                    }, 1000); // 1000 ms = 1 second
 
-                                    // Actualizar el contador del carrito en el header
+                                    // Update the cart counter in the header
                                     const cartCounter = document.querySelector('.cart-counter');
                                     if (cartCounter && data.cartSize) {
                                         cartCounter.textContent = data.cartSize;
@@ -115,12 +114,12 @@
                                 button.textContent = 'Error';
                                 button.style.backgroundColor = 'red';
 
-                                // Restaurar el botón después de 2 segundos
+                                // Restore button after 2 seconds
                                 setTimeout(() => {
                                     button.textContent = originalText;
                                     button.style.backgroundColor = originalColor;
                                     button.disabled = false;
-                                }, 2000); // 2000 ms = 2 segundos
+                                }, 2000); // 2000 ms = 2 seconds
                             }
                         });
                     </script>

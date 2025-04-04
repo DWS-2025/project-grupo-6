@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             const button = this.querySelector('button');
             const originalText = button.textContent;
-            const originalColor = button.style.backgroundColor; // Guardar el color original
+            const originalColor = button.style.backgroundColor; // Save the original color
             const stock = this.closest('.product-card').querySelector('.product-info p:nth-child(3)').textContent;
             const stockNumber = parseInt(stock.replace('Stock: ', ''), 10);
 
@@ -76,14 +76,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 button.style.backgroundColor = 'red';
                 button.disabled = true;
 
-                // Restaurar el botón después de 1 segundo
+                // Restore button after 1 second
                 setTimeout(() => {
                     button.textContent = originalText;
                     button.style.backgroundColor = originalColor;
                     button.disabled = false;
-                }, 1000); // 1000 ms = 1 segundo
+                }, 1000); // 1000 ms = 1 second
 
-                return; // Detener la ejecución del código
+                return; // Stop code execution
             }
 
             button.disabled = true;

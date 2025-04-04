@@ -13,7 +13,7 @@
     <h1>My Cart</h1>
     {{#order.hasProducts}}
     <div class="order-summary">
-        <!-- Parte izquierda: Resumen del pedido -->
+        <!-- Left side: Order summary -->
         <div class="summary-left">
             <h3>Order Summary</h3>
             <ul>
@@ -26,7 +26,7 @@
             <p><strong>Order Total: {{total}}</strong></p>
         </div>
 
-        <!-- Parte derecha: Dirección y botón de confirmación -->
+        <!-- Right part: Address and confirmation button -->
         <div class="summary-right">
             <div class="address-form">
     <h3>Mailing address</h3>
@@ -62,6 +62,7 @@
     {{^order.products}}
     <div class="empty-cart">
         <p>There are no products in your cart.</p>
+        <a href="/products" class="continue-shopping">Continue Shopping</a>
     </div>
     {{/order.products}}
 
