@@ -151,7 +151,7 @@ public class ProductController {
             return "redirect:/products";
         }
 
-        Review review = new Review(user.getFirstName() + " " + user.getLastName(), comment, rating, new ArrayList<>());
+        Review review = new Review(user, comment, rating);
         review.setProduct(product);
         reviewService.addReview(productId, review);
         user.getReviews().add(review);

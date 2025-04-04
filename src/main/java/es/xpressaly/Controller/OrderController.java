@@ -113,7 +113,7 @@ public class OrderController {
             model.addAttribute("message", "You don't have any orders.");
             return "my_Order";
         }
-        currentOrder.calculateTotal(currentOrder);
+        currentOrder.calculateTotal();
         model.addAttribute("order", currentOrder);
         model.addAttribute("total", currentOrder.getTotal());
         return "my_Order";
@@ -180,7 +180,7 @@ public class OrderController {
         }
 
         productInOrder.setAmount(amount);
-        currentOrder.calculateTotal(currentOrder);
+        currentOrder.calculateTotal();
         model.addAttribute("order", currentOrder);
         model.addAttribute("total", currentOrder.getTotal());
         return "my_Order";
