@@ -18,13 +18,13 @@ public class UserService {
     public UserService() {
         users = new ArrayList<>();
         // We create default users and save them in memory
-        User defaultUser = new User("Juan", "Pérez", "juan.perez@email.com", "password123", "Calle Ficticia 123", 2134, 25);
+        User defaultUser = new User("Juan", "Pérez", "juan.perez@email.com", "Password123", "Calle Ficticia 123", 2134, 25);
         defaultUser.setId(1L);
         defaultUser.setRole(UserRole.ADMIN); // Set Juan as admin
         users.add(defaultUser);
         
         // Adding another test user
-        User testUser = new User("Maria", "García", "maria.garcia@email.com", "test456", "Avenida Principal 456", 5678, 30);
+        User testUser = new User("Maria", "García", "maria.garcia@email.com", "Test4567", "Avenida Principal 456", 5678, 30);
         testUser.setId(2L);
         testUser.setRole(UserRole.USER); // Explicitly set Maria as regular user
         users.add(testUser);
