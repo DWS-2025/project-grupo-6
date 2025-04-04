@@ -2,19 +2,43 @@ package es.xpressaly.Model;
 
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "orders")
 public class Order {
-    private static Long orderCounter = 0L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ManyToMany
+    @JoinTable(
+        name = "order_products",
+        joinColumns = @JoinColumn(name = "order_id"),
+        inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
     private List<Product> products;
+
+    @Column(nullable = false)
     private String address;
 
+    @Column(nullable = false)
+    private double total;
+
+    // Default constructor required by JPA
+    public Order() {
+        this.products = new ArrayList<>();
+    }
+
     public Order(User user, String address) {
-        this.id = ++orderCounter;
         this.user = user;
         this.products = new ArrayList<>();
         this.address = address;
+        this.total = 0.0;   
     }
 
     public Long getId() { return id; }
@@ -41,15 +65,17 @@ public class Order {
         return this.products!=null&&!products.isEmpty();
     }
 
-    private double total;public double getTotal(){return total;}
-    public void setTotal(double total){this.total=total;} public void calculateTotal(Order order){
-        double total=0;
-        if(order.hasProducts()){
-            for (Product product : order.getProducts()) {
-                total += product.getPrice() * product.getAmount();
+    public double getTotal() { return total; }
+    public void setTotal(double total) { this.total = total; }
+    
+    public void calculateTotal() {
+        double calculatedTotal = 0;
+        if (this.hasProducts()) {
+            for (Product product : this.getProducts()) {
+                calculatedTotal += product.getPrice() * product.getAmount();
             }
         }
-        order.setTotal(total);
+        this.setTotal(calculatedTotal);
     }
 
     public Product findProductById(Long id) {
@@ -60,6 +86,5 @@ public class Order {
         }
         return null;
     }
-
 }
 
