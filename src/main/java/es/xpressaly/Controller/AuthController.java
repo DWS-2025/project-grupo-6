@@ -34,25 +34,31 @@ public class AuthController {
                        @RequestParam String password,
                        HttpSession session,
                        Model model) {
-        // Validate input
-        if (email == null || email.trim().isEmpty()) {
-            model.addAttribute("error", "Email is required");
+        try {
+            // Validate input
+            if (email == null || email.trim().isEmpty()) {
+                model.addAttribute("error", "Email is required");
+                return "login";
+            }
+            if (password == null || password.trim().isEmpty()) {
+                model.addAttribute("error", "Password is required");
+                return "login";
+            }
+            
+            User user = userService.authenticateUser(email, password);
+            if (user != null) {
+                session.setAttribute("userId", user.getId());
+                session.setAttribute("userEmail", user.getEmail());
+                session.setAttribute("userRole", user.getRole());
+                userService.setCurrentUser(user);
+                return "redirect:/products";
+            }
+            model.addAttribute("error", "Invalid email or password");
+            return "login";
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
             return "login";
         }
-        if (password == null || password.trim().isEmpty()) {
-            model.addAttribute("error", "Password is required");
-            return "login";
-        }
-        
-        User user = userService.authenticateUser(email, password);
-        if (user != null) {
-            session.setAttribute("userId", user.getId());
-            session.setAttribute("userEmail", user.getEmail());
-            return "redirect:/products";
-        }
-        model.addAttribute("error", "Invalid email or password");
-        userService.setCurrentUser(user);
-        return "login";
     }
 
     @GetMapping("/register")
@@ -72,45 +78,46 @@ public class AuthController {
                           Model model) {
         Map<String, Object> response = new HashMap<>();
 
-        // Validate input
-        if (firstName == null || firstName.trim().isEmpty()) {
-            response.put("error", "First name is required");
-            return response;
-        }
-        if (lastName == null || lastName.trim().isEmpty()) {
-            response.put("error", "Last name is required");
-            return response;
-        }
-        if (email == null || email.trim().isEmpty()) {
-            response.put("error", "Email is required");
-            return response;
-        }
-        if (password == null || password.trim().isEmpty()) {
-            response.put("error", "Password is required");
-            return response;
-        }
-        if (!password.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$")) {
-            response.put("error", "Password must be at least 8 characters long and contain uppercase, lowercase, and numbers");
-            return response;
-        }
-        if (address == null || address.trim().isEmpty()) {
-            response.put("error", "Address is required");
-            return response;
-        }
-        if (phoneNumber <= 0) {
-            response.put("error", "Invalid phone number");
-            return response;
-        }
-        if (age < 18) {
-            response.put("error", "You must be 18 or older to register");
-            return response;
-        }
-        
         try {
+            // Validate input
+            if (firstName == null || firstName.trim().isEmpty()) {
+                response.put("error", "First name is required");
+                return response;
+            }
+            if (lastName == null || lastName.trim().isEmpty()) {
+                response.put("error", "Last name is required");
+                return response;
+            }
+            if (email == null || email.trim().isEmpty()) {
+                response.put("error", "Email is required");
+                return response;
+            }
+            if (password == null || password.trim().isEmpty()) {
+                response.put("error", "Password is required");
+                return response;
+            }
+            if (!password.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$")) {
+                response.put("error", "Password must be at least 8 characters long and contain uppercase, lowercase, and numbers");
+                return response;
+            }
+            if (address == null || address.trim().isEmpty()) {
+                response.put("error", "Address is required");
+                return response;
+            }
+            if (phoneNumber <= 0) {
+                response.put("error", "Invalid phone number");
+                return response;
+            }
+            if (age < 18 || age>120) {
+                response.put("error", "You must be 18 or older to register");
+                return response;
+            }
+            
             User newUser = userService.registerUser(firstName, lastName, email, password, address, phoneNumber, age);
             if (newUser != null) {
                 session.setAttribute("userId", newUser.getId());
                 session.setAttribute("userEmail", newUser.getEmail());
+                session.setAttribute("userRole", newUser.getRole());
                 userService.setCurrentUser(newUser);
                 response.put("success", true);
                 return response;
@@ -118,6 +125,9 @@ public class AuthController {
             response.put("error", "Email already exists");
             return response;
         } catch (IllegalArgumentException e) {
+            response.put("error", e.getMessage());
+            return response;
+        } catch (Exception e) {
             response.put("error", e.getMessage());
             return response;
         }

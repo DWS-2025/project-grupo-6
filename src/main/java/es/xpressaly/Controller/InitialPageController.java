@@ -8,8 +8,6 @@ import org.springframework.ui.Model;
 @Controller
 public class InitialPageController {
 
-    
-
     @GetMapping("/")
     public String welcome(Model model) {
 
