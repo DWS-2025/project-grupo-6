@@ -5,6 +5,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import es.xpressaly.Model.Order;
 import es.xpressaly.Model.Product;
 import es.xpressaly.Model.User;
@@ -15,6 +18,7 @@ import es.xpressaly.Service.UserService;
 
 
 @Controller
+@Transactional
 public class OrderController {
 
     @Autowired
@@ -22,6 +26,9 @@ public class OrderController {
 
     @Autowired
     private UserService userService;
+    
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private Order currentOrder; // User's current order
 
@@ -58,6 +65,12 @@ public class OrderController {
     public String addToOrder(@RequestParam Long productId, Model model) {
         Product product = productService.getProductById(productId);
         User currentUser = userService.getUser();
+
+        // Check if product exists
+        if (product == null) {
+            model.addAttribute("error", "Product not found");
+            return "redirect:/products";
+        }
 
         // Check if product is out of stock
         if (product.getStock() <= 0) {
@@ -135,6 +148,16 @@ public class OrderController {
     @GetMapping("/delete-order")
     public String deleteOrder(Model model) {
         User currentUser = userService.getUser();
+
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+
+        if (currentOrder == null || !currentOrder.hasProducts()) {
+            model.addAttribute("message", "No active order to delete");
+            return "redirect:/products";
+        }
+
         while (currentOrder.hasProducts()) {
             currentOrder.removeProduct(currentOrder.getProducts().get(0));
         }
@@ -186,8 +209,10 @@ public class OrderController {
         return "my_Order";
     }
 
+    // Confirm order
     @PostMapping("/confirm-order")
     public String confirmOrder(Model model, @RequestParam String address) {
+        try {
         if (currentOrder == null || currentOrder.getProducts().isEmpty()) {
             model.addAttribute("error", "No products in the order");
             return "redirect:/view-order";
@@ -208,19 +233,29 @@ public class OrderController {
         }
 
         // Update stock levels
-        for (Product product : productService.getAllProducts()) {
-            if (currentOrder.getProducts().contains(product)) {
-                product.setStock(product.getStock() - currentOrder.findProductById(product.getId()).getAmount());
-            }
+        for (Product product : currentOrder.getProducts()) {
+            Product stockProduct = productService.getProductById(product.getId());
+            stockProduct.setStock(stockProduct.getStock() - product.getAmount());
+            entityManager.merge(stockProduct);
         }
 
         currentOrder.setAddress(address);
         userService.getUser().addOrder(currentOrder);
+
+        User user = userService.getUser();
+        user.addOrder(currentOrder);
+        entityManager.merge(user);
+
         Order confirmedOrder = currentOrder;
         currentOrder = new Order(userService.getUser(), userService.getUser().getAddress());
+
         model.addAttribute("order", confirmedOrder);
         model.addAttribute("address", address);
         return "confirm_order";
+    } catch (Exception e) {
+        model.addAttribute("error", e.getMessage());
+        return "redirect:/view-order";
+        }
     }
 
     public Order getCurrentOrder() {

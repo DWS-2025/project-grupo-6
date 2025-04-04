@@ -23,9 +23,11 @@ public class Product {
     @Column(nullable = false)
     private int stock;
 
-
-
     private String imagePath;
+    
+    @Lob
+    @Column(name = "image_data", columnDefinition = "BLOB")
+    private byte[] imageData;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews; // List of comments for each product
@@ -56,6 +58,8 @@ public class Product {
     public void setStock(int stock){this.stock=stock;}
     public String getImagePath() { return imagePath; }
     public void setImagePath(String imagePath) { this.imagePath = imagePath; }
+    public byte[] getImageData() { return imageData; }
+    public void setImageData(byte[] imageData) { this.imageData = imageData; }
     public List<Review> getReviews() { return reviews; }
 
     public void addReview(Review review) {

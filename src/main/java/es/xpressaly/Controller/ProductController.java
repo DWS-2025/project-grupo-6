@@ -18,10 +18,10 @@ import es.xpressaly.Service.ReviewService;
 import es.xpressaly.Service.UserService;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
+//import java.nio.file.Files;
+//import java.nio.file.Path;
+//import java.nio.file.Paths;
+//import java.util.ArrayList;
 import java.util.List;
 
 
@@ -40,17 +40,20 @@ public class ProductController {
     @Autowired
     private OrderController orderController;    
 
-    private static final Path IMAGES_FOLDER = Paths.get(System.getProperty("user.dir"), "src/main/resources/static/Images");
-
     // Show product list
     @GetMapping("/products")
     public String showProducts(Model model) {
-        List<Product> initialProducts = productService.getProductsByPage(1, 20000, "default");
-        User currentUser = userService.getUser();
-        model.addAttribute("products", initialProducts);
-        model.addAttribute("isAdmin", currentUser != null && currentUser.isAdmin());
-        model.addAttribute("cartItemCount", orderController.getCartItemCount());
-        return "Wellcome";
+        try {
+            List<Product> initialProducts = productService.getProductsByPage(1, 20000, "default");
+            User currentUser = userService.getUser();
+            model.addAttribute("products", initialProducts);
+            model.addAttribute("isAdmin", currentUser != null && currentUser.isAdmin());
+            model.addAttribute("cartItemCount", orderController.getCartItemCount());
+            return "Wellcome";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            return "error";
+        }
     }
 
     @GetMapping("/api/products")
@@ -59,7 +62,7 @@ public class ProductController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(required = false) String search,
             @RequestParam(required = false, defaultValue = "default") String sort) {
-        
+        //opcion 1:
         if (search != null && !search.isEmpty()) {
             return productService.searchProducts(search);
         }
@@ -117,46 +120,54 @@ public class ProductController {
         }
 
         try {
-            Files.createDirectories(IMAGES_FOLDER);
-            Path imagePath = IMAGES_FOLDER.resolve(name+".jpg");
-            mainImage.transferTo(imagePath);
-            String relativeImagePath = "/Images/" + name + ".jpg";
+            // Convert the image to a byte array instead of saving to filesystem
+            byte[] imageBytes = mainImage.getBytes();
+            String relativeImagePath = "/Images/" + name + ".jpg"; // Keep the path for backward compatibility
+            
             Product newProduct = new Product(name, description, price, stock, relativeImagePath);
+            newProduct.setImageData(imageBytes); // Set the image data
+            
             productService.addProduct(newProduct);
             return "redirect:/products";
         } catch (IOException e) {
-            model.addAttribute("error", "Error saving product image");
+            model.addAttribute("error", e.getMessage());
             return "add_product";
         }
     }
 
+    // Add a review to a product
     @PostMapping("/add-review")
     public String addReview(@RequestParam Long productId,
                             @RequestParam String comment,
                             @RequestParam int rating,
                             Model model) {
-        if (comment == null || comment.trim().isEmpty()) {
-            model.addAttribute("error", "Comment is required");
+        try {
+            if (comment == null || comment.trim().isEmpty()) {
+                model.addAttribute("error", "Comment is required");
+                return "redirect:/product-details?id=" + productId;
+            }
+            if (rating < 1 || rating > 5) {
+                model.addAttribute("error", "Rating must be between 1 and 5");
+                return "redirect:/product-details?id=" + productId;
+            }
+
+            Product product = productService.getProductById(productId);
+            User user = userService.getUser();
+
+            if (product == null || user == null) {
+                return "redirect:/products";
+            }
+
+            Review review = new Review(user, comment, rating);
+            review.setProduct(product);
+            reviewService.addReview(productId, review);
+            user.getReviews().add(review);
+
+            return "redirect:/product-details?id=" + productId;
+        }catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
             return "redirect:/product-details?id=" + productId;
         }
-        if (rating < 1 || rating > 5) {
-            model.addAttribute("error", "Rating must be between 1 and 5");
-            return "redirect:/product-details?id=" + productId;
-        }
-
-        Product product = productService.getProductById(productId);
-        User user = userService.getUser();
-
-        if (product == null || user == null) {
-            return "redirect:/products";
-        }
-
-        Review review = new Review(user, comment, rating);
-        review.setProduct(product);
-        reviewService.addReview(productId, review);
-        user.getReviews().add(review);
-
-        return "redirect:/product-details?id=" + productId;
     }
 
     // Delete a product - Admin only
@@ -173,8 +184,7 @@ public class ProductController {
             currentOrder.removeProduct(product);
         }
         
-        Path imagePath = IMAGES_FOLDER.resolve(product.getName()+".jpg");
-        Files.delete(imagePath);
+        // No need to delete image from filesystem as it's now stored in the database
         
         productService.deleteProduct(productId);
         return "redirect:/products";
@@ -185,17 +195,24 @@ public class ProductController {
         Product product = productService.getProductById(id);
         User currentUser = userService.getUser();
 
-        if (product == null) {
+        try {
+            if (product == null || currentUser == null) {
+                System.out.println("Producto o usuario no encontrado");
+                return "redirect:/products";
+            }
+
+            model.addAttribute("product", product);
+            model.addAttribute("reviews", product.getReviews());
+            model.addAttribute("username", currentUser.getFirstName() + " " + currentUser.getLastName());
+            model.addAttribute("isAdmin", currentUser.isAdmin());
+            model.addAttribute("cartItemCount", orderController.getCartItemCount());
+            model.addAttribute("averageRating", product.getAverageRating());
+
+            return "Product";
+        }catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
             return "redirect:/products";
         }
-
-        model.addAttribute("product", product);
-        model.addAttribute("reviews", product.getReviews());
-        model.addAttribute("username", currentUser.getFirstName() + " " + currentUser.getLastName());
-        model.addAttribute("isAdmin", currentUser.isAdmin());
-        model.addAttribute("cartItemCount", orderController.getCartItemCount());
-
-        return "Product";
     }
 
     @PostMapping("/delete-review")
