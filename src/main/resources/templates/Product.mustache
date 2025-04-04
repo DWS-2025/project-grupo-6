@@ -141,7 +141,7 @@
                         <p class="review-comment">{{comment}}</p>
                         <form action="/delete-review" method="post" class="delete-review-form">
                             <input type="hidden" name="productId" value="{{product.id}}">
-                            <input type="hidden" name="reviewId" value="{{id}}">
+                            <input type="hidden" name="reviewId" value="{{product.id}}">
                             <button type="submit" class="btn btn-delete">Delete Review</button>
                         </form>
                     </li>
