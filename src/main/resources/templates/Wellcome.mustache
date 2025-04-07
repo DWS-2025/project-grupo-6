@@ -24,11 +24,25 @@
         <div class="flex justify-between items-center mb-8 border-b border-[#294156]/10 pb-4">
             <h2 class="text-2xl font-light tracking-wide text-[#294156] relative inline-block after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-1/3 after:h-0.5 after:bg-[#294156]/30">Available Products</h2>
         </div>
+        
+        <!-- Search Box and Sort Options -->
+        <div class="mb-6 flex gap-2">
+            <input type="text" id="productSearch" placeholder="Search products by name..." 
+                   class="w-full p-3 border border-[#294156]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#294156]/50" />
+            <button id="searchButton" class="bg-[#294156] text-white px-6 py-3 rounded-lg hover:bg-[#567C8D] transition-colors">
+                Search
+            </button>
+            <select id="priceSort" class="p-3 border border-[#294156]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#294156]/50 bg-white">
+                <option value="default">Sort by</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+            </select>
+        </div>
 
         <!-- Products Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6" id="productsGrid">
             {{#products}}
-            <div class="product-card bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
+            <div class="product-card bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden product-item" style="display: none;" data-id="{{id}}" data-name="{{name}}" data-price="{{price}}">
                 <div class="product-image-container">
                     <a href="/product-details?id={{id}}">
                         <img src="/image/{{id}}" alt="{{name}}" class="cursor-pointer hover:scale-105 transition-transform duration-500">
@@ -54,6 +68,38 @@
             </div>
             {{/products}}
         </div>
+        <template id="productTemplate">
+            {{#products}}
+            <div class="product-card bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden product-item" style="display: none;" data-id="{{id}}" data-name="{{name}}" data-price="{{price}}">
+                <div class="product-image-container">
+                    <a href="/product-details?id={{id}}">
+                        <img src="/image/{{id}}" alt="{{name}}" class="cursor-pointer hover:scale-105 transition-transform duration-500">
+                    </a>
+                </div>
+                <div class="product-info p-3 space-y-1">
+                    <h3 class="product-name text-[#294156] text-lg font-medium leading-snug">{{name}}</h3>
+                    <p class="text-[#567C8D] font-light">${{price}}</p>
+                    <p class="text-[#567C8D]/70 text-sm font-light">Stock: {{stock}}</p>
+                </div>
+                <div class="product-buttons space-y-2 p-4 pt-0">
+                    <form action="/add-to-order" method="post" class="block add-to-cart-form">
+                        <input type="hidden" name="productId" value="{{id}}">
+                        <button type="submit" class="w-full bg-[#294156] text-white px-4 py-2 rounded hover:bg-[green] transition-colors">Add to Cart</button>
+                    </form>
+                    {{#isAdmin}}
+                    <form action="/delete-product" method="post" class="block">
+                        <input type="hidden" name="productId" value="{{id}}">
+                        <button type="submit" class="w-full bg-[#567C8D] text-white px-4 py-2 rounded hover:bg-[red] transition-colors">Delete Product</button>
+                    </form>
+                    {{/isAdmin}}
+                </div>
+            </div>
+            {{/products}}
+        </template>
+
+        <div class="text-center mt-4 mb-4">
+            <button id="loadMoreBtn" class="bg-[#294156] text-white px-6 py-3 rounded-lg hover:bg-[#567C8D] transition-colors" onclick="loadMoreProducts()">Load More Products</button>
+        </div>
     </main>
 
     {{> common/footer}}
@@ -61,7 +107,76 @@
 </html>
 
 <script>
+    let currentProductPage = 0;
+    const productsPerPage = 5;
+    let allProductsLoaded = false;
+
+    function loadMoreProducts() {
+        const template = document.getElementById('productTemplate');
+        const hiddenProducts = template.content.querySelectorAll('.product-item');
+        const startIndex = currentProductPage * productsPerPage;
+        const endIndex = startIndex + productsPerPage;
+        let productsLoaded = 0;
+
+        hiddenProducts.forEach((product, index) => {
+            if (index >= startIndex && index < endIndex) {
+                const clone = product.cloneNode(true);
+                clone.style.display = "";
+                document.getElementById('productsGrid').appendChild(clone);
+                productsLoaded++;
+            }
+        });
+
+        currentProductPage++;
+
+        if (productsLoaded < productsPerPage || startIndex + productsLoaded >= hiddenProducts.length) {
+            document.getElementById('loadMoreBtn').style.display = 'none';
+            allProductsLoaded = true;
+        }
+    }
+
+    // Initial load of first page
+    window.onload = function() {
+        loadMoreProducts();
+    };
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Product search functionality
+    const searchInput = document.getElementById('productSearch');
+    const searchButton = document.getElementById('searchButton');
+    const productCards = document.querySelectorAll('.product-card');
+    const priceSort = document.getElementById('priceSort');
+
+    // Price sorting functionality
+    priceSort.addEventListener('change', function() {
+        const sortValue = this.value;
+        window.location.href = `/products?sort=${sortValue}`;
+    });
+    
+    // Database search
+    searchButton.addEventListener('click', async function() {
+        const searchTerm = searchInput.value.trim();
+        
+        // If search term is empty, show all products
+        if (!searchTerm) {
+            window.location.href = '/products';
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/search-products?term=${encodeURIComponent(searchTerm)}`);
+            if (response.ok) {
+                window.location.href = `/search-products?term=${encodeURIComponent(searchTerm)}`;
+            } else {
+                throw new Error('Search failed');
+            }
+        } catch (error) {
+            console.error('Search error:', error);
+            alert('Failed to perform search. Please try again.');
+        }
+    });
+
+    // Existing cart functionality
     document.querySelectorAll('.add-to-cart-form').forEach(form => {
         form.addEventListener('submit', async function(e) {
             e.preventDefault();

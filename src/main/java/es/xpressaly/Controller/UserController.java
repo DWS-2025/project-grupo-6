@@ -11,6 +11,7 @@ import es.xpressaly.Model.User;
 import es.xpressaly.Model.UserRole;
 import es.xpressaly.Model.Review;
 import es.xpressaly.Service.UserService;
+import es.xpressaly.Service.ReviewService;
 
 
 import java.util.List;
@@ -26,6 +27,9 @@ public class UserController {
     @Autowired
     private OrderController orderController;
 
+    @Autowired
+    private ReviewService reviewService;
+
     
 
     @GetMapping("/profile")
@@ -34,6 +38,7 @@ public class UserController {
         try {
 
             User user = userService.getUser();
+            user.getOrders().size();
             model.addAttribute("name", user.getFirstName());
             model.addAttribute("surname", user.getLastName());
             model.addAttribute("email", user.getEmail());
@@ -41,6 +46,14 @@ public class UserController {
             model.addAttribute("phone", user.getPhoneNumber());
             model.addAttribute("age", user.getAge());
             model.addAttribute("orders", user.getOrders());
+            System.out.println("Número de órdenes: " + user.getOrders().size()); // Debug
+            user.getOrders().forEach(order -> {
+                System.out.println(
+                    "Order ID: " + order.getId() + 
+                    ", Address: " + order.getAddress() + 
+                    ", Total: " + order.getTotal()
+                );
+            });
             model.addAttribute("password", user.getPassword());
             model.addAttribute("isAdmin", user.getRole() == UserRole.ADMIN);
             model.addAttribute("cartItemCount", orderController.getCartItemCount());
@@ -48,14 +61,17 @@ public class UserController {
             // Get user's reviews and add product information
             List<Map<String, Object>> reviewsWithProducts = new ArrayList<>();
             for (Review review : user.getReviews()) {
-                Map<String, Object> reviewMap = new HashMap<>();
-                reviewMap.put("rating", review.getRating());
-                reviewMap.put("comment", review.getComment());
-                reviewMap.put("date", "Recently"); // You can add actual date if available
-                reviewMap.put("userName", review.getUser()); // Store the user name
-                reviewMap.put("productName", review.getProduct().getName()); // Store the product name
-                reviewMap.put("productId", review.getProduct().getId()); // Add the product ID
-                reviewsWithProducts.add(reviewMap);
+                // Verify if the review still exists in the database
+                if (reviewService.getReviewById(review.getId()) != null) {
+                    Map<String, Object> reviewMap = new HashMap<>();
+                    reviewMap.put("rating", review.getRating());
+                    reviewMap.put("comment", review.getComment());
+                    reviewMap.put("date", "Recently"); // You can add actual date if available
+                    reviewMap.put("userName", review.getUser()); // Store the user name
+                    reviewMap.put("productName", review.getProduct().getName()); // Store the product name
+                    reviewMap.put("productId", review.getProduct().getId()); // Add the product ID
+                    reviewsWithProducts.add(reviewMap);
+                }
             }
             model.addAttribute("reviews", reviewsWithProducts);
             return "profile";
@@ -160,14 +176,17 @@ public class UserController {
         
         List<Map<String, Object>> reviewsWithProducts = new ArrayList<>();
         for (Review review : user.getReviews()) {
-            Map<String, Object> reviewMap = new HashMap<>();
-            reviewMap.put("rating", review.getRating());
-            reviewMap.put("comment", review.getComment());
-            reviewMap.put("date", "Recently");
-            reviewMap.put("userName", review.getUser());
-            reviewMap.put("productName", review.getProduct().getName());
-            reviewMap.put("productId", review.getProduct().getId());
-            reviewsWithProducts.add(reviewMap);
+            // Verify if the review still exists in the database
+            if (reviewService.getReviewById(review.getId()) != null) {
+                Map<String, Object> reviewMap = new HashMap<>();
+                reviewMap.put("rating", review.getRating());
+                reviewMap.put("comment", review.getComment());
+                reviewMap.put("date", "Recently");
+                reviewMap.put("userName", review.getUser());
+                reviewMap.put("productName", review.getProduct().getName());
+                reviewMap.put("productId", review.getProduct().getId());
+                reviewsWithProducts.add(reviewMap);
+            }
         }
         model.addAttribute("reviews", reviewsWithProducts);
     }
