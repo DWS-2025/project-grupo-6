@@ -18,14 +18,15 @@
 - **REVIEW**: a review is written by a user for a product.
 
 ### User Permissions
-- **Admin**: 
-- **User**: 
+- **Admin**: can add products and delete products and reviews. Can also buy and review products.
+- **User**: can buy and review products. Can also delete their own reviews.
 
 ### Images
 - **PRODUCT**: one main image for each product.
 
 ## Entities Diagram
-<img width="800" alt="EntitiesDiagram" src="https://github.com/user-attachments/assets/c0d967fb-986f-460d-908a-bbe40cc9e612" />
+![image](https://github.com/user-attachments/assets/0c192c9a-7cbb-42fb-b6eb-25da8d10b2b4)
+
 
 ## Collaborative Development
 
