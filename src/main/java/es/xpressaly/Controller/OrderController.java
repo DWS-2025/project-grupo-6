@@ -12,6 +12,7 @@ import es.xpressaly.Model.Order;
 import es.xpressaly.Model.Product;
 import es.xpressaly.Model.User;
 import es.xpressaly.Model.UserRole;
+import es.xpressaly.Repository.OrderRepository;
 import es.xpressaly.Service.ProductService;
 import es.xpressaly.Service.UserService;
 
@@ -26,6 +27,9 @@ public class OrderController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private OrderRepository orderRepository; 
     
     @PersistenceContext
     private EntityManager entityManager;
@@ -243,10 +247,9 @@ public class OrderController {
         userService.getUser().addOrder(currentOrder);
 
         User user = userService.getUser();
-        user.addOrder(currentOrder);
-        entityManager.merge(user);
 
         Order confirmedOrder = currentOrder;
+        orderRepository.save(confirmedOrder);
         currentOrder = new Order(userService.getUser(), userService.getUser().getAddress());
 
         model.addAttribute("order", confirmedOrder);
