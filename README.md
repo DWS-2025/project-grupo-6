@@ -30,34 +30,5 @@
 
 ## Collaborative Development
 
-### Dan Narita
-- **Tasks performed:**
-  - 
-- **Significant commits:**
-  1. 
-- **Most contributed files:**
-  1. 
-
-### Daniel Navarro
-- **Tasks performed:**
-  - Functioning image service in Product.
-- **Significant commits:**
-  1. 
-- **Most contributed files:**
-  1. 
-
-### Laura Sánchez
-- **Tasks performed:**
-  - 
-- **Significant commits:**
-  1. 
-- **Most contributed files:**
-  1. 
-
-### Fernando Torres
-- **Tasks performed:**
-  - 
-- **Significant commits:**
-  1. 
-- **Most contributed files:**
-  1.
+All members of the team have participated equally
+-[@Ten1O0](https://github.com/Ten1O0), @daniel-navarro-ls](https://github.com/daniel-navarro-ls), [@Laura-261](https://github.com/Laura-261), [@fernandotorres-sudo](https://github.com/fernandotorres-sudo)
