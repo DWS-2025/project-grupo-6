@@ -28,7 +28,7 @@
                     </div>
                     <div class="rating-info">
                         <span class="label">Rating:</span>
-                        <span class="value">{{product.averageRating}} ⭐</span>
+                        <span class="value">{{averageRating}} ⭐</span>
                     </div>
                     <form id="addToCartForm" action="/add-to-order" method="post" class="add-to-cart-form">
                         <input type="hidden" name="productId" value="{{product.id}}">
@@ -133,7 +133,7 @@
                 {{#reviews}}
                     <li class="review-item">
                         <div class="review-header">
-                            <strong class="review-author">{{user}}</strong>
+                            <strong class="review-author">{{user.firstName}} {{user.lastName}}</strong>
                             <div class="rating-display">
                                 ({{rating}}/5) ⭐
                             </div>
@@ -141,7 +141,7 @@
                         <p class="review-comment">{{comment}}</p>
                         <form action="/delete-review" method="post" class="delete-review-form">
                             <input type="hidden" name="productId" value="{{product.id}}">
-                            <input type="hidden" name="reviewId" value="{{product.id}}">
+                            <input type="hidden" name="reviewId" value="{{id}}">
                             <button type="submit" class="btn btn-delete">Delete Review</button>
                         </form>
                     </li>
