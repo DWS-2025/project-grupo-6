@@ -42,9 +42,9 @@ public class ProductController {
 
     // Show product list
     @GetMapping("/products")
-    public String showProducts(Model model) {
+    public String showProducts(Model model, @RequestParam(required = false, defaultValue = "default") String sort) {
         try {
-            List<Product> initialProducts = productService.getProductsByPage(1, 20000, "default");
+            List<Product> initialProducts = productService.getProductsByPage(1, 20000, sort).getContent();
             User currentUser = userService.getUser();
             model.addAttribute("products", initialProducts);
             model.addAttribute("isAdmin", currentUser != null && currentUser.isAdmin());
@@ -56,18 +56,7 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/api/products")
-    @ResponseBody
-    public List<Product> getProducts(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false, defaultValue = "default") String sort) {
-        //opcion 1:
-        if (search != null && !search.isEmpty()) {
-            return productService.searchProducts(search);
-        }
-        return productService.getProductsByPage(page, 20000, sort);
-    }
+
 
     // Show form to create a product - Admin only
     @GetMapping("/create-product")
@@ -190,35 +179,63 @@ public class ProductController {
         return "redirect:/products";
     }
 
+
+    // Search products endpoint that queries the database
+    @GetMapping("/search-products")
+    public String searchProducts(@RequestParam String term, Model model) {
+        try {
+            List<Product> searchResults = productService.searchProducts(term);
+            User currentUser = userService.getUser();
+            model.addAttribute("products", searchResults);
+            model.addAttribute("isAdmin", currentUser != null && currentUser.isAdmin());
+            model.addAttribute("cartItemCount", orderController.getCartItemCount());
+            model.addAttribute("searchTerm", term);
+            return "Wellcome";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            return "error";
+        }
+    }
+
     @GetMapping("/product-details")
     public String productDetails(@RequestParam Long id, Model model) {
-        Product product = productService.getProductById(id);
-        User currentUser = userService.getUser();
-
         try {
+            Product product = productService.getProductWithReviews(id);
+            User currentUser = userService.getUser();
+            
             if (product == null || currentUser == null) {
-                System.out.println("Producto o usuario no encontrado");
                 return "redirect:/products";
             }
 
+            // All these accesses are secure because the reviews are already loaded
             model.addAttribute("product", product);
-            model.addAttribute("reviews", product.getReviews());
+            model.addAttribute("reviews", product.getReviews()); 
+            model.addAttribute("averageRating", productService.getAverageRating(product.getId()));
             model.addAttribute("username", currentUser.getFirstName() + " " + currentUser.getLastName());
             model.addAttribute("isAdmin", currentUser.isAdmin());
             model.addAttribute("cartItemCount", orderController.getCartItemCount());
-            model.addAttribute("averageRating", product.getAverageRating());
 
             return "Product";
-        }catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
+        } catch (Exception e) {
+            System.out.println(e);
             return "redirect:/products";
         }
     }
 
     @PostMapping("/delete-review")
-    public String deleteReview(@RequestParam Long productId, @RequestParam Long reviewId) {
-        reviewService.deleteReview(productId, reviewId);
-        return "redirect:/product-details?id=" + productId;
+    public String deleteReview(@RequestParam Long productId, @RequestParam Long reviewId, Model model) {
+        User currentUser = userService.getUser();
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            reviewService.deleteReview(productId, reviewId);
+            return "redirect:/product-details?id=" + productId;
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+            return "redirect:/product-details?id=" + productId;
+        }
     }
 }
 
