@@ -37,10 +37,10 @@ public class DataBaseUsage implements CommandLineRunner {
     public void run(String... args) throws Exception {
         //Save some customers
         User user;
-        user=new User("Juan", "Pérez", "juan.perez@email.com", "password123", "Calle Ficticia 123", 2134, 25);
+        user=new User("Juan", "Pérez", "juan.perez@email.com", "Password123", "Calle Ficticia 123", 213412398, 25);
         user.setRole(UserRole.ADMIN);
         userRepository.save(user);
-        user=new User("Maria", "García", "maria.garcia@email.com", "test456", "Avenida Principal 456", 5678, 30);
+        user=new User("Maria", "García", "maria.garcia@email.com", "Test4567", "Avenida Principal 456", 567814785, 30);
         user.setRole(UserRole.USER);
         userRepository.save(user);
 
