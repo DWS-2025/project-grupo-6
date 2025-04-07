@@ -18,8 +18,8 @@
 - **REVIEW**: a review is written by a user for a product.
 
 ### User Permissions
-- **Admin**: 
-- **User**: 
+- **Admin**: can add products and delete products and reviews. Can also buy and review products.
+- **User**: can buy and review products. Can also delete their own reviews.
 
 ### Images
 - **PRODUCT**: one main image for each product.
