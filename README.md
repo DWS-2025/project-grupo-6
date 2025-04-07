@@ -31,4 +31,4 @@
 ## Collaborative Development
 
 All members of the team have participated equally
--[@Ten1O0](https://github.com/Ten1O0), @daniel-navarro-ls](https://github.com/daniel-navarro-ls), [@Laura-261](https://github.com/Laura-261), [@fernandotorres-sudo](https://github.com/fernandotorres-sudo)
+-[@Ten1O0](https://github.com/Ten1O0), [@daniel-navarro-ls](https://github.com/daniel-navarro-ls), [@Laura-261](https://github.com/Laura-261), [@fernandotorres-sudo](https://github.com/fernandotorres-sudo)
