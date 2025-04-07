@@ -1,51 +1,61 @@
 package es.xpressaly.Service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import es.xpressaly.Model.User;
 import es.xpressaly.Model.UserRole;
+import es.xpressaly.Repository.UserRepository;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 @Service
+@Transactional
 public class UserService {
 
+    @Autowired
+    private UserRepository userRepository;
+    
     private User currentUser;
-    private List<User> users;
-
-    public UserService() {
-        users = new ArrayList<>();
-        // We create default users and save them in memory
-        User defaultUser = new User("Juan", "Pérez", "juan.perez@email.com", "Password123", "Calle Ficticia 123", 2134, 25);
-        defaultUser.setId(1L);
-        defaultUser.setRole(UserRole.ADMIN); // Set Juan as admin
-        users.add(defaultUser);
-        
-        // Adding another test user
-        User testUser = new User("Maria", "García", "maria.garcia@email.com", "Test4567", "Avenida Principal 456", 5678, 30);
-        testUser.setId(2L);
-        testUser.setRole(UserRole.USER); // Explicitly set Maria as regular user
-        users.add(testUser);
-    }
 
     // Method to obtain the user by ID
     public User getUserById(Long userId) {
-        return users.stream()
-                .filter(u -> u.getId().equals(userId))
-                .findFirst()
-                .orElse(null);
+        return userRepository.findById(userId).orElse(null);
     }
 
     // Method to authenticate a user
     public User authenticateUser(String email, String password) {
-        currentUser = users.stream()
-                .filter(u -> u.getEmail().equals(email) && u.getPassword().equals(password))
-                .findFirst()
-                .orElse(null);
-        this.setCurrentUser(currentUser);
-        return currentUser;
+        // First try to find the user with the exact email
+        User user = userRepository.findByEmail(email);
+        
+        // If not found and it might be a temporary user (email ends with .temp)
+        if (user == null && !email.endsWith(".temp")) {
+            // Check if there's a temporary version of this user
+            user = userRepository.findByEmail(email + ".temp");
+        }
+        
+        if (user != null && user.getPassword().equals(password)) {
+            // Initialize collections to prevent LazyInitializationException
+            if (user.getOrders() != null) {
+                user.getOrders().size(); // Force initialization of orders collection
+            }
+            if (user.getReviews() != null) {
+                user.getReviews().size(); // Force initialization of reviews collection
+            }
+            this.setCurrentUser(user);
+            return user;
+        }
+        // Debug information to help troubleshoot login issues
+        if (user != null) {
+            System.out.println("Login attempt for user: " + email);
+            System.out.println("Password match failed. Input: " + password + ", Stored: " + user.getPassword());
+        } else {
+            System.out.println("No user found with email: " + email);
+        }
+        return null;
     }
 
     // Validation methods
@@ -93,14 +103,18 @@ public class UserService {
         }
 
         // Check if user already exists
-        if (users.stream().anyMatch(u -> u.getEmail().equals(email))) {
+        if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Email already exists");
         }
 
         User newUser = new User(firstName, lastName, email, password, address, phoneNumber, age);
-        newUser.setId((long) (users.size() + 1));
-        users.add(newUser);
-        return newUser;
+        newUser.setRole(UserRole.USER); // Set default role
+        return userRepository.save(newUser);
+    }
+
+    // Method to get all users
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
     // Method to get the current user
@@ -110,6 +124,17 @@ public class UserService {
 
     public void setCurrentUser(User currentUser) {
         this.currentUser = currentUser;
+    }
+
+    // List of example user emails that should be preserved
+    private final List<String> exampleUserEmails = Arrays.asList(
+        "juan.perez@email.com",
+        "maria.garcia@email.com"
+    );
+
+    // Method to check if a user is an example user
+    private boolean isExampleUser(User user) {
+        return user != null && exampleUserEmails.contains(user.getEmail());
     }
 
     // Method to update the user with validations
@@ -140,25 +165,15 @@ public class UserService {
             throw new IllegalArgumentException("Address cannot be empty");
         }
 
-        users.stream()
-                .filter(u -> u.getId().equals(updatedUser.getId()))
-                .findFirst()
-                .ifPresent(user -> {
-                    // Check if email is being changed and if it's already in use by another user
-                    if (!user.getEmail().equals(updatedUser.getEmail()) && 
-                        users.stream().anyMatch(u -> !u.getId().equals(user.getId()) && 
-                                                     u.getEmail().equals(updatedUser.getEmail()))) {
-                        throw new IllegalArgumentException("Email already exists");
-                    }
-                    user.setFirstName(updatedUser.getFirstName());
-                    user.setLastName(updatedUser.getLastName());
-                    user.setEmail(updatedUser.getEmail());
-                    user.setAddress(updatedUser.getAddress());
-                    user.setPhoneNumber(updatedUser.getPhoneNumber());
-                    user.setAge(updatedUser.getAge());
-                    if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
-                        user.setPassword(updatedUser.getPassword());
-                    }
-                });
+        // Check if email is being changed and if it's already in use by another user
+        User existingUser = userRepository.findById(updatedUser.getId()).orElse(null);
+        if (existingUser != null && !existingUser.getEmail().equals(updatedUser.getEmail()) && 
+            userRepository.existsByEmail(updatedUser.getEmail())) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+
+        userRepository.save(updatedUser);
     }
+
+
 }
