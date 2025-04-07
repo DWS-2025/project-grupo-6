@@ -28,6 +28,7 @@ public class Order {
 
     @Column(nullable = false)
     private double total;
+    
 
     // Default constructor required by JPA
     public Order() {
@@ -48,6 +49,7 @@ public class Order {
     public void setUser(User user) { this.user = user; }
 
     public List<Product> getProducts() { return products; }
+    
     public void setProducts(List<Product> products) { this.products = products; }
 
     public String getAddress() { return address; }

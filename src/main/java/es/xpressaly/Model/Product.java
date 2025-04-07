@@ -3,6 +3,7 @@ package es.xpressaly.Model;
 import java.util.ArrayList;
 import java.util.List;
 import jakarta.persistence.*;
+import jakarta.transaction.Transactional;
 
 @Entity
 @Table(name = "products")
@@ -26,7 +27,7 @@ public class Product {
     private String imagePath;
     
     @Lob
-    @Column(name = "image_data", columnDefinition = "BLOB")
+    @Column(name = "image_data", columnDefinition = "MEDIUMBLOB")
     private byte[] imageData;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -43,8 +44,11 @@ public class Product {
         this.stock = stock;
         this.imagePath = imagePath;
         this.reviews = new ArrayList<>();  // We initialize the list of reviews
-
     }
+    
+    public void setName(String name) { this.name = name; }
+    public void setDescription(String description) { this.description = description; }
+    public void setPrice(double price) { this.price = price; }
 
 
 
@@ -66,17 +70,20 @@ public class Product {
         this.reviews.add(review);
     }
 
-    public double getAverageRating() {
-        if (reviews.isEmpty()) {
-            return 0.0;
-        }
-        double avg = reviews.stream()
-                .mapToInt(Review::getRating)
-                .average()
-                .orElse(0.0);
-        return Math.round(avg * 10.0) / 10.0;
-    }
-
+    
     private int amount;public int getAmount(){return amount;}
     public void setAmount(int amount){this.amount=amount;}
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Product product = (Product) obj;
+        return id != null && id.equals(product.getId());
+    }
+    
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }

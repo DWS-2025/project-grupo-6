@@ -80,10 +80,10 @@
             <h3>My orders</h3>
             {{#orders}}
                 <div class="order-card">
-                <h3>Order #{{product.id}}</h3>
+                <h3>Order #{{id}}</h3>
                 <p>Delivery Address: {{address}}</p>
                 {{#products}}
-                    <p>-{{product.name}} x {{product.amount}}: ${{product.price}}</p>
+                    <p>-{{name}} x {{amount}}: ${{price}}</p>
                 {{/products}}
                 <p>Total: ${{total}}</p>
                 </div>
