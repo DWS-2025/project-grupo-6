@@ -61,7 +61,7 @@ public class UserApiController {
         }
     }
 
-    @PutMapping("/profile")
+    @PutMapping("api/profile")
     public ResponseEntity<Map<String, Object>> updateProfile(
             @RequestParam String firstName,
             @RequestParam String lastName,
