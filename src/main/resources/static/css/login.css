@@ -22,10 +22,11 @@ body {
     display: flex;
     width: 90%;
     max-width: 1200px;
-    background-color: #294156;
+    background: linear-gradient(145deg, #294156 0%, #3a5a76 100%);
     border-radius: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     overflow: hidden;
+    transition: all 0.5s ease;
 }
 
 .left-section {
@@ -70,24 +71,32 @@ body {
 .carousel img {
     width: 300px;
     height: 300px;
-    border-radius: 10px;
+    border-radius: 15px;
     object-fit: cover;
     position: absolute;
-    transition: transform 2s, filter 2s, opacity 2s;
+    transition: transform 0.8s ease-in-out, filter 0.8s ease, opacity 0.8s ease, box-shadow 0.8s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .carousel img.active {
-    transform: translateX(0) scale(0.8);
-    filter: blur(0) !important;
-    opacity: 1 !important;
-    z-index: 2;
+    transform: translateX(0) scale(1);
+    filter: blur(0);
+    opacity: 1;
+    z-index: 3;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
-.carousel img.behind {
-    transform: translateX(0) scale(1.2);
-    filter: blur(10px);
-    opacity: 0.7;
-    z-index: 1;
+/* We don't need the behind class anymore as we're using dynamic positioning */
+.carousel-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    height: 350px;
+    overflow: visible;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
 }
 
 .description {
@@ -112,48 +121,107 @@ body {
 }
 
 .auth-form h2 {
-    margin-bottom: 20px;
-    font-size: 28px;
+    margin-bottom: 25px;
+    font-size: 32px;
     color: #FFFFFF;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    position: relative;
+    display: inline-block;
+}
+
+.auth-form h2::after {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(90deg, #8FB3C9, transparent);
+    bottom: -8px;
+    left: 0;
+    border-radius: 2px;
 }
 
 .auth-form input {
     width: 100%;
-    padding: 12px;
+    padding: 14px 16px;
     margin-bottom: 20px;
-    border: 1px solid #CBD3E6;
-    border-radius: 8px;
-    font-size: 16px;
+    border: 1px solid rgba(203, 211, 230, 0.5);
+    border-radius: 10px;
+    font-size: 15px;
+    background-color: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.auth-form input:focus {
+    outline: none;
+    border-color: #8FB3C9;
     background-color: #FFFFFF;
+    box-shadow: 0 4px 8px rgba(41, 65, 86, 0.06);
 }
 
 .auth-form .btn-submit {
     width: 100%;
-    padding: 12px;
-    background-color: #294156;
+    padding: 14px;
+    background: linear-gradient(135deg, #294156 0%, #3a5a76 100%);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
     cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(41, 65, 86, 0.1);
+    position: relative;
+    overflow: hidden;
 }
 
 .auth-form .btn-submit:hover {
-    background-color: #567C8D;
+    background: linear-gradient(135deg, #3a5a76 0%, #567C8D 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(41, 65, 86, 0.15);
+}
+
+.auth-form .btn-submit:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(41, 65, 86, 0.1);
 }
 
 .signup-prompt {
-    margin-top: 20px;
-    font-size: 14px;
+    margin-top: 24px;
+    font-size: 15px;
     color: #FFFFFF;
+    font-weight: 300;
+    letter-spacing: 0.3px;
 }
 
 .signup-prompt a {
-    color: #CBD3E6;
+    color: #8FB3C9;
     text-decoration: none;
+    font-weight: 500;
+    position: relative;
+    padding: 2px 4px;
+    transition: all 0.3s ease;
 }
+
 .signup-prompt a:hover {
-    text-decoration: underline;
+    color: #CBD3E6;
+}
+
+.signup-prompt a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 1px;
+    bottom: 0;
+    left: 0;
+    background-color: #CBD3E6;
+    transition: width 0.3s ease;
+}
+
+.signup-prompt a:hover::after {
+    width: 100%;
 }
 /*Estilos básicos para el modal*/ 
 .modal {
@@ -172,45 +240,92 @@ body {
 .modal-content {
     background-color: #fff;
     margin: 5% auto;
-    padding: 30px;
-    border: 1px solid #888;
+    padding: 35px;
+    border: none;
     width: 90%;
     max-width: 400px;
-    border-radius: 10px;
+    border-radius: 16px;
     position: relative;
     box-sizing: border-box;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    transform: translateY(20px);
+    animation: modalFadeIn 0.4s forwards;
+}
+
+@keyframes modalFadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .modal-content input {
     width: 100%;
-    padding: 12px;
+    padding: 14px 16px;
     margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 16px;
+    border: 1px solid rgba(203, 211, 230, 0.5);
+    border-radius: 10px;
+    font-size: 15px;
+    background-color: #FFFFFF;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
     box-sizing: border-box;
 }
 
+.modal-content input:focus {
+    outline: none;
+    border-color: #8FB3C9;
+    box-shadow: 0 4px 8px rgba(41, 65, 86, 0.06);
+}
+
 .modal-content h2 {
-    color: #333;
-    margin-bottom: 20px;
-    font-size: 24px;
+    color: #294156;
+    margin-bottom: 25px;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    position: relative;
+    display: inline-block;
+}
+
+.modal-content h2::after {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(90deg, #294156, transparent);
+    bottom: -8px;
+    left: 0;
+    border-radius: 2px;
 }
 
 .modal-content .btn-submit {
     width: 100%;
-    padding: 12px;
-    background-color: #294156;
+    padding: 14px;
+    background: linear-gradient(135deg, #294156 0%, #3a5a76 100%);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
     cursor: pointer;
-    margin-top: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(41, 65, 86, 0.1);
+    margin-top: 15px;
+    position: relative;
+    overflow: hidden;
 }
 
 .modal-content .btn-submit:hover {
-    background-color: #567C8D;
+    background: linear-gradient(135deg, #3a5a76 0%, #567C8D 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(41, 65, 86, 0.15);
+}
+
+.modal-content .btn-submit:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(41, 65, 86, 0.1);
 }
 
 /* Close button styles */

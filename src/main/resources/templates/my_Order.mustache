@@ -11,6 +11,39 @@
     {{> common/header}}
     <div class="main-content">
     <h1>My Cart</h1>
+    
+    <!-- Products section (left side) -->
+    <div class="products-section">
+        {{#order.products}}
+        <div class="order-container product-item">
+            <div class="product-info">
+                <h3>{{name}}</h3>
+                <p>Price: ${{price}}</p>
+                <form action="/update-amount" method="post">
+                    <label for="counter{{id}}">Quantity:</label>
+                    <input type="number" id="counter_{{id}}" name="amount" value="{{amount}}" min="1" class="quantity-input">
+                    <input type="hidden" name="productId" value="{{id}}">
+                    <button type="submit">Update Summary</button>
+                </form>
+                <form action="/remove-from-order" method="post">
+                    <input type="hidden" name="productId" value="{{id}}">
+                    <button type="submit">Remove from Cart</button>
+                </form>
+            </div>
+            <a href="/product-details?id={{id}}" class="product-link">
+                <img src="{{imagePath}}" alt="{{name}}" class="product-image">
+            </a>
+        </div>
+        {{/order.products}}
+        {{^order.products}}
+        <div class="empty-cart">
+            <p>There are no products in your cart.</p>
+            <a href="/products" class="continue-shopping">Continue Shopping</a>
+        </div>
+        {{/order.products}}
+    </div>
+    
+    <!-- Order summary section (right side) -->
     {{#order.hasProducts}}
     <div class="order-summary">
         <!-- Left side: Order summary -->
@@ -29,42 +62,15 @@
         <!-- Right part: Address and confirmation button -->
         <div class="summary-right">
             <div class="address-form">
-    <h3>Mailing address</h3>
-    <form action="/confirm-order" method="post">
-        <input type="text" name="address" value="{{order.address}}" placeholder="Enter your shipping address">
-        <button type="submit">Confirm Order</button>
-    </form>
-</div>
+                <h3>Mailing address</h3>
+                <form action="/confirm-order" method="post">
+                    <input type="text" name="address" value="{{order.address}}" placeholder="Enter your shipping address">
+                    <button type="submit">Confirm Order</button>
+                </form>
+            </div>
         </div>
     </div>
     {{/order.hasProducts}}
-    {{#order.products}}
-    <div class="order-container product-item">
-        <div class="product-info">
-            <h3>{{name}}</h3>
-            <p>Price: ${{price}}</p>
-            <form action="/update-amount" method="post">
-                <label for="counter{{id}}">Quantity:</label>
-                <input type="number" id="counter_{{id}}" name="amount" value="{{amount}}" min="1" class="quantity-input">
-                <input type="hidden" name="productId" value="{{id}}">
-                <button type="submit">Update Summary</button>
-            </form>
-            <form action="/remove-from-order" method="post">
-                <input type="hidden" name="productId" value="{{id}}">
-                <button type="submit">Remove from Cart</button>
-            </form>
-        </div>
-        <a href="/product-details?id={{id}}" class="product-link">
-            <img src="{{imagePath}}" alt="{{name}}" class="product-image">
-        </a>
-    </div>
-    {{/order.products}}
-    {{^order.products}}
-    <div class="empty-cart">
-        <p>There are no products in your cart.</p>
-        <a href="/products" class="continue-shopping">Continue Shopping</a>
-    </div>
-    {{/order.products}}
 
 </div>
     {{> common/footer}}

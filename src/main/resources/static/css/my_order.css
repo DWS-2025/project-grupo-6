@@ -18,10 +18,12 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
+    overflow-x: hidden;
 }
 
 main {
-    flex: 1;
+    flex: 1 0 auto;
     padding: 80px 0 2rem;
     max-width: 1400px;
     margin: 0 auto;
@@ -31,14 +33,15 @@ main {
     display: flex;
     flex-direction: column;
     gap: 30px;
+    min-height: calc(100vh - 150px); /* Subtract header height */
+    margin-bottom: 20px; /* Reduced space since footer is not fixed */
 }
 
 .products-section {
-    max-height: calc(100vh - 240px);
-    overflow-y: auto;
+    /* Removing fixed height and overflow properties to allow natural scrolling */
     padding-right: 1.5rem;
-    scrollbar-width: thin;
-    scrollbar-color: var(--teal) var(--beige);
+    grid-column: 1;
+    padding-bottom: 20px;
 }
 
 .products-section::-webkit-scrollbar {
@@ -58,9 +61,12 @@ main {
     margin-top: 80px;
     padding: 2rem;
     width: 100%;
-    max-width: 1100px;
+    max-width: 1400px;
     margin-left: auto;
     margin-right: auto;
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 2rem;
 }
 
 .order-summary {
@@ -69,9 +75,9 @@ main {
     border-radius: 16px;
     box-shadow: var(--shadow);
     margin-bottom: 2rem;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
+    position: sticky;
+    top: 100px;
+    height: fit-content;
     transition: var(--transition);
 }
 
@@ -104,6 +110,7 @@ button:hover {
     font-size: 0.95rem;
 }
 
+.order-summary .summary-left,
 .order-summary .summary-right {
     display: flex;
     flex-direction: column;
@@ -199,6 +206,7 @@ footer {
     background-color: var(--navy);
     color: var(--white);
     width: 100%;
+    flex-shrink: 0;
 }
 
 h1 {
@@ -234,21 +242,49 @@ h2 {
 
 .product-item {
     border-bottom: 1px solid var(--sky-blue);
-    padding: 2rem 0;
+    padding: 1.2rem 0;
     display: grid;
     grid-template-columns: 1fr 1.5fr;
-    gap: 2rem;
+    gap: 1.5rem;
     align-items: center;
 }
 
 .product-info {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    padding: 1.5rem;
+    gap: 0.7rem;
+    padding: 0.8rem 0.8rem 0.8rem 1.5rem;
     background-color: var(--beige);
-    border-radius: 12px;
+    border-radius: 20px;
     transition: var(--transition);
+    box-shadow: 0 2px 4px rgba(41, 65, 86, 0.05);
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.product-info:hover {
+    box-shadow: 0 4px 8px rgba(41, 65, 86, 0.1);
+    transform: translateY(-2px);
+}
+
+.product-info form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.product-info label {
+    font-weight: 500;
+    color: var(--navy);
+    margin-right: 0.5rem;
+}
+
+.quantity-input {
+    max-width: 80px;
+    text-align: center;
 }
 
 .product-info h3 {
@@ -271,14 +307,63 @@ h2 {
     background-color: var(--white);
     border-radius: 16px;
     box-shadow: var(--shadow);
+    animation: fadeIn 0.8s ease-in-out;
+    margin-bottom: 2rem;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.continue-shopping {
+    display: inline-block;
+    background-image: linear-gradient(145deg, var(--navy), var(--teal));
+    color: var(--white);
+    text-decoration: none;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(41, 65, 86, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.continue-shopping::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: all 0.6s;
+}
+
+.continue-shopping:hover {
+    background-image: linear-gradient(145deg, var(--teal), var(--navy));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(41, 65, 86, 0.15);
+}
+
+.continue-shopping:hover::before {
+    left: 100%;
+}
+
+.continue-shopping:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(41, 65, 86, 0.1);
 }
 
 .product-image {
-    width: 100%;
+    width: 95%;
     height: 300px;
     border-radius: 12px;
     object-fit: cover;
     transition: var(--transition);
+    margin-right: 10px; /* Added small separation on the right side */
 }
 
 .product-image:hover {

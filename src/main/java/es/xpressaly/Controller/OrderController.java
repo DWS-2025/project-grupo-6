@@ -81,6 +81,7 @@ public class OrderController {
             model.addAttribute("errorMessage", "We're sorry, we do not have enough stock at the moment, try later");
             model.addAttribute("products", productService.getAllProducts());
             model.addAttribute("cartItemCount", getCartItemCount());
+            model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
             return "Wellcome";
         }
 
@@ -101,6 +102,7 @@ public class OrderController {
                         model.addAttribute("errorMessage", "We're sorry, we do not have enough stock at the moment, try later");
                         model.addAttribute("products", productService.getAllProducts());
                         model.addAttribute("cartItemCount", getCartItemCount());
+                        model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
                         return "Wellcome";
                     }
                     p.setAmount(currentAmount + 1); // Increase the quantity by 1
@@ -200,9 +202,11 @@ public class OrderController {
         }
 
         if (amount > productInStock.getStock()) {
+            User currentUser = userService.getUser();
             model.addAttribute("errorMessage", "We're sorry, we do not have enough stock at the moment, try later");
             model.addAttribute("order", currentOrder);
             model.addAttribute("total", currentOrder.getTotal());
+            model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
             return "my_Order";
         }
 
