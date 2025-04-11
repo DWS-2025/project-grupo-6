@@ -7,11 +7,25 @@
 
 /* Modern Profile Page Styles */
 :root {
-    --navy: #294156;
-    --teal: #567C8D;
-    --sky-blue: #CBD3E6;
-    --beige: #F5EFEB;
+    --navy: #1e3a5f;
+    --teal: #3f8299;
+    --sky-blue: #a8d8ea;
+    --beige: #f7f3ef;
     --white: #FFFFFF;
+    --light-gray: #f8f9fa;
+    --success: #4CAF50;
+    --success-light: #e8f5e9;
+    --error: #F44336;
+    --error-light: #ffebee;
+    --accent: #ff9a8b;
+    --text-primary: #2c3e50;
+    --text-secondary: #546e7a;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
 }
 
 * {
@@ -21,10 +35,17 @@
     font-family: 'Segoe UI', Arial, sans-serif;
 }
 
+::selection {
+    background-color: var(--teal);
+    color: var(--white);
+}
+
 body {
     background-color: var(--beige);
-    color: var(--navy);
+    color: var(--text-primary);
     line-height: 1.6;
+    font-size: 16px;
+    letter-spacing: 0.3px;
 }
 
 header {
@@ -45,6 +66,12 @@ main {
     max-width: 1200px;
     margin: 7rem auto 2rem;
     padding: 0 2rem;
+    animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 header img {
@@ -82,66 +109,118 @@ header nav a:not(:last-child):hover {
 .profile-section {
     text-align: center;
     margin-bottom: 3rem;
+    position: relative;
 }
 
 .profile-picture {
     width: 150px;
     height: 150px;
     border-radius: 50%;
-    background-color: var(--teal);
-    margin: 0 auto 1rem;
+    background: linear-gradient(135deg, var(--teal) 0%, var(--accent) 100%);
+    margin: 0 auto 1.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 4rem;
     color: var(--white);
-    transition: transform 0.3s ease;
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-md);
+    border: 4px solid var(--white);
 }
 
 .profile-picture:hover {
     transform: scale(1.05);
+    box-shadow: var(--shadow-lg);
 }
 
 #userName {
-    font-size: 1.5rem;
-    font-weight: 600;
+    font-size: 1.8rem;
+    font-weight: 700;
     color: var(--navy);
+    margin-bottom: 0.5rem;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+    position: relative;
+    display: inline-block;
+}
+
+#userName::after {
+    content: '';
+    position: absolute;
+    width: 40%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--teal), transparent);
+    bottom: -8px;
+    left: 30%;
+    border-radius: 2px;
 }
 
 .personal-data {
     background-color: var(--white);
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 2.5rem;
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    border: 1px solid rgba(0,0,0,0.03);
+}
+
+.personal-data:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-5px);
 }
 
 .personal-data h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
+    font-size: 1.7rem;
+    margin-bottom: 1.8rem;
     color: var(--navy);
+    position: relative;
+    display: inline-block;
+    padding-bottom: 10px;
+}
+
+.personal-data h2::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--teal), transparent);
+    bottom: 0;
+    left: 0;
+    border-radius: 2px;
 }
 
 form label {
     display: block;
     margin-bottom: 0.5rem;
-    color: var(--navy);
+    color: var(--text-secondary);
     font-weight: 500;
+    font-size: 0.95rem;
+    transition: color var(--transition-fast);
+}
+
+form label:hover {
+    color: var(--navy);
 }
 
 form input {
     width: 100%;
-    padding: 0.75rem;
+    padding: 0.9rem 1rem;
     margin-bottom: 1.5rem;
     border: 2px solid var(--sky-blue);
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 1rem;
-    transition: border-color 0.3s ease;
+    transition: all var(--transition-normal);
+    background-color: var(--light-gray);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
 }
 
 form input:focus {
     outline: none;
     border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(63, 130, 153, 0.2);
+    background-color: var(--white);
+    transform: translateY(-2px);
 }
 
 form input:disabled {
@@ -152,17 +231,21 @@ form input:disabled {
 .password-container {
     display: flex;
     gap: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 1.2rem;
+    position: relative;
 }
 
 .password-container button {
-    padding: 0.25rem 1rem;
+    padding: 0.5rem 1.2rem;
     background-color: var(--teal);
     color: var(--white);
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all var(--transition-normal);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    box-shadow: var(--shadow-sm);
 }
 
 .password-container button:hover {
@@ -171,42 +254,45 @@ form input:disabled {
 
 .update-profile-btn {
     width: 100%;
-    padding: 1rem;
+    padding: 1.1rem;
     background: linear-gradient(135deg, var(--navy) 0%, var(--teal) 100%);
     color: var(--white);
     border: none;
     border-radius: 12px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(41, 65, 86, 0.15);
-    margin-top: 1rem;
-    letter-spacing: 1px;
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-md);
+    margin-top: 1.5rem;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     position: relative;
     overflow: hidden;
 }
 
 .change-password-btn {
     width: auto;
-    padding: 0.75rem 1.5rem;
+    padding: 0.85rem 1.7rem;
     background-color: var(--teal);
     color: var(--white);
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(41, 65, 86, 0.1);
-    margin-top: 1rem;
-    font-size: 0.85rem;
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-sm);
+    margin-top: 1.2rem;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .update-profile-btn:hover {
     background: linear-gradient(135deg, var(--teal) 0%, var(--navy) 100%);
     transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(41, 65, 86, 0.25);
+    box-shadow: 0 8px 25px rgba(41, 65, 86, 0.3);
 }
 
 .change-password-btn:hover {
@@ -244,54 +330,149 @@ form input:disabled {
 
 .options-menu {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 3rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3.5rem;
 }
 
 .option-card {
     background-color: var(--white);
-    padding: 1.5rem;
-    border-radius: 12px;
+    padding: 1.8rem;
+    border-radius: 16px;
     text-decoration: none;
     color: var(--navy);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-normal);
+    border: 1px solid rgba(0,0,0,0.03);
+    position: relative;
+    overflow: hidden;
+}
+
+.option-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--teal), var(--accent));
+    opacity: 0.8;
 }
 
 .option-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
 }
 
 .option-card h3 {
-    font-size: 1.25rem;
-    margin-bottom: 0.5rem;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: var(--navy);
+    font-weight: 600;
+    border-bottom: 2px solid var(--sky-blue);
+    padding-bottom: 0.8rem;
+    margin-left: 0.5rem;
 }
 
 .option-card p {
-    color: var(--teal);
-    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+}
+
+.order-card {
+    background-color: var(--light-gray);
+    border-radius: 10px;
+    padding: 1.2rem;
+    margin-bottom: 1.2rem;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-normal);
+    border-left: 3px solid var(--teal);
+}
+
+.order-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.order-card h3 {
+    font-size: 1.1rem;
+    color: var(--navy);
+    margin-bottom: 0.8rem;
+    border-bottom: 1px solid var(--sky-blue);
+    padding-bottom: 0.5rem;
+}
+
+.order-card .total {
+    margin-top: 0.8rem;
+    font-size: 1.05rem;
+    color: var(--navy);
+    text-align: right;
+    border-top: 1px solid var(--sky-blue);
+    padding-top: 0.5rem;
 }
 
 .reviews-section {
     background-color: var(--white);
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    border: 1px solid rgba(0,0,0,0.03);
+}
+
+.reviews-section:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-5px);
 }
 
 .reviews-section h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
+    font-size: 1.7rem;
+    margin-bottom: 1.8rem;
     color: var(--navy);
+    position: relative;
+    display: inline-block;
+    padding-bottom: 10px;
+}
+
+.reviews-section h2::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--teal), transparent);
+    bottom: 0;
+    left: 0;
+    border-radius: 2px;
 }
 
 .review-card {
     border: 1px solid var(--sky-blue);
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
+    border-radius: 12px;
+    padding: 1.8rem;
+    margin-bottom: 1.5rem;
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+}
+
+.review-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--teal), #FFD700);
+    opacity: 0.8;
+}
+
+.review-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--teal);
 }
 
 .review-card h3 {
@@ -301,7 +482,11 @@ form input:disabled {
 
 .rating {
     color: #FFD700;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.8rem;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .review-comment {
@@ -328,6 +513,78 @@ footer {
     margin-top: 3rem;
 }
 
+/* Notification styles */
+.notification-container {
+    position: fixed;
+    top: 90px;
+    right: 25px;
+    z-index: 1001;
+    max-width: 380px;
+}
+
+.notification {
+    margin-bottom: 15px;
+    padding: 18px 22px;
+    border-radius: 12px;
+    color: white;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    animation: slideIn 0.4s ease-out forwards;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    backdrop-filter: blur(10px);
+}
+
+.notification.success {
+    background-color: rgba(76, 175, 80, 0.9);
+    border-left: 5px solid #388E3C;
+}
+
+.notification.error {
+    background-color: rgba(244, 67, 54, 0.9);
+    border-left: 5px solid #D32F2F;
+}
+
+.notification-close {
+    margin-left: 15px;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity var(--transition-fast);
+}
+
+.notification-close:hover {
+    opacity: 1;
+}
+
+.notification.fade-out {
+    animation: fadeOut 0.5s ease-out forwards;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%) translateY(10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0) translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        transform: translateX(0) translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%) translateY(10px);
+        opacity: 0;
+    }
+}
+
 @media (max-width: 768px) {
     header {
         padding: 1rem;
@@ -335,6 +592,7 @@ footer {
 
     main {
         padding: 0 1rem;
+        margin-top: 6rem;
     }
 
     .profile-picture {
@@ -346,6 +604,20 @@ footer {
     .personal-data,
     .reviews-section {
         padding: 1.5rem;
+    }
+    
+    #userName {
+        font-size: 1.5rem;
+    }
+    
+    .personal-data h2,
+    .reviews-section h2 {
+        font-size: 1.4rem;
+    }
+    
+    .option-card,
+    .review-card {
+        padding: 1.3rem;
     }
 }
 
@@ -362,8 +634,8 @@ footer {
     position: relative;
     overflow: hidden;
     transition-duration: .3s;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.199);
-    background-color: rgb(255, 65, 65);
+    box-shadow: var(--shadow-md);
+    background: linear-gradient(135deg, #ff5252, #ff7675);
   }
   
   /* plus sign */

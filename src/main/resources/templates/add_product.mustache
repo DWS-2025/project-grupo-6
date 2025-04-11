@@ -6,6 +6,7 @@
     <title>Create New Product</title>
     <link rel="stylesheet" href="/css/add_product.css">
     <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     {{> common/header}}
@@ -18,31 +19,35 @@
             </div>
             {{/error}}
             <div class="form-group">
-                <label for="name">Product Name</label>
+                <label for="name"><i class="fas fa-tag"></i> Product Name</label>
                 <input type="text" id="name" name="name" placeholder="Enter product name" required>
             </div>
 
             <div class="form-group">
-                <label for="description">Description</label>
+                <label for="description"><i class="fas fa-align-left"></i> Description</label>
                 <input type="text" id="description" name="description" placeholder="Enter product description" required>
             </div>
 
             <div class="form-group">
-                <label for="price">Price</label>
-                <input type="number" id="price" name="price" min="0.01" step="0.01" placeholder="0.00" required>
+                <label for="price"><i class="fas fa-dollar-sign"></i> Price</label>
+                <div class="input-with-icon">
+                    <input type="number" id="price" name="price" min="0.01" step="0.01" placeholder="0.00" required>
+                </div>
             </div>
 
             <div class="form-group">
-                <label for="stock">Stock Quantity</label>
-                <input type="number" id="stock" name="stock" min="1" placeholder="Enter stock quantity" required>
+                <label for="stock"><i class="fas fa-boxes"></i> Stock Quantity</label>
+                <div class="input-with-icon">
+                    <input type="number" id="stock" name="stock" min="1" placeholder="Enter stock quantity" required>
+                </div>
             </div>
 
             <div class="form-group">
-                <label for="mainImage">Product Image</label>
+                <label for="mainImage"><i class="fas fa-image"></i> Product Image</label>
                 <input type="file" id="mainImage" name="mainImage" accept=".jpg, .jpeg" required>
             </div>
             
-            <button type="submit">Create Product</button>
+            <button type="submit"><i class="fas fa-plus-circle"></i> Create Product</button>
         </form>
     </div>
     {{> common/footer}}

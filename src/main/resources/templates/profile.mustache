@@ -7,11 +7,14 @@
     <title>User Profile</title>
     <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/profile-modern.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
 
     {{> common/header}}
+    <!-- Notification container -->
+    <div id="notification-container" class="notification-container"></div>
     <main>
         <!-- Profile Picture -->
         <div class="profile-section">
@@ -29,74 +32,93 @@
                 <div class="text">Logout</div>
             </a>
             <form action="/update-profile" method="post">
-                <label>Name:</label>
-                <input type="text" name="firstName" value="{{name}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Name:</label>
+                    <input type="text" name="firstName" value="{{name}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
+                </div>
 
-                <label>Surname:</label>
-                <input type="text" name="lastName" value="{{surname}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Surname:</label>
+                    <input type="text" name="lastName" value="{{surname}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
+                </div>
 
-                <label>Email:</label>
-                <input type="email" name="email" value="{{email}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email:</label>
+                    <input type="email" name="email" value="{{email}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
+                </div>
 
-                <label>Address:</label>
-                <input type="text" name="address" value="{{address}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
+                <div class="form-group">
+                    <label><i class="fas fa-map-marker-alt"></i> Address:</label>
+                    <input type="text" name="address" value="{{address}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
+                </div>
 
-                <label>Phone Number:</label>
-                <input type="text" name="phone" value="{{phone}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> Phone Number:</label>
+                    <input type="text" name="phone" value="{{phone}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
+                </div>
 
-                <label>Age:</label>
-                <input type="number" name="age" value="{{age}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
+                <div class="form-group">
+                    <label><i class="fas fa-birthday-cake"></i> Age:</label>
+                    <input type="number" name="age" value="{{age}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
+                </div>
 
-                <label>Current Password:</label>
-                <div class="password-container flex items-center gap-2">
-                    <input type="password" id="currentPasswordInput" value="{{password}}" class="w-full p-2 border rounded mb-4 text-[#294156]" disabled>
-                    <button type="button" onclick="toggleCurrentPasswordVisibility()" class="bg-[#567C8D] text-white px-4 py-2 rounded hover:bg-[#294156] transition-colors">Show</button>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Current Password:</label>
+                    <div class="password-container">
+                        <input type="password" id="currentPasswordInput" value="{{password}}" class="w-full p-2 border rounded mb-4 text-[#294156]" disabled>
+                        <button type="button" onclick="toggleCurrentPasswordVisibility()" class="bg-[#567C8D] text-white px-4 py-2 rounded hover:bg-[#294156] transition-colors">Show</button>
+                    </div>
                 </div>
 
                 <button type="button" onclick="togglePasswordSection()" class="change-password-btn">
-                    <i class="fas fa-key"></i> <!-- Optional icon (requires FontAwesome) -->
-                    Change Password
+                    <i class="fas fa-key"></i> Change Password
                 </button>
                 <div id="passwordSection" style="display: none;">
-                    <label>New Password:</label>
-                    <div class="password-container flex items-center gap-2">
-                        <input type="password" id="passwordInput" name="password" placeholder="Enter new password" class="w-full p-2 border rounded mb-4 text-[#294156]">
-                        <button type="button" onclick="togglePasswordVisibility()" class="bg-[#567C8D] text-white px-4 py-2 rounded hover:bg-[#294156] transition-colors">Show</button>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> New Password:</label>
+                        <div class="password-container">
+                            <input type="password" id="passwordInput" name="password" placeholder="Enter new password" class="w-full p-2 border rounded mb-4 text-[#294156]">
+                            <button type="button" onclick="togglePasswordVisibility()" class="bg-[#567C8D] text-white px-4 py-2 rounded hover:bg-[#294156] transition-colors">Show</button>
+                        </div>
                     </div>
-                    <label>Confirm Password:</label>
-                    <div class="password-container flex items-center gap-2">
-                        <input type="password" id="confirmPasswordInput" name="confirmPassword" placeholder="Confirm new password" class="w-full p-2 border rounded mb-4 text-[#294156]">
-                        <button type="button" onclick="toggleConfirmPasswordVisibility()" class="bg-[#567C8D] text-white px-4 py-2 rounded hover:bg-[#294156] transition-colors">Show</button>
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Confirm Password:</label>
+                        <div class="password-container">
+                            <input type="password" id="confirmPasswordInput" name="confirmPassword" placeholder="Confirm new password" class="w-full p-2 border rounded mb-4 text-[#294156]">
+                            <button type="button" onclick="toggleConfirmPasswordVisibility()" class="bg-[#567C8D] text-white px-4 py-2 rounded hover:bg-[#294156] transition-colors">Show</button>
+                        </div>
                     </div>
                 </div>
 
-                <button type="submit" class="update-profile-btn">Update Profile</button>
+                <button type="submit" class="update-profile-btn">
+                    <i class="fas fa-save"></i> Update Profile
+                </button>
             </form>
         </div>
 
         <!-- Options menu -->
         <div class="options-menu">
             <a class="option-card">
-            <h3>My orders</h3>
-            {{#orders}}
-                <div class="order-card">
-                <h3>Order #{{id}}</h3>
-                <p>Delivery Address: {{address}}</p>
-                {{#products}}
-                    <p>-{{name}} x {{amount}}: ${{price}}</p>
-                {{/products}}
-                <p>Total: ${{total}}</p>
-                </div>
-            {{/orders}}
-            {{^orders}}
-                <p class="no-reviews">No orders yet.</p>
-            {{/orders}}
+                <h3><i class="fas fa-shopping-bag"></i> My Orders</h3>
+                {{#orders}}
+                    <div class="order-card">
+                        <h3>Order #{{id}}</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Delivery Address: {{address}}</p>
+                        {{#products}}
+                            <p>-{{name}} x {{amount}}: ${{price}}</p>
+                        {{/products}}
+                        <p class="total"><strong>Total: ${{total}}</strong></p>
+                    </div>
+                {{/orders}}
+                {{^orders}}
+                    <p class="no-reviews"><i class="fas fa-info-circle"></i> No orders yet.</p>
+                {{/orders}}
             </a>
         </div>
 
         <!-- Reviews Section -->
         <div class="reviews-section">
-            <h2>My Reviews</h2>
+            <h2><i class="fas fa-star"></i> My Reviews</h2>
             {{#reviews}}
             <a href="/product-details?id={{productId}}" class="review-card" style="text-decoration: none; color: inherit; display: block;">
                 <input type="number" name="productId" value="{{productId}}" hidden>
@@ -106,11 +128,11 @@
                     <span class="rating-value">{{rating}}/5</span>
                 </div>
                 <p class="review-comment">{{comment}}</p>
-                <span class="review-date">{{date}}</span>
+                <span class="review-date"><i class="far fa-calendar-alt"></i> {{date}}</span>
             </a>
             {{/reviews}}
             {{^reviews}}
-            <p class="no-reviews">No reviews yet.</p>
+            <p class="no-reviews"><i class="fas fa-info-circle"></i> No reviews yet.</p>
             {{/reviews}}
         </div>
     </main>
@@ -161,6 +183,35 @@
                 toggleButton.textContent = "Show";
             }
         }
+        
+        // Function to show custom notifications
+        function showNotification(message, type) {
+            const notificationContainer = document.getElementById('notification-container');
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            // Add close button
+            const closeBtn = document.createElement('span');
+            closeBtn.className = 'notification-close';
+            closeBtn.innerHTML = '&times;';
+            closeBtn.onclick = function() {
+                notification.remove();
+            };
+            
+            notification.appendChild(closeBtn);
+            notificationContainer.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                notification.classList.add('fade-out');
+                setTimeout(() => {
+                    notification.remove();
+                }, 500);
+            }, 5000);
+        }
 
         document.querySelector('form').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -176,14 +227,14 @@
 
             // Validate required fields
             if (!firstName || !lastName || !email) {
-                alert('Name, Surname and Email are required fields.');
+                showNotification('Name, Surname and Email are required fields.', 'error');
                 return;
             }
 
             // Validate email format
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
-                alert('Please enter a valid email address.');
+                showNotification('Please enter a valid email address.', 'error');
                 return;
             }
 
@@ -191,7 +242,7 @@
             if (phone) {
                 const phoneRegex = /^[0-9+\-\s()]*$/;
                 if (!phoneRegex.test(phone)) {
-                    alert('Please enter a valid phone number.');
+                    showNotification('Please enter a valid phone number.', 'error');
                     return;
                 }
             }
@@ -199,8 +250,8 @@
             // Validate age (optional field)
             if (age) {
                 const ageNum = parseInt(age);
-                if (isNaN(ageNum) || ageNum < 0 || ageNum > 120) {
-                    alert('Please enter a valid age between 0 and 120.');
+                if (isNaN(ageNum) || ageNum < 18 || ageNum > 120) {
+                    showNotification('Please enter a valid age between 18 and 120.', 'error');
                     return;
                 }
             }
@@ -208,17 +259,17 @@
             // Password validation
             if (newPassword && confirmPassword) {
                 if (newPassword.length < 8) {
-                    alert('The password must be at least 8 characters.');
+                    showNotification('The password must be at least 8 characters.', 'error');
                     return;
                 }
 
                 if (newPassword !== confirmPassword) {
-                    alert('The new passwords do not match. Please verify that they are the same.');
+                    showNotification('The new passwords do not match. Please verify that they are the same.', 'error');
                     return;
                 }
 
                 if (newPassword === currentPassword) {
-                    alert('The new password cannot be the same as the current password.');
+                    showNotification('The new password cannot be the same as the current password.', 'error');
                     return;
                 }
             }
@@ -252,13 +303,13 @@
                 return response.text();
             })
             .then(() => {
-                alert('Profile updated successfully!');
+                showNotification('Profile updated successfully!', 'success');
                 setTimeout(() => {
                     window.location.reload();
-                }, 1000);
+                }, 3000);
             })
             .catch(error => {
-                alert('Error updating profile: ' + error.message);
+                showNotification('Error updating profile: ' + error.message, 'error');
             });
         });
     </script>
