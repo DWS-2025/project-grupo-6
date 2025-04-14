@@ -42,6 +42,23 @@ public class ProductService {
         return productRepository.findAll(pageable);
     }
 
+    public Page<Product> getProductsByPageAndPrice(int page, int size, String sortOrder, double minPrice, double maxPrice) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        
+        if (sortOrder != null) {
+            switch (sortOrder) {
+                case "price_asc":
+                    return productRepository.findByPriceBetweenOrderByPriceAsc(minPrice, maxPrice, pageable);
+                case "price_desc":
+                    return productRepository.findByPriceBetweenOrderByPriceDesc(minPrice, maxPrice, pageable);
+                default:
+                    return productRepository.findByPriceBetween(minPrice, maxPrice, pageable);
+            }
+        }
+        
+        return productRepository.findByPriceBetween(minPrice, maxPrice, pageable);
+    }
+
     public List<Product> searchProducts(String query) {
         if (query == null || query.trim().isEmpty()) {
             return productRepository.findAll();
@@ -51,6 +68,20 @@ public class ProductService {
         return productRepository.findAll().stream()
             .filter(p -> p.getName().toLowerCase().contains(searchQuery) ||
                     p.getDescription().toLowerCase().contains(searchQuery))
+            .toList();
+    }
+
+    public List<Product> searchProductsByPrice(String query, double minPrice, double maxPrice) {
+        if (query == null || query.trim().isEmpty()) {
+            return productRepository.findByPriceBetween(minPrice, maxPrice, PageRequest.of(0, Integer.MAX_VALUE))
+                   .getContent();
+        }
+        
+        String searchQuery = query.toLowerCase();
+        return productRepository.findAll().stream()
+            .filter(p -> (p.getName().toLowerCase().contains(searchQuery) ||
+                         p.getDescription().toLowerCase().contains(searchQuery)) &&
+                         p.getPrice() >= minPrice && p.getPrice() <= maxPrice)
             .toList();
     }
 
@@ -98,5 +129,32 @@ public class ProductService {
             .mapToDouble(Review::getRating)
             .average()
             .orElse(0.0);
+    }
+
+    public double getMaxProductPrice() {
+        List<Product> allProducts = productRepository.findAll();
+        return allProducts.stream()
+                .mapToDouble(Product::getPrice)
+                .max()
+                .orElse(1000.0); // Default value if no products exist
+    }
+
+    public double getMaxPriceForFilter() {
+        double maxPrice = getMaxProductPrice();
+        double minPrice = productRepository.findAll().stream()
+                .mapToDouble(Product::getPrice)
+                .min()
+                .orElse(0.0);
+                
+        // Si la diferencia entre precio máximo y mínimo es pequeña, 
+        // añadir un porcentaje en lugar de un valor fijo
+        double priceDifference = maxPrice - minPrice;
+        if (priceDifference < 50) {
+            // Para rangos pequeños, añadir un 20% por encima y por debajo
+            return maxPrice * 1.2;
+        } else {
+            // Para rangos grandes, mantener el comportamiento original
+            return maxPrice + 100.0;
+        }
     }
 }

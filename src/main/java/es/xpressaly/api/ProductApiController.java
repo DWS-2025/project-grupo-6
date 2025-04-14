@@ -38,12 +38,30 @@ public class ProductApiController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(required = false) String search,
-            @RequestParam(required = false, defaultValue = "default") String sort) {
+            @RequestParam(required = false, defaultValue = "default") String sort,
+            @RequestParam(required = false, defaultValue = "0") double minPrice,
+            @RequestParam(required = false) Double maxPrice) {
         try {
             Map<String, Object> response = new HashMap<>();
             
+            // Calculate dynamic max price if not provided
+            double dynamicMaxPrice = productService.getMaxPriceForFilter();
+            double effectiveMaxPrice = maxPrice != null ? maxPrice : dynamicMaxPrice;
+            
+            // Add the dynamic max price to response for client-side slider
+            response.put("maxPriceForFilter", dynamicMaxPrice);
+            
             if (search != null && !search.isEmpty()) {
-                List<Product> products = productService.searchProducts(search);
+                // Modificado: Ya no ignoramos los filtros de precio en búsquedas por texto
+                List<Product> products;
+                
+                // Usar el filtro de precio si está especificado
+                if (minPrice > 0 || maxPrice != null) {
+                    products = productService.searchProductsByPrice(search, minPrice, effectiveMaxPrice);
+                } else {
+                    products = productService.searchProducts(search);
+                }
+                
                 List<Map<String, Object>> productList = products.stream()
                     .map(this::convertToMap)
                     .collect(Collectors.toList());
@@ -51,8 +69,18 @@ public class ProductApiController {
                 response.put("products", productList);
                 response.put("totalPages", 1);
                 response.put("currentPage", 1);
+                response.put("hasMore", false);
             } else {
-                Page<Product> productPage = productService.getProductsByPage(page, size, sort);
+                // Normal pagination with price filtering
+                Page<Product> productPage;
+                
+                // Use price filter if specified
+                if (minPrice > 0 || maxPrice != null) {
+                    productPage = productService.getProductsByPageAndPrice(page, size, sort, minPrice, effectiveMaxPrice);
+                } else {
+                    productPage = productService.getProductsByPage(page, size, sort);
+                }
+                
                 List<Map<String, Object>> productList = productPage.getContent().stream()
                     .map(this::convertToMap)
                     .collect(Collectors.toList());

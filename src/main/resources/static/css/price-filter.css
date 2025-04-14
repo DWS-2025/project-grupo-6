@@ -1,0 +1,94 @@
+/* Price Range Slider Styles */
+.slider-track {
+    background: #e0e0e0;
+    border-radius: 4px;
+}
+
+.range-selected {
+    background: #294156;
+    border-radius: 4px;
+    height: 4px !important;
+}
+
+.range-min-thumb, .range-max-thumb {
+    width: 20px;
+    height: 20px;
+    background: #294156;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.2s;
+    z-index: 30;
+}
+
+.range-min-thumb:hover, .range-max-thumb:hover, 
+.range-min-thumb:active, .range-max-thumb:active {
+    transform: scale(1.2) translateY(-50%) translateX(-50%);
+    background: #567C8D;
+}
+
+.price-range-input {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 20px; /* Increased touch area */
+    width: 100%;
+    background: transparent;
+    pointer-events: none;
+    margin: 0;
+    padding: 0;
+}
+
+.price-range-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px; /* Larger touch area for the thumb */
+    height: 24px;
+    border-radius: 50%;
+    background: #294156;
+    cursor: pointer;
+    pointer-events: auto;
+    z-index: 30;
+    opacity: 0; /* Make it invisible but clickable */
+}
+
+.price-range-input::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #294156;
+    cursor: pointer;
+    border: none;
+    pointer-events: auto;
+    z-index: 30;
+    opacity: 0;
+}
+
+/* Make sure the numeric inputs have consistent styling */
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button, 
+input[type="number"]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Responsive adjustments for the filter area */
+@media (max-width: 640px) {
+    .price-filter-container {
+        flex-direction: column;
+    }
+    
+    .range-min-thumb, .range-max-thumb {
+        width: 24px; /* Even larger on mobile */
+        height: 24px;
+    }
+    
+    .price-range-input::-webkit-slider-thumb,
+    .price-range-input::-moz-range-thumb {
+        width: 28px;
+        height: 28px;
+    }
+} 

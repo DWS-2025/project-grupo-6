@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/css/product-cards.css">
     <link rel="stylesheet" href="/css/wellcome.css">
     <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/price-filter.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
 
@@ -31,9 +32,9 @@
         </div>
         
         <!-- Search Box and Sort Options -->
-        <div class="mb-6 flex gap-2">
+        <div class="mb-6 flex flex-wrap gap-2">
             <input type="text" id="productSearch" placeholder="Search products by name..." 
-                   class="w-full p-3 border border-[#294156]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#294156]/50" />
+                   class="w-full md:flex-1 p-3 border border-[#294156]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#294156]/50" />
             <button id="searchButton" class="button px-6 py-3 rounded-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -45,6 +46,56 @@
                 <option value="price_asc">Price: Low to High</option>
                 <option value="price_desc">Price: High to Low</option>
             </select>
+        </div>
+
+        <!-- Price Range Filter -->
+        <div class="mb-6 bg-white p-4 rounded-lg shadow-sm border border-[#294156]/10">
+            <h3 class="text-[#294156] font-medium mb-3">Filter by Price</h3>
+            
+            <!-- Price Range Slider -->
+            <div class="relative mb-4 h-10">
+                <div class="slider-track h-2 bg-gray-200 rounded absolute w-full top-1/2 transform -translate-y-1/2"></div>
+                <div class="range-selected absolute top-1/2 transform -translate-y-1/2 h-2 bg-[#294156] rounded"></div>
+                
+                <input type="range" id="price-range-min" min="0" max="1000" value="0" step="1"
+                       class="price-range-input absolute top-0 left-0 w-full h-10 opacity-0 cursor-pointer z-10" />
+                <input type="range" id="price-range-max" min="0" max="1000" value="1000" step="1"
+                       class="price-range-input absolute top-0 left-0 w-full h-10 opacity-0 cursor-pointer z-20" />
+                
+                <div class="range-min-thumb absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 w-5 h-5 bg-[#294156] rounded-full cursor-pointer z-30"></div>
+                <div class="range-max-thumb absolute top-1/2 transform -translate-y-1/2 -translate-x-1/2 w-5 h-5 bg-[#294156] rounded-full cursor-pointer z-30"></div>
+            </div>
+            
+            <!-- Price Range Display -->
+            <div class="flex justify-between text-xs text-[#294156]/70 mb-2">
+                <span id="range-min-display">$0</span>
+                <span id="range-midpoint-display">$500</span>
+                <span id="range-max-display">$1000</span>
+            </div>
+            
+            <!-- Price Range Inputs -->
+            <div class="flex items-center gap-4 mb-2">
+                <div class="flex-1">
+                    <label for="price-min" class="block text-sm text-[#294156]/70 mb-1">Min Price ($)</label>
+                    <input type="number" id="price-min" min="0" max="1000" value="0" 
+                           class="w-full p-2 border border-[#294156]/20 rounded focus:outline-none focus:ring-1 focus:ring-[#294156]" />
+                </div>
+                <div class="flex-1">
+                    <label for="price-max" class="block text-sm text-[#294156]/70 mb-1">Max Price ($)</label>
+                    <input type="number" id="price-max" min="0" max="1000" value="1000" 
+                           class="w-full p-2 border border-[#294156]/20 rounded focus:outline-none focus:ring-1 focus:ring-[#294156]" />
+                </div>
+            </div>
+            
+            <!-- Apply Filter Button -->
+            <div class="flex gap-2">
+                <button id="apply-price-filter" class="flex-1 bg-[#294156] text-white px-4 py-2 rounded hover:bg-[#567C8D] transition-colors">
+                    Apply Filter
+                </button>
+                <button id="reset-price-filter" class="px-4 py-2 rounded border border-[#294156] text-[#294156] hover:bg-[#294156]/10 transition-colors">
+                    Reset
+                </button>
+            </div>
         </div>
 
         <!-- Products Grid -->
@@ -70,7 +121,309 @@
     let currentProductPage = 1;
     const productsPerPage = 5;
     let allProductsLoaded = false;
+    let minPrice = 0;
+    let maxPrice = 1000;
+    let dynamicMaxPrice = 1000; // This will be updated from server
+    let currentSortValue = "default";
 
+    // Fetch the initial max price for filter setup
+    async function fetchInitialMaxPrice() {
+        try {
+            const response = await fetch(`/api/products?page=1&size=1`);
+            const data = await response.json();
+            
+            if (data.maxPriceForFilter) {
+                dynamicMaxPrice = Math.ceil(data.maxPriceForFilter);
+                maxPrice = dynamicMaxPrice;
+                
+                // También buscar el precio mínimo de los productos
+                fetch(`/api/products?page=1&size=${productsPerPage}&sort=price_asc`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.products && data.products.length > 0) {
+                            // Obtener el precio mínimo encontrado
+                            const lowestPrice = Math.floor(data.products[0].price);
+                            
+                            // Actualizar el precio mínimo si es mayor que cero
+                            if (lowestPrice > 0) {
+                                minPrice = lowestPrice;
+                                // También actualizar el input del slider
+                                const minRangeInput = document.getElementById('price-range-min');
+                                const minValueInput = document.getElementById('price-min');
+                                
+                                minRangeInput.min = minPrice;
+                                minValueInput.min = minPrice;
+                                minRangeInput.value = minPrice;
+                                minValueInput.value = minPrice;
+                                
+                                // Actualizar el texto del label
+                                document.querySelector('label[for="price-min"]').textContent = `Min Price ($${minPrice})`;
+                            }
+                        }
+                        
+                        // Update range inputs with the new max price
+                        const maxRangeInput = document.getElementById('price-range-max');
+                        const maxValueInput = document.getElementById('price-max');
+                        const minRangeInput = document.getElementById('price-range-min');
+                        
+                        maxRangeInput.max = dynamicMaxPrice;
+                        maxValueInput.max = dynamicMaxPrice;
+                        maxRangeInput.value = dynamicMaxPrice;
+                        maxValueInput.value = dynamicMaxPrice;
+                        
+                        // Ajustar el step del slider basado en el rango
+                        const priceDifference = dynamicMaxPrice - minPrice;
+                        let stepSize = 1;
+                        
+                        if (priceDifference < 20) {
+                            stepSize = 0.5;
+                        } else if (priceDifference < 100) {
+                            stepSize = 1;
+                        } else if (priceDifference < 1000) {
+                            stepSize = 5;
+                        } else {
+                            stepSize = 10;
+                        }
+                        
+                        minRangeInput.step = stepSize;
+                        maxRangeInput.step = stepSize;
+                        
+                        console.log(`Updated price range: ${minPrice} - ${dynamicMaxPrice}, step: ${stepSize}`);
+                        
+                        // Setup slider after getting min/max prices
+                        setupPriceSlider();
+                    })
+                    .catch(error => {
+                        console.error("Error fetching min price:", error);
+                        setupPriceSlider();
+                    });
+            }
+        } catch (error) {
+            console.error("Error fetching max price:", error);
+            // Still set up the slider with default values if there's an error
+            setupPriceSlider();
+        }
+    }
+    
+    // Call this on page load
+    window.onload = function() {
+        fetchInitialMaxPrice().then(() => {
+            loadMoreProducts();
+        });
+    };
+
+    // Setup price range sliders
+    function setupPriceSlider() {
+        const minRangeInput = document.getElementById('price-range-min');
+        const maxRangeInput = document.getElementById('price-range-max');
+        const minValueInput = document.getElementById('price-min');
+        const maxValueInput = document.getElementById('price-max');
+        const rangeMinThumb = document.querySelector('.range-min-thumb');
+        const rangeMaxThumb = document.querySelector('.range-max-thumb');
+        const rangeSelected = document.querySelector('.range-selected');
+        const sliderTrack = document.querySelector('.slider-track');
+        const applyFilterBtn = document.getElementById('apply-price-filter');
+        
+        // Update label text to show the dynamic max price
+        document.querySelector('label[for="price-max"]').textContent = `Max Price ($${dynamicMaxPrice})`;
+        
+        // Set initial positions of thumbs
+        function setThumbPosition(thumb, input) {
+            const percent = (parseInt(input.value) / parseInt(input.max)) * 100;
+            thumb.style.left = `${percent}%`;
+        }
+        
+        // Set initial positions
+        setThumbPosition(rangeMinThumb, minRangeInput);
+        setThumbPosition(rangeMaxThumb, maxRangeInput);
+        updateRangeVisuals();
+        
+        // Handle track clicks to set thumb positions
+        sliderTrack.addEventListener('click', function(e) {
+            // Calculate click position as percentage
+            const trackRect = sliderTrack.getBoundingClientRect();
+            const clickPosition = e.clientX - trackRect.left;
+            const percentPosition = (clickPosition / trackRect.width) * 100;
+            const clickValue = Math.round((percentPosition / 100) * parseInt(maxRangeInput.max));
+            
+            // Determine which thumb to move (closest one)
+            const minThumbPos = parseInt(minRangeInput.value);
+            const maxThumbPos = parseInt(maxRangeInput.value);
+            
+            if (Math.abs(clickValue - minThumbPos) <= Math.abs(clickValue - maxThumbPos)) {
+                // Move min thumb
+                minRangeInput.value = clickValue;
+                minValueInput.value = clickValue;
+                setThumbPosition(rangeMinThumb, minRangeInput);
+            } else {
+                // Move max thumb
+                maxRangeInput.value = clickValue;
+                maxValueInput.value = clickValue;
+                setThumbPosition(rangeMaxThumb, maxRangeInput);
+            }
+            
+            updateRangeVisuals();
+        });
+        
+        // Handle min range input changes
+        minRangeInput.addEventListener('input', function() {
+            let minVal = parseInt(minRangeInput.value);
+            let maxVal = parseInt(maxRangeInput.value);
+            
+            // Ensure min doesn't exceed max - 10
+            if (minVal > maxVal - 10) {
+                minVal = maxVal - 10;
+                minRangeInput.value = minVal;
+            }
+            
+            minValueInput.value = minVal;
+            setThumbPosition(rangeMinThumb, minRangeInput);
+            updateRangeVisuals();
+        });
+        
+        // Handle max range input changes
+        maxRangeInput.addEventListener('input', function() {
+            let minVal = parseInt(minRangeInput.value);
+            let maxVal = parseInt(maxRangeInput.value);
+            
+            // Ensure max doesn't go below min + 10
+            if (maxVal < minVal + 10) {
+                maxVal = minVal + 10;
+                maxRangeInput.value = maxVal;
+            }
+            
+            maxValueInput.value = maxVal;
+            setThumbPosition(rangeMaxThumb, maxRangeInput);
+            updateRangeVisuals();
+        });
+        
+        // Handle min input field changes
+        minValueInput.addEventListener('change', function() {
+            let minVal = parseInt(minValueInput.value);
+            let maxVal = parseInt(maxValueInput.value);
+            
+            // Validate input
+            if (isNaN(minVal) || minVal < 0) minVal = 0;
+            if (minVal > maxVal - 10) minVal = maxVal - 10;
+            
+            minValueInput.value = minVal;
+            minRangeInput.value = minVal;
+            setThumbPosition(rangeMinThumb, minRangeInput);
+            updateRangeVisuals();
+        });
+        
+        // Handle max input field changes
+        maxValueInput.addEventListener('change', function() {
+            let minVal = parseInt(minValueInput.value);
+            let maxVal = parseInt(maxValueInput.value);
+            
+            // Validate input
+            if (isNaN(maxVal) || maxVal > dynamicMaxPrice) maxVal = dynamicMaxPrice;
+            if (maxVal < minVal + 10) maxVal = minVal + 10;
+            
+            maxValueInput.value = maxVal;
+            maxRangeInput.value = maxVal;
+            setThumbPosition(rangeMaxThumb, maxRangeInput);
+            updateRangeVisuals();
+        });
+        
+        // Update visual elements of the range slider
+        function updateRangeVisuals() {
+            const minVal = parseInt(minRangeInput.value);
+            const maxVal = parseInt(maxRangeInput.value);
+            const minPercent = (minVal / parseInt(minRangeInput.max)) * 100;
+            const maxPercent = (maxVal / parseInt(maxRangeInput.max)) * 100;
+            
+            rangeSelected.style.left = `${minPercent}%`;
+            rangeSelected.style.width = `${maxPercent - minPercent}%`;
+            
+            // Actualizar textos de visualización de rango
+            document.getElementById('range-min-display').textContent = `$${minVal}`;
+            document.getElementById('range-max-display').textContent = `$${maxVal}`;
+            
+            // Calcular y mostrar el punto medio
+            const midpointValue = Math.round((minVal + maxVal) / 2);
+            document.getElementById('range-midpoint-display').textContent = `$${midpointValue}`;
+        }
+        
+        // Apply filter button click handler
+        applyFilterBtn.addEventListener('click', function() {
+            minPrice = parseInt(minValueInput.value);
+            maxPrice = parseInt(maxValueInput.value);
+            
+            // Reset page counter and reload products with filter
+            currentProductPage = 1;
+            const productsGrid = document.getElementById('productsGrid');
+            productsGrid.innerHTML = '';
+            loadMoreProducts();
+        });
+        
+        // Setup price sort dropdown
+        const priceSort = document.getElementById('priceSort');
+        priceSort.addEventListener('change', function() {
+            currentSortValue = this.value;
+            
+            // Optionally, we can reset the price filter when changing sort
+            if (this.value === 'default') {
+                // Reset price filter to default values
+                minValueInput.value = 0;
+                maxValueInput.value = dynamicMaxPrice;
+                minRangeInput.value = 0;
+                maxRangeInput.value = dynamicMaxPrice;
+                minPrice = 0;
+                maxPrice = dynamicMaxPrice;
+                
+                // Update range slider visuals
+                setThumbPosition(rangeMinThumb, minRangeInput);
+                setThumbPosition(rangeMaxThumb, maxRangeInput);
+                updateRangeVisuals();
+            }
+            
+            // Reset and reload with current filter and sort
+            currentProductPage = 1;
+            const productsGrid = document.getElementById('productsGrid');
+            productsGrid.innerHTML = '';
+            loadMoreProducts();
+        });
+        
+        // Add event listener for reset button
+        document.getElementById('reset-price-filter').addEventListener('click', function(e) {
+            e.preventDefault();
+            resetPriceFilter();
+        });
+    }
+
+    // Function to reset the price filter
+    function resetPriceFilter() {
+        const minRangeInput = document.getElementById('price-range-min');
+        const maxRangeInput = document.getElementById('price-range-max');
+        const minValueInput = document.getElementById('price-min');
+        const maxValueInput = document.getElementById('price-max');
+        const rangeMinThumb = document.querySelector('.range-min-thumb');
+        const rangeMaxThumb = document.querySelector('.range-max-thumb');
+        
+        minValueInput.value = minPrice; // Usar el precio mínimo encontrado en lugar de 0
+        maxValueInput.value = dynamicMaxPrice;
+        minRangeInput.value = minPrice; // Usar el precio mínimo encontrado en lugar de 0
+        maxRangeInput.value = dynamicMaxPrice;
+        
+        // Update range slider visuals
+        const rangeSelected = document.querySelector('.range-selected');
+        const minPercent = 0;
+        const maxPercent = 100;
+        
+        rangeMinThumb.style.left = `${minPercent}%`;
+        rangeMaxThumb.style.left = `${maxPercent}%`;
+        rangeSelected.style.left = `${minPercent}%`;
+        rangeSelected.style.width = `${maxPercent - minPercent}%`;
+        
+        // Reset page counter and reload products
+        currentProductPage = 1;
+        const productsGrid = document.getElementById('productsGrid');
+        productsGrid.innerHTML = '';
+        loadMoreProducts();
+    }
+    
     function loadMoreProducts() {
         // Disable the button while loading products
         const loadMoreBtn = document.getElementById('loadMoreBtn');
@@ -78,7 +431,7 @@
         loadMoreBtn.textContent = 'Loading...';
         
         // Make AJAX request to the server to get the next page of products
-        fetch(`/api/products?page=${currentProductPage}&size=${productsPerPage}`)
+        fetch(`/api/products?page=${currentProductPage}&size=${productsPerPage}&minPrice=${minPrice}&maxPrice=${maxPrice}&sort=${currentSortValue}`)
             .then(response => response.json())
             .then(data => {
                 const products = data.products;
@@ -142,24 +495,47 @@
                     if (!data.hasMore || products.length < productsPerPage) {
                         loadMoreBtn.style.display = 'none';
                         allProductsLoaded = true;
+                    } else {
+                        loadMoreBtn.style.display = '';
                     }
                 } else {
-                    // No more products
+                    // No products found with current filters
+                    if (currentProductPage === 1) {
+                        productsGrid.innerHTML = `
+                            <div class="col-span-full text-center py-8">
+                                <p class="text-[#294156] opacity-70">No products found within the selected price range.</p>
+                                <button id="reset-filters" class="mt-4 bg-[#567C8D] text-white px-4 py-2 rounded hover:bg-[#294156] transition-colors">
+                                    Reset Filters
+                                </button>
+                            </div>
+                        `;
+                        
+                        // Add event listener to reset filters button
+                        document.getElementById('reset-filters').addEventListener('click', function() {
+                            // Reset price filter
+                            resetPriceFilter();
+                        });
+                    }
+                    
+                    // Hide load more button
                     loadMoreBtn.style.display = 'none';
                     allProductsLoaded = true;
                 }
             })
             .catch(error => {
                 console.error('Error loading products:', error);
+                const productsGrid = document.getElementById('productsGrid');
+                if (currentProductPage === 1) {
+                    productsGrid.innerHTML = `
+                        <div class="col-span-full text-center py-8">
+                            <p class="text-red-500">Error loading products. Please try again.</p>
+                        </div>
+                    `;
+                }
                 loadMoreBtn.disabled = false;
                 loadMoreBtn.textContent = 'Load More Products';
             });
     }
-
-    // Initial load of first page
-    window.onload = function() {
-        loadMoreProducts();
-    };
 
     // Function to attach event listeners to add-to-cart forms
     function attachAddToCartListeners(forms) {
@@ -364,7 +740,20 @@
         // Database search
         searchButton.addEventListener('click', async function() {
             const searchTerm = searchInput.value.trim();
-            
+            performSearch(searchTerm);
+        });
+        
+        // También permitir búsqueda al presionar Enter
+        searchInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const searchTerm = this.value.trim();
+                performSearch(searchTerm);
+            }
+        });
+        
+        // Función compartida para realizar la búsqueda
+        async function performSearch(searchTerm) {
             // If search term is empty, load all products
             if (!searchTerm) {
                 window.location.href = '/products';
@@ -382,9 +771,13 @@
                 // Show loading message
                 productsGrid.innerHTML = '<div class="col-span-full text-center py-8">Loading results...</div>';
                 
-                // Make search request
-                const response = await fetch(`/search-products-json?term=${encodeURIComponent(searchTerm)}&page=1&size=${productsPerPage}`);
+                // Get current price filter values
+                const currentMinPrice = parseInt(document.getElementById('price-min').value) || 0;
+                const currentMaxPrice = parseInt(document.getElementById('price-max').value) || dynamicMaxPrice;
                 
+                // Make search request with price filters
+                const response = await fetch(`/search-products-json?term=${encodeURIComponent(searchTerm)}&page=1&size=${productsPerPage}&minPrice=${currentMinPrice}&maxPrice=${currentMaxPrice}`);
+            
                 if (response.ok) {
                     const data = await response.json();
                     
@@ -470,7 +863,7 @@
                 `;
                 document.getElementById('loadMoreBtn').style.display = 'none';
             }
-        });
+        }
         
         // Function to load more search results
         function loadMoreSearchResults(searchTerm) {
@@ -478,7 +871,11 @@
             loadMoreBtn.disabled = true;
             loadMoreBtn.textContent = 'Loading...';
             
-            fetch(`/search-products-json?term=${encodeURIComponent(searchTerm)}&page=${currentProductPage}&size=${productsPerPage}`)
+            // Get current price filter values
+            const currentMinPrice = parseInt(document.getElementById('price-min').value) || 0;
+            const currentMaxPrice = parseInt(document.getElementById('price-max').value) || dynamicMaxPrice;
+            
+            fetch(`/search-products-json?term=${encodeURIComponent(searchTerm)}&page=${currentProductPage}&size=${productsPerPage}&minPrice=${currentMinPrice}&maxPrice=${currentMaxPrice}`)
                 .then(response => response.json())
                 .then(data => {
                     const products = data.products;
@@ -602,7 +999,7 @@
                         });
                         
                         // Attach event listeners
-                        attachAddToCartListeners(document.querySelectorAll('.add-to-cart-form'));
+        attachAddToCartListeners(document.querySelectorAll('.add-to-cart-form'));
                         
                         // Increment page
                         currentProductPage++;

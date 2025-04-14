@@ -248,10 +248,22 @@ public class ProductController {
     public Map<String, Object> searchProductsJson(
             @RequestParam String term,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "5") int size) {
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(required = false, defaultValue = "0") double minPrice,
+            @RequestParam(required = false) Double maxPrice) {
         Map<String, Object> response = new HashMap<>();
         try {
-            List<Product> searchResults = productService.searchProducts(term);
+            // Calculamos el precio máximo efectivo
+            double dynamicMaxPrice = productService.getMaxPriceForFilter();
+            double effectiveMaxPrice = maxPrice != null ? maxPrice : dynamicMaxPrice;
+            
+            // Obtenemos los resultados con filtro de precio
+            List<Product> searchResults;
+            if (minPrice > 0 || maxPrice != null) {
+                searchResults = productService.searchProductsByPrice(term, minPrice, effectiveMaxPrice);
+            } else {
+                searchResults = productService.searchProducts(term);
+            }
             
             // Calculate pagination manually
             int total = searchResults.size();
@@ -274,6 +286,7 @@ public class ProductController {
             response.put("totalPages", (int) Math.ceil((double) total / size));
             response.put("currentPage", page);
             response.put("hasMore", end < total);
+            response.put("maxPriceForFilter", dynamicMaxPrice);
             
             return response;
         } catch (Exception e) {
