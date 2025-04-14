@@ -130,17 +130,24 @@ public class UserController {
                 addUserDataToModel(model, user);
                 return "profile";
             }
+            
+            // Password validation
             if (password != null && !password.isEmpty()) {
-                if (!password.equals(confirmPassword)) {
+                if (confirmPassword == null || !password.equals(confirmPassword)) {
                     model.addAttribute("error", "Passwords do not match");
                     addUserDataToModel(model, user);
                     return "profile";
                 }
-                if (password.length() < 8 || !password.matches(".*[A-Z].*") || !password.matches(".*[a-z].*") || !password.matches(".*\\d.*")) {
+                // Check password complexity
+                if (password.length() < 8) {
                     model.addAttribute("error", "Password must be at least 8 characters long and contain uppercase, lowercase, and numbers");
                     addUserDataToModel(model, user);
                     return "profile";
                 }
+                
+                // Set the new password
+                user.setPassword(password);
+                //System.out.println("Updated password to: " + password); // Debug logging
             }
 
             user.setFirstName(firstName);
@@ -150,15 +157,14 @@ public class UserController {
             user.setPhoneNumber(phone);
             user.setAge(age);
             
-            if (password != null && !password.isEmpty() && password.equals(confirmPassword)) {
-                user.setPassword(password);
-            }
-            
+            // Save the updated user
             userService.updateUser(user);
             model.addAttribute("success", "Profile updated successfully");
             return "redirect:/profile";
 
         } catch (Exception e) {
+            System.out.println("Error updating profile: " + e.getMessage());
+            e.printStackTrace();
             model.addAttribute("error", e.getMessage());
             addUserDataToModel(model, userService.getUser());
             return "profile";
