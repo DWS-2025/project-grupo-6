@@ -49,71 +49,8 @@
 
         <!-- Products Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6" id="productsGrid">
-            {{#products}}
-            <div class="product-card rounded-lg overflow-hidden product-item" style="display: none;" data-id="{{id}}" data-name="{{name}}" data-price="{{price}}">
-                <div class="product-image-container">
-                    <a href="/product-details?id={{id}}">
-                        <img src="/image/{{id}}" alt="{{name}}" class="cursor-pointer hover:scale-105 transition-transform duration-500">
-                    </a>
-                </div>
-                <div class="product-info p-3 space-y-1">
-                    <h3 class="product-name text-[#294156] text-lg font-medium leading-snug">{{name}}</h3>
-                    <p class="text-[#567C8D] font-light">${{price}}</p>
-                    <p class="text-[#567C8D]/70 text-sm font-light">Stock: {{stock}}</p>
-                </div>
-                <div class="product-buttons space-y-2 p-4 pt-0">
-                    <form action="/add-to-order" method="post" class="block add-to-cart-form">
-                        <input type="hidden" name="productId" value="{{id}}">
-                        <button type="submit" class="w-full bg-[#294156] text-white px-4 py-2 rounded hover:bg-[green] transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                            Add to Cart
-                        </button>
-                    </form>
-                    {{#isAdmin}}
-                    <form action="/delete-product" method="post" class="block">
-                        <input type="hidden" name="productId" value="{{id}}">
-                        <button type="submit" class="w-full bg-[#567C8D] text-white px-4 py-2 rounded hover:bg-[red] transition-colors">Delete Product</button>
-                    </form>
-                    {{/isAdmin}}
-                </div>
-            </div>
-            {{/products}}
+            <!-- Los productos se cargarán dinámicamente mediante JavaScript -->
         </div>
-        <template id="productTemplate">
-            {{#products}}
-            <div class="product-card rounded-lg overflow-hidden product-item" style="display: none;" data-id="{{id}}" data-name="{{name}}" data-price="{{price}}">
-                <div class="product-image-container">
-                    <a href="/product-details?id={{id}}">
-                        <img src="/image/{{id}}" alt="{{name}}" class="cursor-pointer hover:scale-105 transition-transform duration-500">
-                    </a>
-                </div>
-                <div class="product-info p-3 space-y-1">
-                    <h3 class="product-name text-[#294156] text-lg font-medium leading-snug">{{name}}</h3>
-                    <p class="text-[#567C8D] font-light">${{price}}</p>
-                    <p class="text-[#567C8D]/70 text-sm font-light">Stock: {{stock}}</p>
-                </div>
-                <div class="product-buttons space-y-2 p-4 pt-0">
-                    <form action="/add-to-order" method="post" class="block add-to-cart-form">
-                        <input type="hidden" name="productId" value="{{id}}">
-                        <button type="submit" class="w-full bg-[#294156] text-white px-4 py-2 rounded hover:bg-[green] transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                            Add to Cart
-                        </button>
-                    </form>
-                    {{#isAdmin}}
-                    <form action="/delete-product" method="post" class="block">
-                        <input type="hidden" name="productId" value="{{id}}">
-                        <button type="submit" class="w-full bg-[#567C8D] text-white px-4 py-2 rounded hover:bg-[red] transition-colors">Delete Product</button>
-                    </form>
-                    {{/isAdmin}}
-                </div>
-            </div>
-            {{/products}}
-        </template>
 
         <div class="text-center mt-8 mb-6">
             <button id="loadMoreBtn" class="button px-6 py-3 rounded-lg bg-[#294156] text-white hover:bg-[#567C8D] transition-all duration-300 flex items-center mx-auto shadow-md hover:shadow-lg transform hover:-translate-y-1" onclick="loadMoreProducts()">
@@ -130,36 +67,93 @@
 </html>
 
 <script>
-    let currentProductPage = 0;
+    let currentProductPage = 1;
     const productsPerPage = 5;
     let allProductsLoaded = false;
 
     function loadMoreProducts() {
-        const template = document.getElementById('productTemplate');
-        const hiddenProducts = template.content.querySelectorAll('.product-item');
-        const startIndex = currentProductPage * productsPerPage;
-        const endIndex = startIndex + productsPerPage;
-        let productsLoaded = 0;
-
-        hiddenProducts.forEach((product, index) => {
-            if (index >= startIndex && index < endIndex) {
-                const clone = product.cloneNode(true);
-                clone.style.display = "";
-                document.getElementById('productsGrid').appendChild(clone);
+        // Disable the button while loading products
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        loadMoreBtn.disabled = true;
+        loadMoreBtn.textContent = 'Loading...';
+        
+        // Make AJAX request to the server to get the next page of products
+        fetch(`/api/products?page=${currentProductPage}&size=${productsPerPage}`)
+            .then(response => response.json())
+            .then(data => {
+                const products = data.products;
+                const productsGrid = document.getElementById('productsGrid');
                 
-                // Attach event listeners to the newly added forms
-                attachAddToCartListeners(clone.querySelectorAll('.add-to-cart-form'));
+                console.log('Products received:', products);
                 
-                productsLoaded++;
-            }
-        });
-
-        currentProductPage++;
-
-        if (productsLoaded < productsPerPage || startIndex + productsLoaded >= hiddenProducts.length) {
-            document.getElementById('loadMoreBtn').style.display = 'none';
-            allProductsLoaded = true;
-        }
+                if (products && products.length > 0) {
+                    // Add each product to the grid
+                    products.forEach(product => {
+                        console.log('Processing product:', product);
+                        const template = `
+                            <div class="product-card rounded-lg overflow-hidden product-item" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
+                                <div class="product-image-container">
+                                    <a href="/product-details?id=${product.id}">
+                                        <img src="/image/${product.id}" alt="${product.name}" class="cursor-pointer hover:scale-105 transition-transform duration-500">
+                                    </a>
+                                </div>
+                                <div class="product-info p-3 space-y-1">
+                                    <h3 class="product-name text-[#294156] text-lg font-medium leading-snug">${product.name}</h3>
+                                    <p class="text-[#567C8D] font-light">$${product.price}</p>
+                                    <p class="text-[#567C8D]/70 text-sm font-light">Stock: ${product.stock}</p>
+                                </div>
+                                <div class="product-buttons space-y-2 p-4 pt-0">
+                                    <form action="/add-to-order" method="post" class="block add-to-cart-form">
+                                        <input type="hidden" name="productId" value="${product.id}">
+                                        <button type="submit" class="w-full bg-[#294156] text-white px-4 py-2 rounded hover:bg-[green] transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                            </svg>
+                                            Add to Cart
+                                        </button>
+                                    </form>
+                                    ${product.isAdmin ? `
+                                    <form action="/delete-product" method="post" class="block">
+                                        <input type="hidden" name="productId" value="${product.id}">
+                                        <button type="submit" class="w-full bg-[#567C8D] text-white px-4 py-2 rounded hover:bg-[red] transition-colors">Delete Product</button>
+                                    </form>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Add the product to the grid
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = template.trim();
+                        productsGrid.appendChild(tempDiv.firstChild);
+                    });
+                    
+                    // Attach event listeners to the newly added forms
+                    attachAddToCartListeners(document.querySelectorAll('.add-to-cart-form'));
+                    
+                    // Increment the page counter
+                    currentProductPage++;
+                    
+                    // Enable the button again
+                    loadMoreBtn.disabled = false;
+                    loadMoreBtn.textContent = 'Load More Products';
+                    
+                    // Check if there are more products to load
+                    if (!data.hasMore || products.length < productsPerPage) {
+                        loadMoreBtn.style.display = 'none';
+                        allProductsLoaded = true;
+                    }
+                } else {
+                    // No more products
+                    loadMoreBtn.style.display = 'none';
+                    allProductsLoaded = true;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading products:', error);
+                loadMoreBtn.disabled = false;
+                loadMoreBtn.textContent = 'Load More Products';
+            });
     }
 
     // Initial load of first page
@@ -222,7 +216,7 @@
                         body: new FormData(this)
                     });
                     
-                    // Intentar procesar la respuesta como JSON, pero no fallar si no es JSON
+                    // Try to process the response as JSON, but don't fail if it's not JSON
                     let data = {};
                     try {
                         data = await response.json();
@@ -272,33 +266,364 @@
         // Price sorting functionality
         priceSort.addEventListener('change', function() {
             const sortValue = this.value;
-            window.location.href = `/products?sort=${sortValue}`;
+            
+            // Clear the products grid
+            const productsGrid = document.getElementById('productsGrid');
+            productsGrid.innerHTML = '<div class="col-span-full text-center py-8">Loading products...</div>';
+            
+            // Reset pagination
+            currentProductPage = 1;
+            
+            // Load sorted products
+            fetch(`/api/products?page=1&size=${productsPerPage}&sort=${sortValue}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Clear the grid
+                    productsGrid.innerHTML = '';
+                    
+                    if (data.products && data.products.length > 0) {
+                        // Show the products
+                        data.products.forEach(product => {
+                            const template = `
+                                <div class="product-card rounded-lg overflow-hidden product-item" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
+                                    <div class="product-image-container">
+                                        <a href="/product-details?id=${product.id}">
+                                            <img src="/image/${product.id}" alt="${product.name}" class="cursor-pointer hover:scale-105 transition-transform duration-500">
+                                        </a>
+                                    </div>
+                                    <div class="product-info p-3 space-y-1">
+                                        <h3 class="product-name text-[#294156] text-lg font-medium leading-snug">${product.name}</h3>
+                                        <p class="text-[#567C8D] font-light">$${product.price}</p>
+                                        <p class="text-[#567C8D]/70 text-sm font-light">Stock: ${product.stock}</p>
+                                    </div>
+                                    <div class="product-buttons space-y-2 p-4 pt-0">
+                                        <form action="/add-to-order" method="post" class="block add-to-cart-form">
+                                            <input type="hidden" name="productId" value="${product.id}">
+                                            <button type="submit" class="w-full bg-[#294156] text-white px-4 py-2 rounded hover:bg-[green] transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                </svg>
+                                                Add to Cart
+                                            </button>
+                                        </form>
+                                        ${product.isAdmin ? `
+                                        <form action="/delete-product" method="post" class="block">
+                                            <input type="hidden" name="productId" value="${product.id}">
+                                            <button type="submit" class="w-full bg-[#567C8D] text-white px-4 py-2 rounded hover:bg-[red] transition-colors">Delete Product</button>
+                                        </form>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            `;
+                            
+                            const tempDiv = document.createElement('div');
+                            tempDiv.innerHTML = template.trim();
+                            productsGrid.appendChild(tempDiv.firstChild);
+                        });
+                        
+                        // Attach event listeners
+                        attachAddToCartListeners(document.querySelectorAll('.add-to-cart-form'));
+                        
+                        // Increment page
+                        currentProductPage++;
+                        
+                        // Update "Load More" button
+                        const loadMoreBtn = document.getElementById('loadMoreBtn');
+                        if (data.hasMore) {
+                            loadMoreBtn.style.display = '';
+                            loadMoreBtn.disabled = false;
+                            
+                            // Modify onclick to include sorting
+                            loadMoreBtn.onclick = function() {
+                                loadMoreProductsWithSort(sortValue);
+                            };
+                        } else {
+                            loadMoreBtn.style.display = 'none';
+                        }
+                    } else {
+                        // No products available
+                        productsGrid.innerHTML = `
+                            <div class="col-span-full text-center py-8">
+                                <p>No products available</p>
+                            </div>
+                        `;
+                        document.getElementById('loadMoreBtn').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading sorted products:', error);
+                    productsGrid.innerHTML = `
+                        <div class="col-span-full text-center py-8">
+                            <p>Error loading products. Please try again.</p>
+                        </div>
+                    `;
+                    document.getElementById('loadMoreBtn').style.display = 'none';
+                });
         });
         
         // Database search
         searchButton.addEventListener('click', async function() {
             const searchTerm = searchInput.value.trim();
             
-            // If search term is empty, show all products
+            // If search term is empty, load all products
             if (!searchTerm) {
                 window.location.href = '/products';
                 return;
             }
             
             try {
-                const response = await fetch(`/search-products?term=${encodeURIComponent(searchTerm)}`);
+                // Clear the products grid
+                const productsGrid = document.getElementById('productsGrid');
+                productsGrid.innerHTML = '';
+                
+                // Reset pagination
+                currentProductPage = 1;
+                
+                // Show loading message
+                productsGrid.innerHTML = '<div class="col-span-full text-center py-8">Loading results...</div>';
+                
+                // Make search request
+                const response = await fetch(`/search-products-json?term=${encodeURIComponent(searchTerm)}&page=1&size=${productsPerPage}`);
+                
                 if (response.ok) {
-                    window.location.href = `/search-products?term=${encodeURIComponent(searchTerm)}`;
+                    const data = await response.json();
+                    
+                    // Clear the grid
+                    productsGrid.innerHTML = '';
+                    
+                    if (data.products && data.products.length > 0) {
+                        // Show found products
+                        data.products.forEach(product => {
+                            const template = `
+                                <div class="product-card rounded-lg overflow-hidden product-item" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
+                                    <div class="product-image-container">
+                                        <a href="/product-details?id=${product.id}">
+                                            <img src="/image/${product.id}" alt="${product.name}" class="cursor-pointer hover:scale-105 transition-transform duration-500">
+                                        </a>
+                                    </div>
+                                    <div class="product-info p-3 space-y-1">
+                                        <h3 class="product-name text-[#294156] text-lg font-medium leading-snug">${product.name}</h3>
+                                        <p class="text-[#567C8D] font-light">$${product.price}</p>
+                                        <p class="text-[#567C8D]/70 text-sm font-light">Stock: ${product.stock}</p>
+                                    </div>
+                                    <div class="product-buttons space-y-2 p-4 pt-0">
+                                        <form action="/add-to-order" method="post" class="block add-to-cart-form">
+                                            <input type="hidden" name="productId" value="${product.id}">
+                                            <button type="submit" class="w-full bg-[#294156] text-white px-4 py-2 rounded hover:bg-[green] transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                </svg>
+                                                Add to Cart
+                                            </button>
+                                        </form>
+                                        ${product.isAdmin ? `
+                                        <form action="/delete-product" method="post" class="block">
+                                            <input type="hidden" name="productId" value="${product.id}">
+                                            <button type="submit" class="w-full bg-[#567C8D] text-white px-4 py-2 rounded hover:bg-[red] transition-colors">Delete Product</button>
+                                        </form>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            `;
+                            
+                            const tempDiv = document.createElement('div');
+                            tempDiv.innerHTML = template.trim();
+                            productsGrid.appendChild(tempDiv.firstChild);
+                        });
+                        
+                        // Attach event listeners
+                        attachAddToCartListeners(document.querySelectorAll('.add-to-cart-form'));
+                        
+                        // Increment page
+                        currentProductPage++;
+                        
+                        // Update "Load More" button
+                        const loadMoreBtn = document.getElementById('loadMoreBtn');
+                        if (data.hasMore) {
+                            loadMoreBtn.style.display = '';
+                            loadMoreBtn.disabled = false;
+                            // Change onclick function to use search term
+                            loadMoreBtn.onclick = function() {
+                                loadMoreSearchResults(searchTerm);
+                            };
+                        } else {
+                            loadMoreBtn.style.display = 'none';
+                        }
+                    } else {
+                        // No products found
+                        productsGrid.innerHTML = `
+                            <div class="col-span-full text-center py-8">
+                                <p>No products found for "${searchTerm}"</p>
+                            </div>
+                        `;
+                        document.getElementById('loadMoreBtn').style.display = 'none';
+                    }
                 } else {
                     throw new Error('Search failed');
                 }
             } catch (error) {
                 console.error('Search error:', error);
-                alert('Failed to perform search. Please try again.');
+                document.getElementById('productsGrid').innerHTML = `
+                    <div class="col-span-full text-center py-8">
+                        <p>Error searching for products. Please try again.</p>
+                    </div>
+                `;
+                document.getElementById('loadMoreBtn').style.display = 'none';
             }
         });
-
-        // Attach event listeners to initial forms
-        attachAddToCartListeners(document.querySelectorAll('.add-to-cart-form'));
+        
+        // Function to load more search results
+        function loadMoreSearchResults(searchTerm) {
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            loadMoreBtn.disabled = true;
+            loadMoreBtn.textContent = 'Loading...';
+            
+            fetch(`/search-products-json?term=${encodeURIComponent(searchTerm)}&page=${currentProductPage}&size=${productsPerPage}`)
+                .then(response => response.json())
+                .then(data => {
+                    const products = data.products;
+                    const productsGrid = document.getElementById('productsGrid');
+                    
+                    if (products && products.length > 0) {
+                        // Add products to the grid
+                        products.forEach(product => {
+                            const template = `
+                                <div class="product-card rounded-lg overflow-hidden product-item" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
+                                    <div class="product-image-container">
+                                        <a href="/product-details?id=${product.id}">
+                                            <img src="/image/${product.id}" alt="${product.name}" class="cursor-pointer hover:scale-105 transition-transform duration-500">
+                                        </a>
+                                    </div>
+                                    <div class="product-info p-3 space-y-1">
+                                        <h3 class="product-name text-[#294156] text-lg font-medium leading-snug">${product.name}</h3>
+                                        <p class="text-[#567C8D] font-light">$${product.price}</p>
+                                        <p class="text-[#567C8D]/70 text-sm font-light">Stock: ${product.stock}</p>
+                                    </div>
+                                    <div class="product-buttons space-y-2 p-4 pt-0">
+                                        <form action="/add-to-order" method="post" class="block add-to-cart-form">
+                                            <input type="hidden" name="productId" value="${product.id}">
+                                            <button type="submit" class="w-full bg-[#294156] text-white px-4 py-2 rounded hover:bg-[green] transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                </svg>
+                                                Add to Cart
+                                            </button>
+                                        </form>
+                                        ${product.isAdmin ? `
+                                        <form action="/delete-product" method="post" class="block">
+                                            <input type="hidden" name="productId" value="${product.id}">
+                                            <button type="submit" class="w-full bg-[#567C8D] text-white px-4 py-2 rounded hover:bg-[red] transition-colors">Delete Product</button>
+                                        </form>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            `;
+                            
+                            const tempDiv = document.createElement('div');
+                            tempDiv.innerHTML = template.trim();
+                            productsGrid.appendChild(tempDiv.firstChild);
+                        });
+                        
+                        // Attach event listeners
+                        attachAddToCartListeners(document.querySelectorAll('.add-to-cart-form'));
+                        
+                        // Increment page
+                        currentProductPage++;
+                        
+                        // Update button state
+                        loadMoreBtn.disabled = false;
+                        loadMoreBtn.textContent = 'Load More Products';
+                        
+                        if (!data.hasMore) {
+                            loadMoreBtn.style.display = 'none';
+                        }
+                    } else {
+                        // No more products
+                        loadMoreBtn.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading more search results:', error);
+                    loadMoreBtn.disabled = false;
+                    loadMoreBtn.textContent = 'Load More Products';
+                });
+        }
+        
+        // Function to load more products with specific sorting
+        function loadMoreProductsWithSort(sortValue) {
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            loadMoreBtn.disabled = true;
+            loadMoreBtn.textContent = 'Loading...';
+            
+            fetch(`/api/products?page=${currentProductPage}&size=${productsPerPage}&sort=${sortValue}`)
+                .then(response => response.json())
+                .then(data => {
+                    const products = data.products;
+                    const productsGrid = document.getElementById('productsGrid');
+                    
+                    if (products && products.length > 0) {
+                        // Add products to the grid
+                        products.forEach(product => {
+                            const template = `
+                                <div class="product-card rounded-lg overflow-hidden product-item" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
+                                    <div class="product-image-container">
+                                        <a href="/product-details?id=${product.id}">
+                                            <img src="/image/${product.id}" alt="${product.name}" class="cursor-pointer hover:scale-105 transition-transform duration-500">
+                                        </a>
+                                    </div>
+                                    <div class="product-info p-3 space-y-1">
+                                        <h3 class="product-name text-[#294156] text-lg font-medium leading-snug">${product.name}</h3>
+                                        <p class="text-[#567C8D] font-light">$${product.price}</p>
+                                        <p class="text-[#567C8D]/70 text-sm font-light">Stock: ${product.stock}</p>
+                                    </div>
+                                    <div class="product-buttons space-y-2 p-4 pt-0">
+                                        <form action="/add-to-order" method="post" class="block add-to-cart-form">
+                                            <input type="hidden" name="productId" value="${product.id}">
+                                            <button type="submit" class="w-full bg-[#294156] text-white px-4 py-2 rounded hover:bg-[green] transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                </svg>
+                                                Add to Cart
+                                            </button>
+                                        </form>
+                                        ${product.isAdmin ? `
+                                        <form action="/delete-product" method="post" class="block">
+                                            <input type="hidden" name="productId" value="${product.id}">
+                                            <button type="submit" class="w-full bg-[#567C8D] text-white px-4 py-2 rounded hover:bg-[red] transition-colors">Delete Product</button>
+                                        </form>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            `;
+                            
+                            const tempDiv = document.createElement('div');
+                            tempDiv.innerHTML = template.trim();
+                            productsGrid.appendChild(tempDiv.firstChild);
+                        });
+                        
+                        // Attach event listeners
+                        attachAddToCartListeners(document.querySelectorAll('.add-to-cart-form'));
+                        
+                        // Increment page
+                        currentProductPage++;
+                        
+                        // Update button state
+                        loadMoreBtn.disabled = false;
+                        loadMoreBtn.textContent = 'Load More Products';
+                        
+                        if (!data.hasMore) {
+                            loadMoreBtn.style.display = 'none';
+                        }
+                    } else {
+                        // No more products
+                        loadMoreBtn.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading more sorted products:', error);
+                    loadMoreBtn.disabled = false;
+                    loadMoreBtn.textContent = 'Load More Products';
+                });
+        }
     });
 </script>

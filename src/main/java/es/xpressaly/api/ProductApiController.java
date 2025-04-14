@@ -10,11 +10,15 @@ import es.xpressaly.Model.Product;
 import es.xpressaly.Model.Review;
 import es.xpressaly.Service.ProductService;
 import es.xpressaly.Service.ReviewService;
+import es.xpressaly.dto.ProductDTO;
+import es.xpressaly.Model.User;
+import es.xpressaly.Service.UserService;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/products")
@@ -25,6 +29,9 @@ public class ProductApiController {
 
     @Autowired
     private ReviewService reviewService;
+
+    @Autowired
+    private UserService userService;
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> getProducts(
@@ -37,12 +44,20 @@ public class ProductApiController {
             
             if (search != null && !search.isEmpty()) {
                 List<Product> products = productService.searchProducts(search);
-                response.put("products", products);
+                List<Map<String, Object>> productList = products.stream()
+                    .map(this::convertToMap)
+                    .collect(Collectors.toList());
+                
+                response.put("products", productList);
                 response.put("totalPages", 1);
                 response.put("currentPage", 1);
             } else {
                 Page<Product> productPage = productService.getProductsByPage(page, size, sort);
-                response.put("products", productPage.getContent());
+                List<Map<String, Object>> productList = productPage.getContent().stream()
+                    .map(this::convertToMap)
+                    .collect(Collectors.toList());
+                
+                response.put("products", productList);
                 response.put("totalPages", productPage.getTotalPages());
                 response.put("currentPage", productPage.getNumber() + 1);
                 response.put("hasMore", productPage.getNumber() + 1 < productPage.getTotalPages());
@@ -50,8 +65,28 @@ public class ProductApiController {
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
+    }
+    
+    // Method to convert a product to a map, excluding binary image data
+    private Map<String, Object> convertToMap(Product product) {
+        Map<String, Object> productMap = new HashMap<>();
+        productMap.put("id", product.getId());
+        productMap.put("name", product.getName());
+        productMap.put("description", product.getDescription());
+        productMap.put("price", product.getPrice());
+        productMap.put("stock", product.getStock());
+        // Check if the current user is an administrator
+        try {
+            User currentUser = userService.getUser();
+            productMap.put("isAdmin", currentUser != null && currentUser.isAdmin());
+        } catch (Exception e) {
+            productMap.put("isAdmin", false);
+        }
+        // We don't include imageData to avoid overloading the JSON response
+        return productMap;
     }
 
     @PostMapping

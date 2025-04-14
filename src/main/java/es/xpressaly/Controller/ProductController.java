@@ -23,6 +23,9 @@ import java.io.IOException;
 //import java.nio.file.Paths;
 //import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.stream.Collectors;
 
 
 @Controller
@@ -44,9 +47,10 @@ public class ProductController {
     @GetMapping("/products")
     public String showProducts(Model model, @RequestParam(required = false, defaultValue = "default") String sort) {
         try {
-            List<Product> initialProducts = productService.getProductsByPage(1, 20000, sort).getContent();
+            // We no longer load all products initially
+            // Products will be loaded dynamically through the API
             User currentUser = userService.getUser();
-            model.addAttribute("products", initialProducts);
+            model.addAttribute("products", List.of()); // Empty list
             model.addAttribute("isAdmin", currentUser != null && currentUser.isAdmin());
             model.addAttribute("cartItemCount", orderController.getCartItemCount());
             return "Wellcome";
@@ -236,6 +240,62 @@ public class ProductController {
             model.addAttribute("error", e.getMessage());
             return "redirect:/product-details?id=" + productId;
         }
+    }
+
+    // Endpoint for searching products with JSON results
+    @GetMapping("/search-products-json")
+    @ResponseBody
+    public Map<String, Object> searchProductsJson(
+            @RequestParam String term,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<Product> searchResults = productService.searchProducts(term);
+            
+            // Calculate pagination manually
+            int total = searchResults.size();
+            int start = (page - 1) * size;
+            int end = Math.min(start + size, total);
+            
+            // Create sublist for current page
+            List<Product> pageContent = start < end 
+                ? searchResults.subList(start, end) 
+                : List.of();
+            
+            // Convert products to maps without image data
+            List<Map<String, Object>> productList = pageContent.stream()
+                .map(this::convertToMap)
+                .collect(Collectors.toList());
+            
+            // Pagination information
+            response.put("products", productList);
+            response.put("totalItems", total);
+            response.put("totalPages", (int) Math.ceil((double) total / size));
+            response.put("currentPage", page);
+            response.put("hasMore", end < total);
+            
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("error", e.getMessage());
+            return response;
+        }
+    }
+    
+    // Method to convert a product to a map, excluding binary image data
+    private Map<String, Object> convertToMap(Product product) {
+        Map<String, Object> productMap = new HashMap<>();
+        productMap.put("id", product.getId());
+        productMap.put("name", product.getName());
+        productMap.put("description", product.getDescription());
+        productMap.put("price", product.getPrice());
+        productMap.put("stock", product.getStock());
+        // Add isAdmin attribute for administrator button rendering if needed
+        User currentUser = userService.getUser();
+        productMap.put("isAdmin", currentUser != null && currentUser.isAdmin());
+        // We don't include imageData to avoid overloading the JSON response
+        return productMap;
     }
 }
 
