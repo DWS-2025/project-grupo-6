@@ -4,10 +4,12 @@
     --sky-blue: #CBD3E6;
     --beige: #F5EFEB;
     --white: #FFFFFF;
+    --shadow: 0 10px 15px -3px rgba(41, 65, 86, 0.08), 0 4px 6px -2px rgba(41, 65, 86, 0.05);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body {
-    font-family: 'Segoe UI', Arial, sans-serif;
+    font-family: 'Inter', sans-serif;
     margin: 0;
     padding: 0;
     background-color: var(--beige);
@@ -15,42 +17,138 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    overflow-x: hidden;
 }
 
 .confirmation-container {
     max-width: 800px;
-    margin: 60px auto;
-    padding: 40px;
+    margin: 100px auto 60px;
+    padding: 50px;
     background-color: var(--white);
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(41, 65, 86, 0.1);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
     text-align: center;
+    animation: fadeInUp 0.8s ease-out forwards;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Decorative elements */
+.confirmation-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(90deg, var(--navy), var(--teal));
+    border-radius: 16px 16px 0 0;
+}
+
+.confirmation-container::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 60px;
+    background-color: var(--sky-blue);
+    opacity: 0.2;
+    border-radius: 50%;
+    transform: translate(-30%, 30%);
+    z-index: -1;
+}
+
+.confirmation-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    background-color: var(--sky-blue);
+    border-radius: 50%;
+    color: var(--navy);
+    font-size: 2rem;
+    margin-bottom: 20px;
+    animation: pulse 2s ease-in-out infinite;
+    box-shadow: 0 8px 15px rgba(41, 65, 86, 0.12);
+}
+
+h1 {
+    color: var(--navy);
+    font-size: 2.2rem;
+    font-weight: 600;
+    margin-bottom: 25px;
+    animation: fadeIn 0.8s ease-out 0.1s forwards;
+    opacity: 0;
 }
 
 p {
-    font-size: 1.2em;
+    font-size: 1.25rem;
     line-height: 1.6;
     color: var(--teal);
-    margin: 20px 0;
+    margin: 30px 0;
+    animation: fadeIn 1s ease-out 0.3s forwards;
+    opacity: 0;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.delivery-info {
+    font-size: 1.1rem;
+    color: var(--teal);
+    opacity: 0.8;
+    margin-top: 10px;
+    padding: 15px 20px;
+    background-color: rgba(203, 211, 230, 0.2);
+    border-radius: 8px;
+    animation: fadeIn 1s ease-out 0.5s forwards;
+    opacity: 0;
+    display: inline-block;
 }
 
 .back-button {
-    display: inline-block;
-    padding: 12px 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 30px;
     background-color: var(--navy);
     color: var(--white);
     text-decoration: none;
     border-radius: 8px;
     font-weight: 500;
-    margin-top: 20px;
-    transition: all 0.3s ease;
+    margin-top: 30px;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn 1s ease-out 0.6s forwards;
+    opacity: 0;
+}
+
+.back-button i {
+    margin-right: 10px;
+}
+
+.back-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: all 0.6s;
 }
 
 .back-button:hover {
     background-color: var(--teal);
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(41, 65, 86, 0.2);
+    box-shadow: 0 4px 12px rgba(41, 65, 86, 0.2);
+}
+
+.back-button:hover::before {
+    left: 100%;
 }
 
 .back-button:active {
@@ -73,4 +171,38 @@ footer {
     color: var(--white);
     padding: 1rem 0;
     text-align: center;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+    .confirmation-container {
+        margin: 80px 20px 40px;
+        padding: 40px 25px;
+    }
+    
+    p {
+        font-size: 1.1rem;
+    }
 }

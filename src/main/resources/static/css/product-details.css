@@ -389,25 +389,6 @@
     position: relative;
 }
 
-.notification {
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #4CAF50;
-    color: white;
-    padding: 5px 15px;
-    border-radius: 4px;
-    font-size: 14px;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-    pointer-events: none;
-}
-
-.notification.show {
-    opacity: 1;
-}
-
 .rating-select {
     width: 100%;
     padding: 0.75rem;
@@ -439,6 +420,7 @@
 .rating-select option:hover {
     background-color: #f5f5f5;
 }
+
 .form-input:focus,
 .review-textarea:focus {
     outline: none;
@@ -492,6 +474,7 @@
         gap: 1rem;
     }
 }
+
 .rating-display {
     display: flex;
     align-items: center;

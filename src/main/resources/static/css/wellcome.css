@@ -23,19 +23,21 @@ main {
 
 /* Product card enhancements */
 .product-card {
-    background: var(--white);
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(41, 65, 86, 0.1);
+    background-color: white;
+    border-radius: 10px;
     overflow: hidden;
-    transition: all 0.3s ease;
-    height: 100%;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
     display: flex;
     flex-direction: column;
+    height: 100%;
+    position: relative;
 }
 
 .product-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 8px 15px rgba(41, 65, 86, 0.15);
+    transform: translateY(-5px);
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--accent-color);
 }
 
 /* Product image styles */

@@ -115,13 +115,13 @@
             {{/products}}
         </template>
 
-        <div class="text-center mt-4 mb-4">
-            <button id="loadMoreBtn" class="px-6 py-3 rounded-lg" onclick="loadMoreProducts()">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-            Load More Products
-        </button>
+        <div class="text-center mt-8 mb-6">
+            <button id="loadMoreBtn" class="button px-6 py-3 rounded-lg bg-[#294156] text-white hover:bg-[#567C8D] transition-all duration-300 flex items-center mx-auto shadow-md hover:shadow-lg transform hover:-translate-y-1" onclick="loadMoreProducts()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+                Load More Products
+            </button>
         </div>
     </main>
 
@@ -146,6 +146,10 @@
                 const clone = product.cloneNode(true);
                 clone.style.display = "";
                 document.getElementById('productsGrid').appendChild(clone);
+                
+                // Attach event listeners to the newly added forms
+                attachAddToCartListeners(clone.querySelectorAll('.add-to-cart-form'));
+                
                 productsLoaded++;
             }
         });
@@ -163,96 +167,138 @@
         loadMoreProducts();
     };
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Product search functionality
-    const searchInput = document.getElementById('productSearch');
-    const searchButton = document.getElementById('searchButton');
-    const productCards = document.querySelectorAll('.product-card');
-    const priceSort = document.getElementById('priceSort');
+    // Function to attach event listeners to add-to-cart forms
+    function attachAddToCartListeners(forms) {
+        forms.forEach(form => {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const button = this.querySelector('button');
+                const originalText = button.innerHTML;
+                const originalColor = button.style.backgroundColor;
+                const stock = this.closest('.product-card').querySelector('.product-info p:nth-child(3)').textContent;
+                const stockNumber = parseInt(stock.replace('Stock: ', ''), 10);
 
-    // Price sorting functionality
-    priceSort.addEventListener('change', function() {
-        const sortValue = this.value;
-        window.location.href = `/products?sort=${sortValue}`;
-    });
-    
-    // Database search
-    searchButton.addEventListener('click', async function() {
-        const searchTerm = searchInput.value.trim();
-        
-        // If search term is empty, show all products
-        if (!searchTerm) {
-            window.location.href = '/products';
-            return;
-        }
-        
-        try {
-            const response = await fetch(`/search-products?term=${encodeURIComponent(searchTerm)}`);
-            if (response.ok) {
-                window.location.href = `/search-products?term=${encodeURIComponent(searchTerm)}`;
-            } else {
-                throw new Error('Search failed');
-            }
-        } catch (error) {
-            console.error('Search error:', error);
-            alert('Failed to perform search. Please try again.');
-        }
-    });
+                if (stockNumber <= 0) {
+                    button.textContent = 'Out of Stock!';
+                    button.style.backgroundColor = 'red';
+                    button.disabled = true;
 
-    // Existing cart functionality
-    document.querySelectorAll('.add-to-cart-form').forEach(form => {
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const button = this.querySelector('button');
-            const originalText = button.textContent;
-            const originalColor = button.style.backgroundColor; // Save the original color
-            const stock = this.closest('.product-card').querySelector('.product-info p:nth-child(3)').textContent;
-            const stockNumber = parseInt(stock.replace('Stock: ', ''), 10);
-
-            if (stockNumber <= 0) {
-                button.textContent = 'Out of Stock';
-                button.style.backgroundColor = 'red';
-                button.disabled = true;
-
-                // Restore button after 1 second
-                setTimeout(() => {
-                    button.textContent = originalText;
-                    button.style.backgroundColor = originalColor;
-                    button.disabled = false;
-                }, 1000); // 1000 ms = 1 second
-
-                return; // Stop code execution
-            }
-
-            button.disabled = true;
-            
-            try {
-                const response = await fetch(this.action, {
-                    method: 'POST',
-                    body: new FormData(this)
-                });
-                
-                if (response.ok) {
-                    button.textContent = 'Added!';
-                    button.style.backgroundColor = 'green';
+                    // Restore button after 1 second
                     setTimeout(() => {
-                        button.textContent = originalText;
+                        button.innerHTML = originalText;
                         button.style.backgroundColor = originalColor;
                         button.disabled = false;
-                    }, 1000);
+                    }, 1000); // 1000 ms = 1 second
+
+                    return; // Stop code execution
+                }
+
+                button.disabled = true;
+                
+                try {
+                    // Check the quantity in the cart
+                    const productId = this.querySelector('input[name="productId"]').value;
+                    const cartResponse = await fetch(`/get-cart-quantity?productId=${productId}`);
+                    const cartData = await cartResponse.json();
+                    const cartQuantity = cartData.quantity || 0;
+                    
+                    // Check if adding one more exceeds the stock
+                    if (cartQuantity + 1 > stockNumber) {
+                        button.textContent = 'Out of Stock!';
+                        button.style.backgroundColor = 'red';
+                        
+                        // Restore button after 1 second
+                        setTimeout(() => {
+                            button.innerHTML = originalText;
+                            button.style.backgroundColor = originalColor;
+                            button.disabled = false;
+                        }, 1000); // 1000 ms = 1 second
+                        
+                        return;
+                    }
+                    
+                    const response = await fetch(this.action, {
+                        method: 'POST',
+                        body: new FormData(this)
+                    });
+                    
+                    // Intentar procesar la respuesta como JSON, pero no fallar si no es JSON
+                    let data = {};
+                    try {
+                        data = await response.json();
+                    } catch (e) {
+                        console.log('Response is not JSON, continuing...');
+                    }
+                    
+                    if (response.ok) {
+                        button.textContent = 'Added!';
+                        button.style.backgroundColor = 'green';
+                        setTimeout(() => {
+                            button.innerHTML = originalText;
+                            button.style.backgroundColor = originalColor;
+                            button.disabled = false;
+                        }, 1000);
+                        
+                        // Update the cart counter in the header
+                        const cartCounter = document.querySelector('.cart-counter');
+                        if (cartCounter && data && data.cartSize) {
+                            cartCounter.textContent = data.cartSize;
+                        }
+                    } else {
+                        throw new Error('Failed to add to cart');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    button.textContent = 'Error';
+                    button.style.backgroundColor = 'red';
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.style.backgroundColor = originalColor;
+                        button.disabled = false;
+                    }, 2000);
+                }
+            });
+        });
+    }
+
+    // Existing cart functionality - now using the function
+    document.addEventListener('DOMContentLoaded', function() {
+        // Product search functionality
+        const searchInput = document.getElementById('productSearch');
+        const searchButton = document.getElementById('searchButton');
+        const productCards = document.querySelectorAll('.product-card');
+        const priceSort = document.getElementById('priceSort');
+
+        // Price sorting functionality
+        priceSort.addEventListener('change', function() {
+            const sortValue = this.value;
+            window.location.href = `/products?sort=${sortValue}`;
+        });
+        
+        // Database search
+        searchButton.addEventListener('click', async function() {
+            const searchTerm = searchInput.value.trim();
+            
+            // If search term is empty, show all products
+            if (!searchTerm) {
+                window.location.href = '/products';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/search-products?term=${encodeURIComponent(searchTerm)}`);
+                if (response.ok) {
+                    window.location.href = `/search-products?term=${encodeURIComponent(searchTerm)}`;
                 } else {
-                    throw new Error('Failed to add to cart');
+                    throw new Error('Search failed');
                 }
             } catch (error) {
-                button.textContent = 'Error';
-                button.style.backgroundColor = 'red';
-                setTimeout(() => {
-                    button.textContent = originalText;
-                    button.style.backgroundColor = originalColor;
-                    button.disabled = false;
-                }, 2000);
+                console.error('Search error:', error);
+                alert('Failed to perform search. Please try again.');
             }
         });
+
+        // Attach event listeners to initial forms
+        attachAddToCartListeners(document.querySelectorAll('.add-to-cart-form'));
     });
-});
 </script>

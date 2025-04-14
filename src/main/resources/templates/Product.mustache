@@ -33,8 +33,6 @@
                     <form id="addToCartForm" action="/add-to-order" method="post" class="add-to-cart-form">
                         <input type="hidden" name="productId" value="{{product.id}}">
                         <button type="submit" class="btn btn-primary ">Add to Cart</button>
-                        <div class="notification" id="outOfStockNotification" style="background-color: #ff4444;">Out of Stock</div>
-                        <div class="notification" id="addNotification">Added!</div>
                     </form>
                     
                     <script>
@@ -47,7 +45,7 @@
 
                             // Check if out of stock
                             if (currentStock <= 0) {
-                                button.textContent = 'Out of Stock';
+                                button.textContent = 'Out of Stock!';
                                 button.style.backgroundColor = 'red';
                                 button.disabled = true;
 
@@ -71,7 +69,7 @@
 
                                 // Check if adding one more exceeds the stock
                                 if (cartQuantity + 1 > currentStock) {
-                                    button.textContent = 'Out of Stock';
+                                    button.textContent = 'Out of Stock!';
                                     button.style.backgroundColor = 'red';
 
                                     // Restore button after 1 second
@@ -89,6 +87,14 @@
                                     method: 'POST',
                                     body: new FormData(this)
                                 });
+                                
+                                // Intentar procesar la respuesta como JSON, pero no fallar si no es JSON
+                                let data = {};
+                                try {
+                                    data = await response.json();
+                                } catch (e) {
+                                    console.log('Response is not JSON, continuing...');
+                                }
 
                                 if (response.ok) {
                                     button.textContent = 'Added!';
@@ -103,7 +109,7 @@
 
                                     // Update the cart counter in the header
                                     const cartCounter = document.querySelector('.cart-counter');
-                                    if (cartCounter && data.cartSize) {
+                                    if (cartCounter && data && data.cartSize) {
                                         cartCounter.textContent = data.cartSize;
                                     }
                                 } else {
