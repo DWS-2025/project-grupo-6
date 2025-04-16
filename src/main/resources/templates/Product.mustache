@@ -187,5 +187,16 @@
         </div>
     </div>
     {{> common/footer}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Format the average rating to one decimal place
+            const ratingElement = document.querySelector('.rating-info .value');
+            const ratingText = ratingElement.textContent;
+            const ratingValue = parseFloat(ratingText);
+            if (!isNaN(ratingValue)) {
+                ratingElement.textContent = ratingValue.toFixed(1) + ' ⭐';
+            }
+        });
+    </script>
 </body>
 </html>
