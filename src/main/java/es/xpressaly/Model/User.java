@@ -80,7 +80,11 @@ public class User {
     public List<Review> getReviews() { return reviews; }
     public void setReviews(List<Review> reviews) { this.reviews = reviews; }
     public void addReview(Review review) { this.reviews.add(review); }
-
+    public List<UserRole> getRoles() {
+        List<UserRole> roles = new ArrayList<>();
+        roles.add(this.role);
+        return roles;
+    }
     public boolean isAdmin() {
         return this.role == UserRole.ADMIN;
     }

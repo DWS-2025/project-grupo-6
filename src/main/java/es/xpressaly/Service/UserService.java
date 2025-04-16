@@ -1,6 +1,7 @@
 package es.xpressaly.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,6 +10,7 @@ import es.xpressaly.Model.UserRole;
 import es.xpressaly.Repository.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
@@ -18,7 +20,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
-    
+    @Autowired
+	private PasswordEncoder passwordEncoder;
+
     private User currentUser;
 
     // Method to obtain the user by ID
@@ -29,12 +33,12 @@ public class UserService {
     // Method to authenticate a user
     public User authenticateUser(String email, String password) {
         // First try to find the user with the exact email
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email).orElse(null);
         
         // If not found and it might be a temporary user (email ends with .temp)
         if (user == null && !email.endsWith(".temp")) {
             // Check if there's a temporary version of this user
-            user = userRepository.findByEmail(email + ".temp");
+            user = userRepository.findByEmail(email + ".temp").orElse(null);
         }
         
         if (user != null && user.getPassword().equals(password)) {
@@ -107,7 +111,7 @@ public class UserService {
             throw new IllegalArgumentException("Email already exists");
         }
 
-        User newUser = new User(firstName, lastName, email, password, address, phoneNumber, age);
+        User newUser = new User(firstName, lastName, email, passwordEncoder.encode(password), address, phoneNumber, age);
         newUser.setRole(UserRole.USER); // Set default role
         return userRepository.save(newUser);
     }
@@ -175,5 +179,7 @@ public class UserService {
         userRepository.save(updatedUser);
     }
 
-
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
+    }
 }
