@@ -689,3 +689,21 @@ footer {
   .Btn:active {
     transform: translate(2px ,2px);
   }
+
+/* Estilo para los botones de mostrar contraseña */
+.password-toggle-btn {
+    background-color: #567C8D;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.password-toggle-btn:hover {
+    background-color: #294156;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}

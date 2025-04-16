@@ -71,9 +71,9 @@ public class UserService {
     }
 
     private boolean isValidPhoneNumber(int phoneNumber) {
-        // Phone number should be between 100000 and 999999999
-        return String.valueOf(phoneNumber).length() >= 6 && 
-               String.valueOf(phoneNumber).length() <= 9;
+        String phoneStr = String.valueOf(phoneNumber);
+        // Validar que el número tenga entre 6 y 9 dígitos exactamente
+        return phoneStr.length() >= 6 && phoneStr.length() <= 9;
     }
 
     private boolean isValidAge(int age) {

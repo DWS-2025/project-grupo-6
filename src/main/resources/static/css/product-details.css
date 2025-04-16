@@ -364,6 +364,7 @@
 .btn-secondary:hover,
 .btn-delete:hover {
     background-color: #A9B5D1;
+    color: #294156;
 }
 
 .btn-delete {
@@ -453,8 +454,8 @@
 
 .btn-secondary:hover,
 .btn-delete:hover {
-    background-color: red;
-    color: white;
+    background-color: #A9B5D1;
+    color: #294156;
 }
 
 .btn-delete {
@@ -487,4 +488,33 @@
     line-height: 1;
     color: #ffd700;
     text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+}
+
+/* Estilos para el botón de volver */
+.back-button-container {
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+}
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    background-color: #f5f5f5;
+    color: #294156;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid #e0e0e0;
+}
+
+.back-button:hover {
+    background-color: #e0e0e0;
+    color: #000;
+    transform: translateX(-3px);
+}
+
+.back-button svg {
+    margin-right: 8px;
 }

@@ -4,104 +4,127 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Xpressaly</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8f9fa; }
-        .register-container {
-            max-width: 500px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .form-group { margin-bottom: 15px; }
-        .error-message { color: #dc3545; margin-bottom: 15px; }
-        .invalid-feedback { display: block; }
-    </style>
+    <link rel="stylesheet" href="/css/login.css">
+    <link rel="stylesheet" href="/css/register.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="container register-container">
-        <h2 class="text-center mb-4">Create Account</h2>
-        
-        {{#error}}
-        <div class="alert alert-danger" role="alert">{{error}}</div>
-        {{/error}}
-
-        <form action="/register" method="post" id="registerForm" class="needs-validation" novalidate>
-            <div class="form-group">
-                <label for="firstName">First Name</label>
-                <input type="text" class="form-control" id="firstName" name="firstName" 
-                       pattern="[A-Za-zÀ-ÿ\s]+" 
-                       title="Please enter only letters" 
-                       required>
-                <div class="invalid-feedback">Please enter a valid first name using only letters.</div>
+    <!-- Login as background -->
+    <div class="login-background">
+        <iframe src="/login" title="Login Background" scrolling="no"></iframe>
+    </div>
+    
+    <!-- Clickable overlay to return to login -->
+    <div class="overlay" onclick="window.location.href='/login'"></div>
+    
+    <div class="register-container">
+        <div class="register-form">
+            <div class="form-header">
+                <h2>Create Account</h2>
+                <p>Join Xpressaly to start shopping</p>
             </div>
-
-            <div class="form-group">
-                <label for="lastName">Last Name</label>
-                <input type="text" class="form-control" id="lastName" name="lastName" 
-                       pattern="[A-Za-zÀ-ÿ\s]+" 
-                       title="Please enter only letters" 
-                       required>
-                <div class="invalid-feedback">Please enter a valid last name using only letters.</div>
+            
+            {{#error}}
+            <div class="alert" role="alert">
+                <i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>
+                {{error}}
             </div>
-
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" class="form-control" id="email" name="email" required>
-                <div class="invalid-feedback">Please enter a valid email address.</div>
+            {{/error}}
+            
+            <form action="/register" method="post" id="registerForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <i class="fas fa-user icon"></i>
+                        <input type="text" id="firstName" name="firstName" 
+                               pattern="[A-Za-zÀ-ÿ\s]+" 
+                               title="Please enter only letters"
+                               placeholder="Enter your first name"
+                               required>
+                        <small>Only letters are allowed.</small>
+                        <div class="invalid-feedback">Please enter your first name using only letters (A-Z).</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <i class="fas fa-user icon"></i>
+                        <input type="text" id="lastName" name="lastName" 
+                               pattern="[A-Za-zÀ-ÿ\s]+" 
+                               title="Please enter only letters"
+                               placeholder="Enter your last name"
+                               required>
+                        <small>Only letters are allowed.</small>
+                        <div class="invalid-feedback">Please enter your last name using only letters (A-Z).</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <i class="fas fa-envelope icon"></i>
+                    <input type="email" id="email" name="email" 
+                           placeholder="Enter your email address"
+                           required>
+                    <small>Enter a valid email address. Each email can only be used once.</small>
+                    <div class="invalid-feedback">Please enter a valid email format (example@domain.com).</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <i class="fas fa-lock icon"></i>
+                    <input type="password" id="password" name="password" 
+                           pattern="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$"
+                           placeholder="Create a strong password"
+                           required>
+                    <small>Password must be at least 8 characters long and contain uppercase, lowercase, and numbers.</small>
+                    <div class="invalid-feedback">Your password must have at least 8 characters with uppercase, lowercase, and numbers.</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="address">Address</label>
+                    <i class="fas fa-home icon"></i>
+                    <input type="text" id="address" name="address" 
+                           placeholder="Enter your address"
+                           required>
+                    <small>Enter your full residential address.</small>
+                    <div class="invalid-feedback">Please enter your complete address.</div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phoneNumber">Phone Number</label>
+                        <i class="fas fa-phone icon"></i>
+                        <input type="tel" id="phoneNumber" name="phoneNumber" 
+                               pattern="[0-9]{6,9}" 
+                               title="Please enter between 6 and 9 digits"
+                               placeholder="Enter your phone number"
+                               maxlength="9"
+                               required>
+                        <small>Enter a number between 6 and 9 digits.</small>
+                        <div class="invalid-feedback">Please enter a valid phone number with 6-9 digits.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <i class="fas fa-birthday-cake icon"></i>
+                        <input type="number" id="age" name="age" 
+                               min="18"
+                               placeholder="Enter your age"
+                               required>
+                        <small>You must be between 18 and 120 years old.</small>
+                        <div class="invalid-feedback">Age must be between 18 and 120 years.</div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-submit">Create Account</button>
+            </form>
+            
+            <div class="form-footer">
+                <p>Already have an account? <a href="/login">Sign in</a></p>
             </div>
-
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" class="form-control" id="password" name="password" 
-                       pattern="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$" 
-                       required>
-                <small class="form-text text-muted">Password must be at least 8 characters long and contain uppercase, lowercase, and numbers.</small>
-                <div class="invalid-feedback">Password must meet the requirements above.</div>
-            </div>
-
-            <div class="form-group">
-                <label for="address">Address</label>
-                <input type="text" class="form-control" id="address" name="address" required>
-                <div class="invalid-feedback">Please enter your address.</div>
-            </div>
-
-            <div class="form-group">
-                <label for="phoneNumber">Phone Number</label>
-                <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" 
-                       pattern="[0-9]+" 
-                       title="Please enter only numbers" 
-                       required>
-                <div class="invalid-feedback">Please enter a valid phone number (numbers only).</div>
-            </div>
-
-            <div class="form-group">
-                <label for="age">Age</label>
-                <input type="number" class="form-control" id="age" name="age" 
-                       min="18" 
-                       required>
-                <div class="invalid-feedback">You must be at least 18 years old to register.</div>
-            </div>
-
-            <button type="submit" class="btn btn-primary w-100">Register</button>
-        </form>
-
-        <div class="text-center mt-3">
-            <p>Already have an account? <a href="/login">Sign in</a></p>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-    document.getElementById('registerForm').addEventListener('submit', function(event) {
-        if (!this.checkValidity()) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-        this.classList.add('was-validated');
-    });
-    </script>
+    <script src="/js/register.js"></script>
 </body>
 </html>

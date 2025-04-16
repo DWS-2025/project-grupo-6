@@ -1,106 +1,252 @@
+:root {
+  --bg-color: #294156;
+  --bg-gradient: linear-gradient(135deg, #294156 0%, #1e3144 100%);
+  --primary-text: #fff;
+  --secondary-text: #CBD3E6;
+  --accent-color: #567C8D;
+  --accent-light: #6b96ab;
+  --hover-bg: #CBD3E6;
+  --hover-text: #294156;
+  --font-family: 'Poppins', Helvetica, sans-serif;
+  --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  --border-radius: 15px;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Poppins', Helvetica, sans-serif;
+  font-family: var(--font-family);
 }
 
 body {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: #294156;
+  background: var(--bg-gradient);
+  color: var(--primary-text);
+  padding: 2rem;
+  overflow-x: hidden;
+}
+
+/* Animación para la entrada de elementos */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .error-container {
   text-align: center;
-}
-
-.glitch-wrapper {
-  margin-bottom: 2rem;
-}
-
-.glitch {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 3rem;
+  border-radius: var(--border-radius);
+  max-width: 650px;
+  width: 100%;
+  margin-bottom: auto;
+  box-shadow: var(--box-shadow);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: fadeIn 0.8s ease-out forwards;
   position: relative;
-  font-weight: bold;
-  font-size: 100px;
-  color: #fff;
-  letter-spacing: 3px;
-  z-index: 1;
+  overflow: hidden;
 }
 
-.glitch:before,
-.glitch:after {
-  content: attr(data-text);
+/* Efecto de brillo en el borde */
+.error-container::before {
+  content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0.8;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+  opacity: 0;
+  animation: shine 8s infinite;
+  pointer-events: none;
 }
 
-.glitch:before {
-  animation: glitch-effect 3s infinite;
-  color: #567C8D;
-  z-index: -1;
-}
-
-.glitch:after {
-  animation: glitch-effect 2s infinite;
-  color: #CBD3E6;
-  z-index: -2;
-}
-
-@keyframes glitch-effect {
+@keyframes shine {
   0% {
-    transform: translate(0);
+    opacity: 0;
+    transform: scale(0.8);
   }
-  20% {
-    transform: translate(-3px, 3px);
-  }
-  40% {
-    transform: translate(-3px, -3px);
-  }
-  60% {
-    transform: translate(3px, 3px);
-  }
-  80% {
-    transform: translate(3px, -3px);
+  50% {
+    opacity: 0.2;
   }
   100% {
-    transform: translate(0);
+    opacity: 0;
+    transform: scale(1.2);
   }
+}
+
+.error-icon {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 2rem;
+  opacity: 0;
+  animation: fadeIn 0.8s ease-out 0.2s forwards;
+}
+
+.error-status {
+  font-size: 7rem;
+  font-weight: 800;
+  color: var(--primary-text);
+  margin-bottom: 1rem;
+  line-height: 1;
+  opacity: 0;
+  animation: fadeIn 0.8s ease-out 0.4s forwards;
+  position: relative;
+  text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .error-text {
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
+  opacity: 0;
+  animation: fadeIn 0.8s ease-out 0.6s forwards;
 }
 
 .error-text h2 {
-  color: #fff;
-  font-size: 32px;
+  color: var(--primary-text);
+  font-size: 2.5rem;
   margin-bottom: 1rem;
+  font-weight: 600;
 }
 
 .error-text p {
-  color: #CBD3E6;
-  font-size: 18px;
+  color: var(--secondary-text);
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeIn 0.8s ease-out 0.8s forwards;
+}
+
+.back-button, .report-button {
+  display: inline-block;
+  padding: 1rem 2rem;
+  text-decoration: none;
+  font-weight: 500;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
 }
 
 .back-button {
-  display: inline-block;
-  padding: 15px 30px;
-  background: #567C8D;
-  color: #fff;
-  text-decoration: none;
-  font-weight: 500;
-  border-radius: 40px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: var(--accent-color);
+  color: var(--primary-text);
 }
 
-.back-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  background: #CBD3E6;
-  color: #294156;
+.report-button {
+  background: transparent;
+  color: var(--primary-text);
+  border: 2px solid var(--accent-color);
+}
+
+.back-button::before, .report-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--hover-bg);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  z-index: -1;
+}
+
+.back-button:hover::before, .report-button:hover::before,
+.back-button:focus::before, .report-button:focus::before {
+  transform: translateX(0);
+}
+
+.back-button:hover, .back-button:focus,
+.report-button:hover, .report-button:focus {
+  color: var(--hover-text);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+.redirect-counter {
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  color: var(--secondary-text);
+  opacity: 0;
+  animation: fadeIn 0.8s ease-out 1s forwards;
+}
+
+.redirect-countdown {
+  font-weight: bold;
+  color: var(--accent-light);
+}
+
+footer {
+  width: 100%;
+  margin-top: 2rem;
+  opacity: 0;
+  animation: fadeIn 0.8s ease-out 1.2s forwards;
+}
+
+@media (max-width: 768px) {
+  .error-container {
+    padding: 2rem;
+  }
+  .error-icon {
+    width: 100px;
+    height: 100px;
+  }
+  .error-status {
+    font-size: 6rem;
+  }
+  .error-text h2 {
+    font-size: 2rem;
+  }
+  .error-text p {
+    font-size: 1rem;
+  }
+  .back-button, .report-button {
+    padding: 0.8rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 1rem;
+  }
+  .error-container {
+    padding: 1.5rem;
+  }
+  .error-icon {
+    width: 80px;
+    height: 80px;
+  }
+  .error-status {
+    font-size: 5rem;
+  }
+  .error-text h2 {
+    font-size: 1.8rem;
+  }
+  .button-container {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
 }

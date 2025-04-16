@@ -1,0 +1,524 @@
+/* Dark Mode Switch Styles */
+/* From Uiverse.io by satyamchaudharydev */ 
+/* The switch - the box around the slider */
+.switch {
+  display: block;
+  --width-of-switch: 3.5em;
+  --height-of-switch: 2em;
+  /* size of sliding icon -- sun and moon */
+  --size-of-icon: 1.4em;
+  /* it is like a inline-padding of switch */
+  --slider-offset: 0.3em;
+  position: relative;
+  width: var(--width-of-switch);
+  height: var(--height-of-switch);
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #f4f4f5;
+  transition: .4s;
+  border-radius: 30px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: var(--size-of-icon,1.4em);
+  width: var(--size-of-icon,1.4em);
+  border-radius: 20px;
+  left: var(--slider-offset,0.3em);
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(40deg,#ff0080,#ff8c00 70%);
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #303136;
+}
+
+input:checked + .slider:before {
+  left: calc(100% - (var(--size-of-icon,1.4em) + var(--slider-offset,0.3em)));
+  background: #303136;
+  /* change the value of second inset in box-shadow to change the angle and direction of the moon */
+  box-shadow: inset -3px -2px 5px -2px #8983f7, inset -10px -4px 0 0 #a3dafb;
+}
+
+/* Base Dark Mode Theme */
+body.dark-mode {
+  background-color: #1a1a1a !important;
+  color: #f0f0f0;
+}
+
+/* Header */
+body.dark-mode header {
+  background: linear-gradient(to right, #1a1a1a, #222222);
+  border-bottom: 1px solid #333;
+}
+
+/* General elements */
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode .section-title,
+body.dark-mode .card-title,
+body.dark-mode .product-name,
+body.dark-mode .text-\[\#294156\] {
+  color: #f0f0f0 !important;
+}
+
+body.dark-mode .text-\[\#567C8D\],
+body.dark-mode .product-description {
+  color: #a0aec0 !important;
+}
+
+body.dark-mode hr {
+  border-color: #444;
+}
+
+/* Form controls */
+body.dark-mode select, 
+body.dark-mode input[type="number"],
+body.dark-mode input[type="text"],
+body.dark-mode input[type="password"],
+body.dark-mode input[type="email"],
+body.dark-mode textarea,
+body.dark-mode .form-control,
+body.dark-mode input[type="file"],
+body.dark-mode .search-container input,
+body.dark-mode #productSearch,
+body.dark-mode .quantity-input,
+body.dark-mode select option,
+body.dark-mode .rating-select,
+body.dark-mode .review-textarea {
+  background-color: #333 !important;
+  color: #f0f0f0 !important;
+  border-color: #444 !important;
+}
+
+body.dark-mode input[type="file"]::-webkit-file-upload-button {
+  background-image: linear-gradient(145deg, #294156, #567C8D);
+  color: #f0f0f0;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+body.dark-mode textarea::placeholder,
+body.dark-mode select::placeholder {
+  color: #999 !important;
+}
+
+/* Buttons */
+body.dark-mode .button, 
+body.dark-mode #apply-price-filter,
+body.dark-mode #loadMoreBtn,
+body.dark-mode button[type="submit"],
+body.dark-mode .add-to-cart,
+body.dark-mode [class*="add-to-cart"],
+body.dark-mode .password-toggle-btn,
+body.dark-mode .update-profile-btn,
+body.dark-mode .change-password-btn,
+body.dark-mode .password-container button,
+body.dark-mode .btn,
+body.dark-mode .back-button,
+body.dark-mode .delete-button,
+body.dark-mode [class*="delete"] {
+  background-color: #294156 !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  transition: all 0.3s ease !important;
+  border: none !important;
+}
+
+/* Button hover effects */
+body.dark-mode .button:hover, 
+body.dark-mode #apply-price-filter:hover,
+body.dark-mode #loadMoreBtn:hover,
+body.dark-mode button[type="submit"]:hover,
+body.dark-mode .update-profile-btn:hover,
+body.dark-mode .change-password-btn:hover,
+body.dark-mode .password-container button:hover,
+body.dark-mode .back-button:hover {
+  background-color: #567C8D !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Add to cart button hover */
+body.dark-mode .add-to-cart:hover,
+body.dark-mode [class*="add-to-cart"]:hover,
+body.dark-mode form[action="/add-to-order"] button:hover,
+body.dark-mode .add-to-cart-form button:hover,
+body.dark-mode button.w-full.bg-\[\#294156\]:hover,
+body.dark-mode button.hover\:bg-\[green\]:hover {
+  background-color: #2e7d32 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(46, 125, 50, 0.4) !important;
+}
+
+/* Delete buttons hover */
+body.dark-mode .delete-button:hover,
+body.dark-mode .product-buttons form:last-child button:hover,
+body.dark-mode form[action="/delete-product"] button:hover,
+body.dark-mode button.w-full.bg-\[\#567C8D\]:hover,
+body.dark-mode .btn-danger:hover,
+body.dark-mode button.btn-danger:hover,
+body.dark-mode .remove-form button:hover,
+body.dark-mode .btn-delete:hover {
+  background-color: #c53030 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(197, 48, 48, 0.4) !important;
+}
+
+/* Add to cart button when active/added */
+body.dark-mode .add-to-cart-form button.added,
+body.dark-mode .add-to-cart-btn.added,
+body.dark-mode button.added[type="submit"] {
+  background-color: #2e7d32 !important;
+  background-image: none !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(46, 125, 50, 0.4) !important;
+}
+
+body.dark-mode #reset-price-filter {
+  border-color: #567C8D;
+  color: #ccc;
+}
+
+/* Remove effects */
+body.dark-mode .change-password-btn::before,
+body.dark-mode .update-profile-btn::before,
+body.dark-mode .personal-data button::before,
+body.dark-mode button::before,
+body.dark-mode .option-card::before,
+body.dark-mode .review-card::before {
+  display: none !important;
+  background: none !important;
+  opacity: 0 !important;
+}
+
+/* Containers, cards and panels */
+body.dark-mode .sidebar-container .filter-container,
+body.dark-mode .product-card,
+body.dark-mode div[class*="product-card"],
+body.dark-mode .modal,
+body.dark-mode .card,
+body.dark-mode .panel,
+body.dark-mode [class*="modal"],
+body.dark-mode [class*="card"],
+body.dark-mode [class*="panel"],
+body.dark-mode .bg-white,
+body.dark-mode [class*="bg-white"],
+body.dark-mode .order-summary,
+body.dark-mode .bg-white.rounded-xl.card-shadow,
+body.dark-mode .bg-white.rounded-xl,
+body.dark-mode .product-details,
+body.dark-mode .confirmation-container {
+  background-color: #262626 !important;
+  background-image: none !important;
+  border-color: #333 !important;
+  color: #f0f0f0 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.dark-mode .product-info {
+  background: #262626 !important;
+  background-image: none !important;
+  background-color: #262626 !important;
+  backdrop-filter: none !important;
+}
+
+/* Specific sections backgrounds */
+body.dark-mode .reviews-section,
+body.dark-mode .personal-data,
+body.dark-mode [id*="personal-data"],
+body.dark-mode [class*="personal-data"],
+body.dark-mode form,
+body.dark-mode .form-container,
+body.dark-mode .product-image-container,
+body.dark-mode .filter-by-price,
+body.dark-mode [class*="filter"],
+body.dark-mode div#productsGrid,
+body.dark-mode .cart-item,
+body.dark-mode .review-form {
+  background-color: #333 !important;
+  color: #f0f0f0 !important;
+  border-color: #444 !important;
+}
+
+/* Card hover effects */
+body.dark-mode .product-card:hover,
+body.dark-mode .order-card:hover,
+body.dark-mode .option-card:hover,
+body.dark-mode .review-card:hover,
+body.dark-mode .product-details:hover {
+  background-color: #2d2d2d !important;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Specific components */
+body.dark-mode .loading-spinner {
+  border-color: #333;
+  border-top-color: #567C8D;
+}
+
+body.dark-mode .cart-counter {
+  background-color: #567C8D;
+}
+
+body.dark-mode .cart-item:hover {
+  background-color: #2a2a2a;
+}
+
+body.dark-mode .quantity-controls {
+  background-color: #333;
+}
+
+body.dark-mode .quantity-controls button {
+  background-color: #444;
+  color: #f0f0f0;
+}
+
+body.dark-mode input[type="range"]::-webkit-slider-runnable-track {
+  background: #444;
+}
+
+body.dark-mode input[type="range"]::-moz-range-track {
+  background: #444;
+}
+
+/* Specific text colors */
+body.dark-mode .personal-data h2,
+body.dark-mode .reviews-section h2,
+body.dark-mode .option-card h3,
+body.dark-mode .order-card h4,
+body.dark-mode .price-tag .label,
+body.dark-mode .stock-info .label,
+body.dark-mode .rating-info .label {
+  color: #84b6e0 !important;
+}
+
+body.dark-mode .order-card .order-id {
+  color: #aaa;
+}
+
+body.dark-mode .order-card .order-date {
+  color: #bbb;
+}
+
+body.dark-mode .order-card .order-price {
+  color: #a3d4a3;
+}
+
+body.dark-mode .review-card .review-date {
+  color: #aaa;
+}
+
+body.dark-mode .fa-star {
+  color: #ffc107;
+}
+
+body.dark-mode .fa-star.empty {
+  color: #555;
+}
+
+/* Confirmation specific styles */
+body.dark-mode .confirmation-container::before {
+  background: linear-gradient(90deg, #294156, #567C8D) !important;
+}
+
+body.dark-mode .confirmation-container::after {
+  background-color: #567C8D !important;
+  opacity: 0.1 !important;
+}
+
+body.dark-mode .confirmation-icon {
+  background-color: #333 !important;
+  color: #84b6e0 !important;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.dark-mode .delivery-info {
+  background-color: rgba(51, 51, 51, 0.5) !important;
+  color: #a0aec0 !important;
+}
+
+/* Specific card styles */
+body.dark-mode .order-card {
+  border-left: 3px solid #567C8D;
+}
+
+body.dark-mode .review-card {
+  border-left: 3px solid #567C8D;
+}
+
+/* Footer */
+body.dark-mode footer {
+  background-color: #1a1a1a;
+  border-top: 1px solid #333;
+}
+
+/* Order summary specific */
+body.dark-mode .order-total,
+body.dark-mode .bg-\[\#F5EFEB\] {
+  background-color: #2a2a2a !important;
+  color: #f0f0f0 !important;
+}
+
+body.dark-mode .bg-\[\#E5EBF1\],
+body.dark-mode .flex.items-center.mb-4 > div {
+  background-color: #333 !important;
+  color: #f0f0f0 !important;
+  border-color: #444 !important;
+}
+
+body.dark-mode .bg-\[\#E5EBF1\] i,
+body.dark-mode .flex.items-center.mb-4 > div i {
+  color: #999 !important;
+}
+
+/* Estilos específicos para la página de detalles del producto */
+body.dark-mode .product-details {
+  background-color: #262626 !important;
+  color: #f0f0f0 !important;
+  border-color: #333 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.dark-mode .product-title,
+body.dark-mode .product-info h1 {
+  color: #f0f0f0 !important;
+}
+
+body.dark-mode .price-tag, 
+body.dark-mode .stock-info, 
+body.dark-mode .rating-info {
+  background-color: #333 !important;
+  color: #f0f0f0 !important;
+  border: 1px solid #444 !important;
+}
+
+body.dark-mode .product-meta {
+  background-color: transparent !important;
+}
+
+body.dark-mode .product-meta .label {
+  color: #84b6e0 !important;
+}
+
+body.dark-mode .product-meta .value {
+  color: #f0f0f0 !important;
+}
+
+body.dark-mode .container {
+  background-color: #1a1a1a !important;
+  color: #f0f0f0 !important;
+}
+
+/* Estilos para la sección de comentarios */
+body.dark-mode .review-item {
+  background-color: #262626 !important;
+  border: 1px solid #444 !important;
+  transition: none !important;
+}
+
+body.dark-mode .review-item:hover {
+  background-color: #262626 !important;
+  border: 1px solid #444 !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+body.dark-mode .review-header {
+  border-color: #444 !important;
+}
+
+body.dark-mode .review-author {
+  color: #84b6e0 !important;
+}
+
+body.dark-mode .review-comment {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .add-to-cart-form {
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+}
+
+body.dark-mode #addToCartForm {
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Correcciones para el botón de Add to Cart en la página de detalles */
+body.dark-mode .add-to-cart-form button,
+body.dark-mode #addToCartForm button {
+  background-color: #294156 !important;
+  color: white !important;
+  transition: all 0.3s ease !important;
+  border-radius: 5px !important;
+  padding: 10px 20px !important;
+  width: 100% !important;
+}
+
+/* Formulario de comentarios */
+body.dark-mode .review-form .form-title {
+  color: #84b6e0 !important;
+  border-bottom: 1px solid #444 !important;
+  padding-bottom: 10px !important;
+  margin-bottom: 15px !important;
+}
+
+body.dark-mode .form-group {
+  margin-bottom: 15px !important;
+  background-color: transparent !important;
+}
+
+/* Estilo específico para el formulario de añadir comentario */
+body.dark-mode .add-review-form button {
+  background-color: #294156 !important;
+  color: white !important;
+}
+
+body.dark-mode .add-review-form button:hover {
+  background-color: #3182ce !important;
+  transform: translateY(-2px) !important;
+}
+
+body.dark-mode .delete-review-form {
+  background: none !important;
+  background-color: transparent !important;
+}
+
+body.dark-mode .delete-review-form button {
+  background-color: #294156 !important;
+  color: white !important;
+}
+
+body.dark-mode .delete-review-form button:hover {
+  background-color: #c53030 !important;
+  transform: translateY(-2px) !important;
+} 

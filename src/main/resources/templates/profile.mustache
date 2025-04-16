@@ -66,7 +66,7 @@
                     <label><i class="fas fa-lock"></i> Current Password:</label>
                     <div class="password-container">
                         <input type="password" id="currentPasswordInput" value="{{password}}" class="w-full p-2 border rounded mb-4 text-[#294156]" disabled>
-                        <button type="button" onclick="toggleCurrentPasswordVisibility()" class="bg-[#567C8D] text-white px-4 py-2 rounded hover:bg-[#294156] transition-colors">Show</button>
+                        <button type="button" onclick="toggleCurrentPasswordVisibility()" class="password-toggle-btn" style="background-color: #294156 !important; color: white !important;">Show</button>
                     </div>
                 </div>
 
@@ -78,14 +78,14 @@
                         <label><i class="fas fa-lock"></i> New Password:</label>
                         <div class="password-container">
                             <input type="password" id="passwordInput" name="password" placeholder="Enter new password" class="w-full p-2 border rounded mb-4 text-[#294156]">
-                            <button type="button" onclick="togglePasswordVisibility()" class="bg-[#567C8D] text-white px-4 py-2 rounded hover:bg-[#294156] transition-colors">Show</button>
+                            <button type="button" onclick="togglePasswordVisibility()" class="password-toggle-btn" style="background-color: #294156 !important; color: white !important;">Show</button>
                         </div>
                     </div>
                     <div class="form-group">
                         <label><i class="fas fa-lock"></i> Confirm Password:</label>
                         <div class="password-container">
                             <input type="password" id="confirmPasswordInput" name="confirmPassword" placeholder="Confirm new password" class="w-full p-2 border rounded mb-4 text-[#294156]">
-                            <button type="button" onclick="toggleConfirmPasswordVisibility()" class="bg-[#567C8D] text-white px-4 py-2 rounded hover:bg-[#294156] transition-colors">Show</button>
+                            <button type="button" onclick="toggleConfirmPasswordVisibility()" class="password-toggle-btn" style="background-color: #294156 !important; color: white !important;">Show</button>
                         </div>
                     </div>
                 </div>

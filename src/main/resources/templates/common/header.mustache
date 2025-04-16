@@ -1,4 +1,5 @@
 <link rel="stylesheet" href="/css/profile-modern.css">
+<link rel="stylesheet" href="/css/dark-mode.css">
 <header class="bg-gradient-to-r from-[#294156] to-[#2c4961] p-4 text-white flex justify-between items-center shadow-md transition-all duration-300">
         <img src="/images/Logos/logotipo.png" alt="Store logo" width="200" class="hover:opacity-90 transition-opacity duration-300">
         <nav class="flex items-center gap-4">
@@ -8,5 +9,35 @@
             {{#isAdmin}}
             <a href="/create-product" class="bg-[#567C8D] text-white px-6 py-2 rounded-lg hover:bg-[#294156] transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md">Add Product</a>
             {{/isAdmin}}
+            
+            <!-- Dark Mode Toggle -->
+            <label class="switch ml-4" title="Toggle Dark Mode">
+                <input type="checkbox" id="darkModeToggle">
+                <span class="slider"></span>
+            </label>
         </nav>
 </header>
+
+<script>
+    // Dark mode functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        
+        // Check for saved user preference
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+            darkModeToggle.checked = true;
+        }
+        
+        // Listen for toggle changes
+        darkModeToggle.addEventListener('change', function() {
+            if (this.checked) {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        });
+    });
+</script>

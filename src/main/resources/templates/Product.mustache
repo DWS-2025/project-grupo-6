@@ -6,10 +6,20 @@
     <title>Product Details</title>
     <link rel="stylesheet" href="/css/product-details.css">
     <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/dark-mode.css">
 </head>
 <body>
     {{> common/header}}
     <div class="container">
+        <div class="back-button-container">
+            <a href="/products" class="back-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Volver
+            </a>
+        </div>
         <div class="product-details">
             <div class="product-image-container">
                 <img src="/image/{{product.id}}" alt="{{product.name}}" class="product-image">
@@ -32,7 +42,7 @@
                     </div>
                     <form id="addToCartForm" action="/add-to-order" method="post" class="add-to-cart-form">
                         <input type="hidden" name="productId" value="{{product.id}}">
-                        <button type="submit" class="btn btn-primary ">Add to Cart</button>
+                        <button type="submit" class="btn btn-primary add-to-cart-btn">Add to Cart</button>
                     </form>
                     
                     <script>
@@ -40,23 +50,22 @@
                             e.preventDefault();
                             const button = this.querySelector('button');
                             const originalText = button.textContent;
-                            const originalColor = button.style.backgroundColor;
                             const currentStock = parseInt('{{product.stock}}');
 
                             // Check if out of stock
                             if (currentStock <= 0) {
                                 button.textContent = 'Out of Stock!';
-                                button.style.backgroundColor = 'red';
+                                button.style.backgroundColor = '#c53030';
                                 button.disabled = true;
 
                                 // Restore button after 1 second
                                 setTimeout(() => {
                                     button.textContent = originalText;
-                                    button.style.backgroundColor = originalColor;
+                                    button.style.backgroundColor = '';
                                     button.disabled = false;
-                                }, 1000); // 1000 ms = 1 second
+                                }, 1000);
 
-                                return; // Stop code execution
+                                return;
                             }
 
                             button.disabled = true;
@@ -70,14 +79,14 @@
                                 // Check if adding one more exceeds the stock
                                 if (cartQuantity + 1 > currentStock) {
                                     button.textContent = 'Out of Stock!';
-                                    button.style.backgroundColor = 'red';
+                                    button.style.backgroundColor = '#c53030';
 
                                     // Restore button after 1 second
                                     setTimeout(() => {
                                         button.textContent = originalText;
-                                        button.style.backgroundColor = originalColor;
+                                        button.style.backgroundColor = '';
                                         button.disabled = false;
-                                    }, 1000); // 1000 ms = 1 second
+                                    }, 1000);
 
                                     return;
                                 }
@@ -97,15 +106,16 @@
                                 }
 
                                 if (response.ok) {
+                                    // Cambiar fondo a verde y texto a "Added!"
                                     button.textContent = 'Added!';
-                                    button.style.backgroundColor = 'green';
+                                    button.style.backgroundColor = '#2e7d32';
 
-                                    // Restore button after 1 second
+                                    // Restaurar después de 1 segundo
                                     setTimeout(() => {
                                         button.textContent = originalText;
-                                        button.style.backgroundColor = originalColor;
+                                        button.style.backgroundColor = '';
                                         button.disabled = false;
-                                    }, 1000); // 1000 ms = 1 second
+                                    }, 1000);
 
                                     // Update the cart counter in the header
                                     const cartCounter = document.querySelector('.cart-counter');
@@ -118,14 +128,14 @@
                             } catch (error) {
                                 console.error('Error:', error);
                                 button.textContent = 'Error';
-                                button.style.backgroundColor = 'red';
+                                button.style.backgroundColor = '#c53030';
 
                                 // Restore button after 2 seconds
                                 setTimeout(() => {
                                     button.textContent = originalText;
-                                    button.style.backgroundColor = originalColor;
+                                    button.style.backgroundColor = '';
                                     button.disabled = false;
-                                }, 2000); // 2000 ms = 2 seconds
+                                }, 2000);
                             }
                         });
                     </script>

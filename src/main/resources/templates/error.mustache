@@ -3,20 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page not found</title>
+    <title>Error {{status}}</title>
     <link rel="stylesheet" href="/css/error.css">
+    <!-- Añadimos FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
 </head>
 <body>
     <div class="error-container">
-        <div class="glitch-wrapper">
-            <div class="glitch" th:data-text="${status}" th:text="${status}">404</div>
+        <!-- Ícono de error -->
+        <div class="error-icon">
+            <i class="fas fa-exclamation-circle" style="font-size: 120px; color: var(--accent-color);"></i>
         </div>
+        
+        <!-- Código de error -->
+        <div class="error-status" th:text="${status}">404</div>
+        
+        <!-- Mensajes de error -->
         <div class="error-text">
             <h2 th:text="${error}">Page Not Found</h2>
             <p th:text="${message}">We can't find the page you're looking for.</p>
         </div>
-        <a href="/products" class="back-button">Back to Home</a>
+        
+        <!-- Contenedor para botones -->
+        <div class="button-container">
+            <a href="/products" class="back-button">
+                <i class="fas fa-home"></i> Volver a inicio
+            </a>
+            <a href="javascript:history.back();" class="report-button">
+                <i class="fas fa-arrow-left"></i> Volver atrás
+            </a>
+        </div>
+        
+        <!-- Contador de redirección -->
+        <div class="redirect-counter">
+            Redirección a la página de inicio en <span class="redirect-countdown">10</span> segundos
+        </div>
     </div>
+    
     {{> common/footer}}
+    
+    <!-- Script para redirección automática -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let seconds = 10;
+            const countdownEl = document.querySelector('.redirect-countdown');
+            
+            const countdown = setInterval(function() {
+                seconds--;
+                countdownEl.textContent = seconds;
+                
+                if (seconds <= 0) {
+                    clearInterval(countdown);
+                    window.location.href = '/products';
+                }
+            }, 1000);
+            
+            // Detener el contador si el usuario interactúa con los botones
+            document.querySelectorAll('.button-container a').forEach(button => {
+                button.addEventListener('click', function() {
+                    clearInterval(countdown);
+                });
+            });
+        });
+    </script>
 </body>
 </html>

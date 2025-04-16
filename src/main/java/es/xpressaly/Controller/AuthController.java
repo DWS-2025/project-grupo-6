@@ -67,50 +67,53 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public @ResponseBody Map<String, Object> register(@RequestParam String firstName,
+    public String register(@RequestParam String firstName,
                           @RequestParam String lastName,
                           @RequestParam String email,
                           @RequestParam String password,
                           @RequestParam String address,
-                          @RequestParam int phoneNumber,
+                          @RequestParam(name = "phoneNumber") String phoneNumberStr,
                           @RequestParam int age,
                           HttpSession session,
                           Model model) {
-        Map<String, Object> response = new HashMap<>();
 
         try {
             // Validate input
             if (firstName == null || firstName.trim().isEmpty()) {
-                response.put("error", "First name is required");
-                return response;
+                model.addAttribute("error", "First name is required");
+                return "register";
             }
             if (lastName == null || lastName.trim().isEmpty()) {
-                response.put("error", "Last name is required");
-                return response;
+                model.addAttribute("error", "Last name is required");
+                return "register";
             }
             if (email == null || email.trim().isEmpty()) {
-                response.put("error", "Email is required");
-                return response;
+                model.addAttribute("error", "Email is required");
+                return "register";
             }
             if (password == null || password.trim().isEmpty()) {
-                response.put("error", "Password is required");
-                return response;
+                model.addAttribute("error", "Password is required");
+                return "register";
             }
             if (!password.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$")) {
-                response.put("error", "Password must be at least 8 characters long and contain uppercase, lowercase, and numbers");
-                return response;
+                model.addAttribute("error", "Password must be at least 8 characters long and contain uppercase, lowercase, and numbers");
+                return "register";
             }
             if (address == null || address.trim().isEmpty()) {
-                response.put("error", "Address is required");
-                return response;
+                model.addAttribute("error", "Address is required");
+                return "register";
             }
-            if (phoneNumber <= 0) {
-                response.put("error", "Invalid phone number");
-                return response;
+            
+            // Validación de teléfono: debe ser numérico y tener entre 6 y 9 dígitos
+            if (!phoneNumberStr.matches("^[0-9]{6,9}$")) {
+                model.addAttribute("error", "Phone number must contain between 6 and 9 digits");
+                return "register";
             }
-            if (age < 18 || age>120) {
-                response.put("error", "You must be 18 or older to register");
-                return response;
+            int phoneNumber = Integer.parseInt(phoneNumberStr);
+            
+            if (age < 18 || age > 120) {
+                model.addAttribute("error", "You must be 18 or older to register");
+                return "register";
             }
             
             User newUser = userService.registerUser(firstName, lastName, email, password, address, phoneNumber, age);
@@ -119,17 +122,16 @@ public class AuthController {
                 session.setAttribute("userEmail", newUser.getEmail());
                 session.setAttribute("userRole", newUser.getRole());
                 userService.setCurrentUser(newUser);
-                response.put("success", true);
-                return response;
+                return "redirect:/products";
             }
-            response.put("error", "Email already exists");
-            return response;
+            model.addAttribute("error", "Email already exists");
+            return "register";
         } catch (IllegalArgumentException e) {
-            response.put("error", e.getMessage());
-            return response;
+            model.addAttribute("error", e.getMessage());
+            return "register";
         } catch (Exception e) {
-            response.put("error", e.getMessage());
-            return response;
+            model.addAttribute("error", "An unexpected error occurred: " + e.getMessage());
+            return "register";
         }
     }
 

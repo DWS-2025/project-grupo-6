@@ -613,14 +613,33 @@ input[type="text"]:focus, input[type="number"]:focus {
     transform: translateY(-2px);
 }
 
-.btn-danger {
-    background-color: #ef4444;
-    transition: all 0.3s ease;
+/* Modificaciones para el formulario de eliminar */
+.remove-form {
+    margin-top: 1rem;
+    background-color: transparent !important; /* Quitar el fondo del contenedor */
+    padding: 0 !important; /* Eliminar el padding que crea espacio extra */
+    border-radius: 0 !important; /* Eliminar borde redondeado del contenedor */
+    box-shadow: none !important; /* Eliminar sombra del contenedor */
 }
 
-.btn-danger:hover {
-    background-color: #dc2626;
-    transform: translateY(-2px);
+/* Mantener los estilos del botón */
+.btn-danger, 
+button.btn-danger,
+.remove-form button {
+    background-image: linear-gradient(145deg, #666, #444) !important;
+    color: white !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+    border-radius: 8px !important; /* Asegurar que el botón tiene bordes redondeados */
+    padding: 10px 20px !important; /* Ajustar el padding del botón */
+}
+
+.btn-danger:hover,
+button.btn-danger:hover,
+.remove-form button:hover {
+    background-image: linear-gradient(145deg, #d32f2f, #f44336) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(229, 62, 62, 0.3) !important;
 }
 
 /* Quantity input styles */
@@ -637,4 +656,12 @@ input[type="text"]:focus, input[type="number"]:focus {
 
 .quantity-btn:hover {
     transform: scale(1.1);
+}
+
+.quantity-form, .remove-form {
+    margin-top: 1rem;
+    background-color: #fff;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(41, 65, 86, 0.08);
 }
