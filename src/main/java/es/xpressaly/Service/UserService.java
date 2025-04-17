@@ -1,9 +1,11 @@
 package es.xpressaly.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.Authentication;
 
 import es.xpressaly.Model.User;
 import es.xpressaly.Model.UserRole;
@@ -23,7 +25,7 @@ public class UserService {
     @Autowired
 	private PasswordEncoder passwordEncoder;
 
-    private User currentUser;
+    //private User currentUser;
 
     // Method to obtain the user by ID
     public User getUserById(Long userId) {
@@ -49,7 +51,7 @@ public class UserService {
             if (user.getReviews() != null) {
                 user.getReviews().size(); // Force initialization of reviews collection
             }
-            this.setCurrentUser(user);
+            //this.setCurrentUser(user);
             return user;
         }
         // Debug information to help troubleshoot login issues
@@ -123,12 +125,20 @@ public class UserService {
 
     // Method to get the current user
     public User getUser() {
-        return currentUser;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+    
+        String email = authentication.getName();
+        return userRepository.findByEmail(email).orElse(null);
     }
 
-    public void setCurrentUser(User currentUser) {
+    
+
+    /*public void setCurrentUser(User currentUser) {
         this.currentUser = currentUser;
-    }
+    }*/
 
     // List of example user emails that should be preserved
     private final List<String> exampleUserEmails = Arrays.asList(

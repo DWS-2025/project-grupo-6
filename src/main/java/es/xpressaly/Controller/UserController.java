@@ -38,7 +38,6 @@ public class UserController {
         try {
 
             User user = userService.getUser();
-            user.getOrders().size();
             model.addAttribute("name", user.getFirstName());
             model.addAttribute("surname", user.getLastName());
             model.addAttribute("email", user.getEmail());
@@ -46,14 +45,6 @@ public class UserController {
             model.addAttribute("phone", user.getPhoneNumber());
             model.addAttribute("age", user.getAge());
             model.addAttribute("orders", user.getOrders());
-            System.out.println("Número de órdenes: " + user.getOrders().size()); // Debug
-            user.getOrders().forEach(order -> {
-                System.out.println(
-                    "Order ID: " + order.getId() + 
-                    ", Address: " + order.getAddress() + 
-                    ", Total: " + order.getTotal()
-                );
-            });
             model.addAttribute("password", user.getPassword());
             model.addAttribute("isAdmin", user.getRole() == UserRole.ADMIN);
             model.addAttribute("cartItemCount", orderController.getCartItemCount());

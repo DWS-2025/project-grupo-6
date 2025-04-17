@@ -25,7 +25,7 @@ public class AuthController {
 
     @GetMapping("/login")
     public String showLoginForm() {
-        userService.setCurrentUser(null);
+        //userService.setCurrentUser(null);
         return "login";
     }
 
@@ -50,7 +50,7 @@ public class AuthController {
                 session.setAttribute("userId", user.getId());
                 session.setAttribute("userEmail", user.getEmail());
                 session.setAttribute("userRole", user.getRole());
-                userService.setCurrentUser(user);
+                //userService.setCurrentUser(user);
                 return "redirect:/products";
             }
             model.addAttribute("error", "Invalid email or password");
@@ -121,7 +121,7 @@ public class AuthController {
                 session.setAttribute("userId", newUser.getId());
                 session.setAttribute("userEmail", newUser.getEmail());
                 session.setAttribute("userRole", newUser.getRole());
-                userService.setCurrentUser(newUser);
+                //userService.setCurrentUser(newUser);
                 return "redirect:/products";
             }
             model.addAttribute("error", "Email already exists");

@@ -106,6 +106,7 @@ public class SecurityConfig {
 						.requestMatchers("/css/**").permitAll()
 						.requestMatchers("/products/**").permitAll()
 						.requestMatchers("/error").permitAll()
+						.requestMatchers("/product-details/**").permitAll()
 						// PRIVATE PAGES
 						.requestMatchers("/profile").hasAnyRole("USER","ADMIN")
 						.requestMatchers("/newbook").hasAnyRole("USER")
