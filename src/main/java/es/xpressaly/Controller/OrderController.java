@@ -112,6 +112,7 @@ public class OrderController {
         } else {
             product.setAmount(1);
             currentOrder.addProduct(product);
+            currentUser.addOrder(currentOrder); // Add the order to the user
         }
         
         model.addAttribute("products", productService.getAllProducts());
