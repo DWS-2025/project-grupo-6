@@ -122,7 +122,7 @@ public class AuthController {
                 session.setAttribute("userEmail", newUser.getEmail());
                 session.setAttribute("userRole", newUser.getRole());
                 //userService.setCurrentUser(newUser);
-                return "redirect:/products";
+                return "redirect:/login";
             }
             model.addAttribute("error", "Email already exists");
             return "register";

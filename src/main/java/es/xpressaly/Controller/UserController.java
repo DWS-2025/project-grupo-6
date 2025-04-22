@@ -1,5 +1,6 @@
 package es.xpressaly.Controller;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,7 +38,8 @@ public class UserController {
 
         try {
 
-            User user = userService.getUser();
+            User user = userService.getUserWithReviews();
+            //User user = userService.getUser();
             model.addAttribute("name", user.getFirstName());
             model.addAttribute("surname", user.getLastName());
             model.addAttribute("email", user.getEmail());
@@ -48,7 +50,7 @@ public class UserController {
             model.addAttribute("password", user.getPassword());
             model.addAttribute("isAdmin", user.getRole() == UserRole.ADMIN);
             model.addAttribute("cartItemCount", orderController.getCartItemCount());
-
+           
             // Get user's reviews and add product information
             List<Map<String, Object>> reviewsWithProducts = new ArrayList<>();
             for (Review review : user.getReviews()) {

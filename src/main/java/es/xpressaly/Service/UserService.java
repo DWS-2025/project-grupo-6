@@ -133,8 +133,24 @@ public class UserService {
         String email = authentication.getName();
         return userRepository.findByEmail(email).orElse(null);
     }
-
+    @Transactional(readOnly = true)
+    public User getUserWithReviews(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
     
+        String email = authentication.getName();
+        User user= userRepository.findUserWithReviews(email).orElse(null);
+        // Inicialización explícita para evitar LazyInitializationException
+        if (user.getReviews() != null) {
+            user.getReviews().size(); // Fuerza la inicialización
+        }
+        if (user.getOrders() != null) {
+            user.getOrders().size(); // Fuerza la inicialización
+        }
+        return user;
+    }
 
     /*public void setCurrentUser(User currentUser) {
         this.currentUser = currentUser;
