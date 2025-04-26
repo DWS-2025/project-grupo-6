@@ -16,6 +16,7 @@ import es.xpressaly.Model.User;
 import es.xpressaly.Service.ProductService;
 import es.xpressaly.Service.ReviewService;
 import es.xpressaly.Service.UserService;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 //import java.nio.file.Files;
@@ -45,14 +46,14 @@ public class ProductController {
 
     // Show product list
     @GetMapping("/products")
-    public String showProducts(Model model, @RequestParam(required = false, defaultValue = "default") String sort) {
+    public String showProducts(Model model, @RequestParam(required = false, defaultValue = "default") String sort,HttpSession session) {
         try {
             // We no longer load all products initially
             // Products will be loaded dynamically through the API
             User currentUser = userService.getUser();
             model.addAttribute("products", List.of()); // Empty list
             model.addAttribute("isAdmin", currentUser != null && currentUser.isAdmin());
-            model.addAttribute("cartItemCount", orderController.getCartItemCount());
+            model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
             return "Wellcome";
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
@@ -64,13 +65,13 @@ public class ProductController {
 
     // Show form to create a product - Admin only
     @GetMapping("/create-product")
-    public String createProductForm(Model model) {
+    public String createProductForm(Model model, HttpSession session) {
         User currentUser = userService.getUser();
         if (currentUser == null || !currentUser.isAdmin()) {
             return "redirect:/products";
         }
         model.addAttribute("isAdmin", true);
-        model.addAttribute("cartItemCount", orderController.getCartItemCount());
+        model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
         return "add_product";
     }
 
@@ -165,13 +166,13 @@ public class ProductController {
 
     // Delete a product - Admin only
     @PostMapping("/delete-product")
-    public String deleteProduct(@RequestParam Long productId) throws IOException {
+    public String deleteProduct(@RequestParam Long productId,HttpSession session) throws IOException {
         User currentUser = userService.getUser();
         if (currentUser == null || !currentUser.isAdmin()) {
             return "redirect:/products";
         }
 
-        Order currentOrder = orderController.getCurrentOrder();
+        Order currentOrder = orderController.getCurrentOrder(session);
         Product product = productService.getProductById(productId);
         if (currentOrder != null) {
             currentOrder.removeProduct(product);
@@ -186,13 +187,13 @@ public class ProductController {
 
     // Search products endpoint that queries the database
     @GetMapping("/search-products")
-    public String searchProducts(@RequestParam String term, Model model) {
+    public String searchProducts(@RequestParam String term, Model model, HttpSession session) {
         try {
             List<Product> searchResults = productService.searchProducts(term);
             User currentUser = userService.getUser();
             model.addAttribute("products", searchResults);
             model.addAttribute("isAdmin", currentUser != null && currentUser.isAdmin());
-            model.addAttribute("cartItemCount", orderController.getCartItemCount());
+            model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
             model.addAttribute("searchTerm", term);
             return "Wellcome";
         } catch (Exception e) {
@@ -202,7 +203,7 @@ public class ProductController {
     }
 
     @GetMapping("/product-details")
-    public String productDetails(@RequestParam Long id, Model model) {
+    public String productDetails(@RequestParam Long id, Model model, HttpSession session) {
         try {
             Product product = productService.getProductWithReviews(id);
             User currentUser = userService.getUser();
@@ -217,7 +218,7 @@ public class ProductController {
             model.addAttribute("averageRating", productService.getAverageRating(product.getId()));
             model.addAttribute("username", currentUser.getFirstName() + " " + currentUser.getLastName());
             model.addAttribute("isAdmin", currentUser.isAdmin());
-            model.addAttribute("cartItemCount", orderController.getCartItemCount());
+            model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
 
             return "Product";
         } catch (Exception e) {
@@ -309,6 +310,20 @@ public class ProductController {
         productMap.put("isAdmin", currentUser != null && currentUser.isAdmin());
         // We don't include imageData to avoid overloading the JSON response
         return productMap;
+    }
+
+    @GetMapping("/get-cart-quantity")
+    @ResponseBody
+    public int getCartQuantity(@RequestParam Long productId, HttpSession session) {
+        Order currentOrder = orderController.getCurrentOrder(session);
+        if (currentOrder != null && currentOrder.hasProducts()) {
+            for (Product product : currentOrder.getProducts()) {
+                if (product.getId().equals(productId)) {
+                    return product.getAmount();
+                }
+            }
+        }
+        return 0;
     }
 }
 

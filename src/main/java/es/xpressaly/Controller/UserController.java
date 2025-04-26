@@ -12,6 +12,7 @@ import es.xpressaly.Model.User;
 import es.xpressaly.Model.UserRole;
 import es.xpressaly.Model.Review;
 import es.xpressaly.Service.UserService;
+import jakarta.servlet.http.HttpSession;
 import es.xpressaly.Service.ReviewService;
 
 
@@ -34,7 +35,7 @@ public class UserController {
     
 
     @GetMapping("/profile")
-    public String showProfile(Model model) {
+    public String showProfile(Model model,HttpSession session) {
 
         try {
 
@@ -49,7 +50,7 @@ public class UserController {
             model.addAttribute("orders", user.getOrders());
             model.addAttribute("password", user.getPassword());
             model.addAttribute("isAdmin", user.getRole() == UserRole.ADMIN);
-            model.addAttribute("cartItemCount", orderController.getCartItemCount());
+            model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
            
             // Get user's reviews and add product information
             List<Map<String, Object>> reviewsWithProducts = new ArrayList<>();

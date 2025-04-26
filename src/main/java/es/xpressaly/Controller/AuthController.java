@@ -1,5 +1,6 @@
 package es.xpressaly.Controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import es.xpressaly.Model.Order;
 import es.xpressaly.Model.User;
 import es.xpressaly.Service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -18,6 +20,8 @@ import java.util.Map;
 public class AuthController {
 
     private final UserService userService;
+    
+    private final OrderController orderController= new OrderController();
 
     public AuthController(UserService userService) {
         this.userService = userService;
@@ -47,6 +51,8 @@ public class AuthController {
             
             User user = userService.authenticateUser(email, password);
             if (user != null) {
+                Order newOrder = new Order(user, user.getAddress());
+                orderController.setCurrentOrder(session, newOrder);
                 session.setAttribute("userId", user.getId());
                 session.setAttribute("userEmail", user.getEmail());
                 session.setAttribute("userRole", user.getRole());
@@ -138,6 +144,7 @@ public class AuthController {
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
+        session.removeAttribute("currentOrder");
         return "redirect:/login";
     }
 }
