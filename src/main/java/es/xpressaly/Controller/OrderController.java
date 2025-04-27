@@ -96,7 +96,7 @@ public class OrderController {
             return "Wellcome";
         }
 
-        if (currentOrder == null || !currentOrder.getUser().equals(currentUser)) {
+        if (currentOrder == null) {
             currentOrder = new Order(currentUser, currentUser.getAddress()); // Create new order with user's profile address
             setCurrentOrder(session, currentOrder);
         } else {
@@ -125,6 +125,7 @@ public class OrderController {
         } else {
             product.setAmount(1);
             currentOrder.addProduct(product);
+            setCurrentOrder(session, currentOrder);
             //currentUser.addOrder(currentOrder); // Add the order to the user
         }
         setCurrentOrder(session, currentOrder);
