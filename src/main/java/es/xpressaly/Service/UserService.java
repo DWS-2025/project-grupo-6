@@ -1,5 +1,6 @@
 package es.xpressaly.Service;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -148,6 +149,13 @@ public class UserService {
         }
         if (user.getOrders() != null) {
             user.getOrders().size(); // Fuerza la inicialización
+        }
+        if (user != null) {
+        // Initialize orders and their products in a separate query
+            Hibernate.initialize(user.getOrders());
+            if (user.getOrders() != null) {
+                user.getOrders().forEach(order -> Hibernate.initialize(order.getProducts()));
+            }
         }
         return user;
     }
