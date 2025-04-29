@@ -70,8 +70,9 @@ public class Product {
         this.reviews.add(review);
     }
 
-    
-    private int amount;public int getAmount(){return amount;}
+    @Transient // This field is not stored in the database
+    private int amount;
+    public int getAmount(){return amount;}
     public void setAmount(int amount){this.amount=amount;}
     
     @Override

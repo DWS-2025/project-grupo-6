@@ -267,6 +267,7 @@ public class OrderController {
             for (Product product : currentOrder.getProducts()) {
                 Product stockProduct = productService.getProductById(product.getId());
                 stockProduct.setStock(stockProduct.getStock() - product.getAmount());
+                stockProduct.setAmount(product.getAmount());
                 entityManager.merge(stockProduct);
             }
 
