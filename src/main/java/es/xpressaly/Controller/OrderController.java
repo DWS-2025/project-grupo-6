@@ -17,7 +17,7 @@ import es.xpressaly.Repository.OrderRepository;
 import es.xpressaly.Service.ProductService;
 import es.xpressaly.Service.UserService;
 
-
+import java.util.List;
 
 @Controller
 @Transactional
@@ -39,7 +39,22 @@ public class OrderController {
     private static final String CURRENT_ORDER_SESSION_KEY = "currentOrder";
     
     public Order getCurrentOrder(HttpSession session) {
-        return (Order) session.getAttribute(CURRENT_ORDER_SESSION_KEY);
+        Order order = (Order) session.getAttribute(CURRENT_ORDER_SESSION_KEY);
+        User currentUser = userService.getUser();
+        
+        // Si no hay orden en la sesión o el usuario es null, devuelve null
+        if (order == null || currentUser == null) {
+            return null;
+        }
+        
+        // Verifica que la orden pertenece al usuario actual
+        if (!order.getUser().getId().equals(currentUser.getId())) {
+            // Si la orden pertenece a otro usuario, crea una nueva orden para el usuario actual
+            order = new Order(currentUser, currentUser.getAddress());
+            setCurrentOrder(session, order);
+        }
+        
+        return order;
     }
 
     public void setCurrentOrder(HttpSession session, Order order) {
@@ -272,14 +287,24 @@ public class OrderController {
             }
 
             currentOrder.setAddress(address);
-            userService.getUser().addOrder(currentOrder);
+            User currentUser = userService.getUser();
+            
+            // Obtener todos los pedidos del usuario ordenados por ID
+            List<Order> userOrders = orderRepository.findByUser(currentUser);
+            int userOrderNumber = userOrders.size() + 1;
+            
+            // Asignar el número de pedido único para este usuario
+            currentOrder.setUserOrderNumber(userOrderNumber);
+            
+            currentUser.addOrder(currentOrder);
 
             Order confirmedOrder = currentOrder;
             orderRepository.save(confirmedOrder);
-            currentOrder = new Order(userService.getUser(), userService.getUser().getAddress());
+            currentOrder = new Order(currentUser, currentUser.getAddress());
             setCurrentOrder(session, currentOrder); // Reset the current order in the session
             model.addAttribute("order", confirmedOrder);
             model.addAttribute("address", address);
+            model.addAttribute("userOrderNumber", userOrderNumber);
             return "confirm_order";
     } catch (Exception e) {
         model.addAttribute("error", e.getMessage());

@@ -29,6 +29,9 @@ public class Order {
     @Column(nullable = false)
     private double total;
     
+    @Column(name = "user_order_number")
+    private Integer userOrderNumber;
+    
 
     // Default constructor required by JPA
     public Order() {
@@ -69,6 +72,9 @@ public class Order {
 
     public double getTotal() { return total; }
     public void setTotal(double total) { this.total = total; }
+    
+    public Integer getUserOrderNumber() { return userOrderNumber; }
+    public void setUserOrderNumber(Integer userOrderNumber) { this.userOrderNumber = userOrderNumber; }
     
     public void calculateTotal() {
         double calculatedTotal = 0;

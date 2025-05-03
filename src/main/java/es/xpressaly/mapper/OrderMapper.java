@@ -11,18 +11,19 @@ import java.util.Map;
 public class OrderMapper {
     
     public OrderDTO toDTO(Order order) {
-        OrderDTO dto = new OrderDTO();
-        dto.setId(order.getId());
-        dto.setAddress(order.getAddress());
-        dto.setTotal(order.getTotal());
-        return dto;
+        return new OrderDTO(
+            order.getId(),
+            order.getAddress(),
+            order.getTotal(),
+            null // items se asignarían en otro lugar si es necesario
+        );
     }
     
     public Order toEntity(OrderDTO dto) {
         Order order = new Order();
-        order.setId(dto.getId());
-        order.setAddress(dto.getAddress());
-        order.setTotal(dto.getTotal());
+        order.setId(dto.id());
+        order.setAddress(dto.address());
+        order.setTotal(dto.total());
         return order;
     }
 }

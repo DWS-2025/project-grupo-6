@@ -102,7 +102,7 @@
                 <h3><i class="fas fa-shopping-bag"></i> My Orders</h3>
                 {{#orders}}
                     <div class="order-card">
-                        <h3>Order #{{id}}</h3>
+                        <h3>Order #{{userOrderNumber}}</h3>
                         <p><i class="fas fa-map-marker-alt"></i> Delivery Address: {{address}}</p>
                         {{#products}}
                             <p>-{{name}} x {{amount}}: ${{price}}</p>

@@ -41,8 +41,8 @@ public class ReviewController {
     @PutMapping("/{id}")
     public ReviewDTO updateReview(@PathVariable Long id, @RequestBody ReviewDTO reviewDTO) {
         Review existingReview = reviewService.getReviewById(id);
-        existingReview.setComment(reviewDTO.getComment());
-        existingReview.setRating(reviewDTO.getRating());
+        existingReview.setComment(reviewDTO.comment());
+        existingReview.setRating(reviewDTO.rating());
         return reviewMapper.toDTO(reviewService.saveReview(existingReview));
     }
 

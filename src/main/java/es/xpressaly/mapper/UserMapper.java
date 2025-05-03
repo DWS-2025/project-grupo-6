@@ -12,25 +12,27 @@ import java.util.Map;
 public class UserMapper {
     
     public UserDTO toDTO(User user) {
-        UserDTO dto = new UserDTO();
-        dto.setFirstName(user.getFirstName());
-        dto.setLastName(user.getLastName());
-        dto.setEmail(user.getEmail());
-        dto.setAddress(user.getAddress());
-        dto.setPhoneNumber(user.getPhoneNumber());
-        dto.setAge(user.getAge());
-        dto.setAdmin(user.getRole() == UserRole.ADMIN);
-        return dto;
+        return new UserDTO(
+            user.getFirstName(),
+            user.getLastName(),
+            user.getEmail(),
+            user.getAddress(),
+            user.getPhoneNumber(),
+            user.getAge(),
+            user.getRole() == UserRole.ADMIN,
+            null, // orders se asignarían en otro lugar si es necesario
+            null  // reviews se asignarían en otro lugar si es necesario
+        );
     }
     
     public User toEntity(UserDTO dto) {
         User user = new User();
-        user.setFirstName(dto.getFirstName());
-        user.setLastName(dto.getLastName());
-        user.setEmail(dto.getEmail());
-        user.setAddress(dto.getAddress());
-        user.setPhoneNumber(dto.getPhoneNumber());
-        user.setAge(dto.getAge());
+        user.setFirstName(dto.firstName());
+        user.setLastName(dto.lastName());
+        user.setEmail(dto.email());
+        user.setAddress(dto.address());
+        user.setPhoneNumber(dto.phoneNumber());
+        user.setAge(dto.age());
         return user;
     }
 }

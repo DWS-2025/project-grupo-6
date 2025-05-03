@@ -95,6 +95,19 @@ p {
     margin-right: auto;
 }
 
+.order-number {
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--navy);
+    padding: 10px 20px;
+    background-color: rgba(203, 211, 230, 0.3);
+    border-radius: 8px;
+    display: inline-block;
+    margin-bottom: 20px;
+    animation: fadeIn 1s ease-out 0.2s forwards;
+    opacity: 0;
+}
+
 .delivery-info {
     font-size: 1.1rem;
     color: var(--teal);
@@ -204,5 +217,10 @@ footer {
     
     p {
         font-size: 1.1rem;
+    }
+    
+    .order-number {
+        font-size: 1.2rem;
+        padding: 8px 15px;
     }
 }

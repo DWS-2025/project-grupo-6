@@ -11,6 +11,8 @@ import org.springframework.security.core.Authentication;
 import es.xpressaly.Model.User;
 import es.xpressaly.Model.UserRole;
 import es.xpressaly.Repository.UserRepository;
+import es.xpressaly.Repository.OrderRepository;
+import es.xpressaly.Model.Order;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +27,8 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
 	private PasswordEncoder passwordEncoder;
+    @Autowired
+    private OrderRepository orderRepository;
 
     //private User currentUser;
 
@@ -142,16 +146,26 @@ public class UserService {
         }
     
         String email = authentication.getName();
-        User user= userRepository.findUserWithReviews(email).orElse(null);
+        User user = userRepository.findUserWithReviews(email).orElse(null);
         // Inicialización explícita para evitar LazyInitializationException
         if (user.getReviews() != null) {
             user.getReviews().size(); // Fuerza la inicialización
         }
         if (user.getOrders() != null) {
             user.getOrders().size(); // Fuerza la inicialización
+            
+            // Aseguramos que todos los pedidos tengan un número de pedido asignado
+            List<Order> userOrders = orderRepository.findByUserOrderById(user);
+            int orderCount = 1;
+            for (Order order : userOrders) {
+                if (order.getUserOrderNumber() == null) {
+                    order.setUserOrderNumber(orderCount++);
+                    orderRepository.save(order);
+                }
+            }
         }
         if (user != null) {
-        // Initialize orders and their products in a separate query
+            // Initialize orders and their products in a separate query
             Hibernate.initialize(user.getOrders());
             if (user.getOrders() != null) {
                 user.getOrders().forEach(order -> Hibernate.initialize(order.getProducts()));

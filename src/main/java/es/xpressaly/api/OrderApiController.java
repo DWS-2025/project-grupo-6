@@ -182,10 +182,33 @@ public class OrderApiController {
                 return ResponseEntity.badRequest().body(response);
             }
 
-            // Stock verification and order confirmation logic here
-            // ...
+            User currentUser = userService.getUser();
+            
+            // Calcular el número de pedido para este usuario
+            int userOrderNumber = 1;
+            List<Order> userOrders = orderRepository.findByUser(currentUser);
+            if (!userOrders.isEmpty()) {
+                userOrderNumber = userOrders.size() + 1;
+            }
+            currentOrder.setUserOrderNumber(userOrderNumber);
+            
+            // Validate stock and update product quantities
+            for (Product orderProduct : currentOrder.getProducts()) {
+                Product stockProduct = productService.getProductById(orderProduct.getId());
+                if (stockProduct == null || orderProduct.getAmount() > stockProduct.getStock()) {
+                    response.put("error", "Some products do not have enough stock");
+                    return ResponseEntity.badRequest().body(response);
+                }
+                stockProduct.setStock(stockProduct.getStock() - orderProduct.getAmount());
+                entityManager.merge(stockProduct);
+            }
+            
+            currentOrder.setAddress(address);
+            currentUser.addOrder(currentOrder);
+            orderRepository.save(currentOrder);
             
             response.put("success", "Order confirmed");
+            response.put("orderNumber", userOrderNumber);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("error", e.getMessage());
@@ -199,17 +222,15 @@ public class OrderApiController {
             return null;
         }
         
-        // Get the user's active order from repository or create new one
+        // Busca el pedido actual del usuario
         List<Order> userOrders = orderRepository.findByUser(currentUser);
-        Order currentOrder = userOrders.stream()
-            .findFirst()
-            .orElse(null);
-            
-        if (currentOrder == null) {
-            currentOrder = new Order(currentUser, currentUser.getAddress());
-            orderRepository.save(currentOrder);
+        if (userOrders.isEmpty()) {
+            // Si no hay órdenes, crea una nueva
+            Order newOrder = new Order(currentUser, currentUser.getAddress());
+            return newOrder;
+        } else {
+            // Devuelve la última orden del usuario
+            return userOrders.get(userOrders.size() - 1);
         }
-        
-        return currentOrder;
     }
 }

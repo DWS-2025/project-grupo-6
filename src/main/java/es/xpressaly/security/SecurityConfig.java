@@ -109,10 +109,11 @@ public class SecurityConfig {
 						.requestMatchers("/product-details/**").permitAll()
 						// PRIVATE PAGES
 						.requestMatchers("/profile").hasAnyRole("USER","ADMIN")
-						.requestMatchers("/create-product").hasAnyRole("USER")
-						.requestMatchers("/edit-profile").hasAnyRole("USER")
-						.requestMatchers("/edit-profile/**").hasAnyRole("USER")
-						.requestMatchers("/delete-product/**").hasAnyRole("ADMIN")
+						.requestMatchers("/create-product").hasRole("ADMIN")
+						.requestMatchers("/add-product").hasRole("ADMIN")
+						.requestMatchers("/edit-profile").hasAnyRole("USER","ADMIN")
+						.requestMatchers("/edit-profile/**").hasAnyRole("USER","ADMIN")
+						.requestMatchers("/delete-product/**").hasRole("ADMIN")
 						.anyRequest().permitAll()
 				)
 				.formLogin(formLogin -> formLogin

@@ -67,9 +67,16 @@ public class ProductController {
     @GetMapping("/create-product")
     public String createProductForm(Model model, HttpSession session) {
         User currentUser = userService.getUser();
-        if (currentUser == null || !currentUser.isAdmin()) {
+        
+        // Verificación más detallada de acceso de administrador
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+        
+        if (!currentUser.isAdmin()) {
             return "redirect:/products";
         }
+        
         model.addAttribute("isAdmin", true);
         model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
         return "add_product";
