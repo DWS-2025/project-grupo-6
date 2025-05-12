@@ -63,11 +63,11 @@ public class OrderController {
     // View products and add to order
     public int getCartItemCount(HttpSession session) {
         Order currentOrder = getCurrentOrder(session);
-        if (currentOrder == null || currentOrder.getProducts() == null) {
+        if (currentOrder == null) {
             return 0;
         }
         return currentOrder.getProducts().stream()
-                .mapToInt(Product::getAmount)
+                .mapToInt(product -> currentOrder.getProductQuantity(product))
                 .sum();
     }
 
@@ -112,7 +112,7 @@ public class OrderController {
         }
 
         if (currentOrder == null) {
-            currentOrder = new Order(currentUser, currentUser.getAddress()); // Create new order with user's profile address
+            currentOrder = new Order(currentUser, currentUser.getAddress());
             setCurrentOrder(session, currentOrder);
         } else {
             // Update the address to match the current user's address
@@ -120,29 +120,17 @@ public class OrderController {
         }
 
         // Check if adding more would exceed available stock
-        int currentAmount = 0;
-        if(currentOrder.getProducts().contains(product)) {
-            for (Product p : currentOrder.getProducts()) {
-                if (p.equals(product)) {
-                    currentAmount = p.getAmount();
-                    if (currentAmount + 1 > product.getStock()) {
-                        setCurrentOrder(session, currentOrder);
-                        model.addAttribute("errorMessage", "We're sorry, we do not have enough stock at the moment, try later");
-                        model.addAttribute("products", productService.getAllProducts());
-                        model.addAttribute("cartItemCount", getCartItemCount(session));
-                        model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
-                        return "Wellcome";
-                    }
-                    p.setAmount(currentAmount + 1); // Increase the quantity by 1
-                    break; // Exit the loop once the product is found
-                }
-            }
-        } else {
-            product.setAmount(1);
-            currentOrder.addProduct(product);
+        int currentQuantity = currentOrder.getProductQuantity(product);
+        if (currentQuantity + 1 > product.getStock()) {
             setCurrentOrder(session, currentOrder);
-            //currentUser.addOrder(currentOrder); // Add the order to the user
+            model.addAttribute("errorMessage", "We're sorry, we do not have enough stock at the moment, try later");
+            model.addAttribute("products", productService.getAllProducts());
+            model.addAttribute("cartItemCount", getCartItemCount(session));
+            model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
+            return "Wellcome";
         }
+
+        currentOrder.addProduct(product);
         setCurrentOrder(session, currentOrder);
         model.addAttribute("products", productService.getAllProducts());
         model.addAttribute("order", currentOrder);
@@ -246,7 +234,7 @@ public class OrderController {
             return "my_Order";
         }
 
-        productInOrder.setAmount(amount);
+        currentOrder.setProductQuantity(productInOrder, amount);
         currentOrder.calculateTotal();
         setCurrentOrder(session, currentOrder);
         model.addAttribute("order", currentOrder);
@@ -272,7 +260,8 @@ public class OrderController {
             // Verify stock availability before confirming
             for (Product orderProduct : currentOrder.getProducts()) {
                 Product stockProduct = productService.getProductById(orderProduct.getId());
-                if (stockProduct == null || orderProduct.getAmount() > stockProduct.getStock()) {
+                int quantity = currentOrder.getProductQuantity(orderProduct);
+                if (stockProduct == null || quantity > stockProduct.getStock()) {
                     model.addAttribute("error", "Some products do not have enough stock");
                     return "redirect:/view-order";
                 }
@@ -281,8 +270,8 @@ public class OrderController {
             // Update stock levels
             for (Product product : currentOrder.getProducts()) {
                 Product stockProduct = productService.getProductById(product.getId());
-                stockProduct.setStock(stockProduct.getStock() - product.getAmount());
-                stockProduct.setAmount(product.getAmount());
+                int quantity = currentOrder.getProductQuantity(product);
+                stockProduct.setStock(stockProduct.getStock() - quantity);
                 entityManager.merge(stockProduct);
             }
 
@@ -306,9 +295,9 @@ public class OrderController {
             model.addAttribute("address", address);
             model.addAttribute("userOrderNumber", userOrderNumber);
             return "confirm_order";
-    } catch (Exception e) {
-        model.addAttribute("error", e.getMessage());
-        return "redirect:/view-order";
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+            return "redirect:/view-order";
         }
     }
 

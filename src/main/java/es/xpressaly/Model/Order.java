@@ -15,13 +15,8 @@ public class Order {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToMany
-    @JoinTable(
-        name = "order_products",
-        joinColumns = @JoinColumn(name = "order_id"),
-        inverseJoinColumns = @JoinColumn(name = "product_id")
-    )
-    private List<Product> products;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderProduct> orderProducts = new ArrayList<>();
 
     @Column(nullable = false)
     private String address;
@@ -31,16 +26,13 @@ public class Order {
     
     @Column(name = "user_order_number")
     private Integer userOrderNumber;
-    
 
     // Default constructor required by JPA
     public Order() {
-        this.products = new ArrayList<>();
     }
 
     public Order(User user, String address) {
         this.user = user;
-        this.products = new ArrayList<>();
         this.address = address;
         this.total = 0.0;   
     }
@@ -51,23 +43,54 @@ public class Order {
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
 
-    public List<Product> getProducts() { return products; }
+    public List<Product> getProducts() {
+        List<Product> products = new ArrayList<>();
+        for (OrderProduct op : orderProducts) {
+            Product p = op.getProduct();
+            p.setAmount(op.getQuantity());
+            products.add(p);
+        }
+        return products;
+    }
     
-    public void setProducts(List<Product> products) { this.products = products; }
+    public void setProducts(List<Product> products) {
+        orderProducts.clear();
+        for (Product product : products) {
+            addProduct(product);
+        }
+    }
 
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
 
     public void addProduct(Product product) {
-        this.products.add(product);
+        OrderProduct existingOrderProduct = findOrderProduct(product);
+        if (existingOrderProduct != null) {
+            existingOrderProduct.setQuantity(existingOrderProduct.getQuantity() + 1);
+        } else {
+            OrderProduct orderProduct = new OrderProduct(this, product, 1);
+            orderProducts.add(orderProduct);
+        }
     }
 
     public void removeProduct(Product product) {
-        this.products.remove(product);
+        OrderProduct orderProduct = findOrderProduct(product);
+        if (orderProduct != null) {
+            orderProducts.remove(orderProduct);
+        }
     }
 
-    public boolean hasProducts(){
-        return this.products!=null&&!products.isEmpty();
+    private OrderProduct findOrderProduct(Product product) {
+        for (OrderProduct op : orderProducts) {
+            if (op.getProduct().getId().equals(product.getId())) {
+                return op;
+            }
+        }
+        return null;
+    }
+
+    public boolean hasProducts() {
+        return !orderProducts.isEmpty();
     }
 
     public double getTotal() { return total; }
@@ -78,21 +101,38 @@ public class Order {
     
     public void calculateTotal() {
         double calculatedTotal = 0;
-        if (this.hasProducts()) {
-            for (Product product : this.getProducts()) {
-                calculatedTotal += product.getPrice() * product.getAmount();
-            }
+        for (OrderProduct op : orderProducts) {
+            calculatedTotal += op.getProduct().getPrice() * op.getQuantity();
         }
         this.setTotal(calculatedTotal);
     }
 
     public Product findProductById(Long id) {
-        for (Product product : products) {
-            if (product.getId().equals(id)) {
-                return product;
+        for (OrderProduct op : orderProducts) {
+            if (op.getProduct().getId().equals(id)) {
+                return op.getProduct();
             }
         }
         return null;
+    }
+
+    public int getProductQuantity(Product product) {
+        OrderProduct op = findOrderProduct(product);
+        return op != null ? op.getQuantity() : 0;
+    }
+
+    public void setProductQuantity(Product product, int quantity) {
+        OrderProduct op = findOrderProduct(product);
+        if (op != null) {
+            if (quantity > 0) {
+                op.setQuantity(quantity);
+            } else {
+                orderProducts.remove(op);
+            }
+        } else if (quantity > 0) {
+            OrderProduct newOp = new OrderProduct(this, product, quantity);
+            orderProducts.add(newOp);
+        }
     }
 }
 
