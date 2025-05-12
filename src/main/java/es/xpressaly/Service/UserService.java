@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.core.Authentication;
+import jakarta.servlet.http.HttpSession;
 
 import es.xpressaly.Model.User;
 import es.xpressaly.Model.UserRole;
@@ -229,5 +230,13 @@ public class UserService {
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email).orElse(null);
+    }
+
+    public void deleteUser(HttpSession session) {
+        User currentUser = getUser();
+        if (currentUser != null) {
+            userRepository.delete(currentUser);
+            session.invalidate();
+        }
     }
 }

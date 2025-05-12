@@ -136,6 +136,13 @@
             {{/reviews}}
         </div>
     </main>
+    
+    <div class="delete-account-section" style="text-align: center; margin: 20px 0;">
+        <form action="/delete-account" method="post">
+            <button type="submit" class="delete-account-btn" style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
+                <i class="fas fa-trash-alt"></i> Delete Account</button>
+        </form>
+    </div>
 
     {{> common/footer}}
 

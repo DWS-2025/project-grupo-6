@@ -46,7 +46,9 @@ public class DataBaseUsage implements CommandLineRunner {
         user=new User("Maria", "García", "maria.garcia@email.com", passwordEncoder.encode("Test4567"), "Avenida Principal 456", 567814785, 30);
         user.setRole(UserRole.USER);
         userRepository.save(user);
-
+        user=new User("Lucas", "López", "lucas.lopez@email.com", passwordEncoder.encode("Hola1234"), "Calle Real 666", 678542132, 20);
+        user.setRole(UserRole.USER);
+        userRepository.save(user);
         //Save initial products
             Product product;
             product = new Product("Wireless mouse", "2.4G Wireless Bluetooth Mouse Ergonomic 800/1200/1600DPI 6 Silent Buttons for MacBook Tablet Laptops Computer PC", 50, 25, "/Images/Wireless mouse.jpg");

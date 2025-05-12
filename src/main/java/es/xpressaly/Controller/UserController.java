@@ -205,5 +205,11 @@ public class UserController {
             return "redirect:/profile";
         }
     }
+
+    @PostMapping("/delete-account")
+    public String deleteAccount(HttpSession session) {
+        userService.deleteUser(session);
+        return "redirect:/login";
+    }
     
 }
