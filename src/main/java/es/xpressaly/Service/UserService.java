@@ -232,11 +232,16 @@ public class UserService {
         return userRepository.findByEmail(email).orElse(null);
     }
 
-    public void deleteUser(HttpSession session) {
+    public void deleteOwnUser(HttpSession session) {
         User currentUser = getUser();
         if (currentUser != null) {
             userRepository.delete(currentUser);
             session.invalidate();
         }
+    }
+
+    public void deleteUser(String email) {
+        User user=userRepository.findByEmail(email).orElse(null);
+        userRepository.delete(user);
     }
 }

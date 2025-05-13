@@ -70,6 +70,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST,"/api/products/").hasRole("USER")
                     .requestMatchers(HttpMethod.PUT,"/api/products/**").hasRole("USER")
                     .requestMatchers(HttpMethod.DELETE,"/api/products/**").hasRole("ADMIN")
+					.requestMatchers(HttpMethod.DELETE,"/api/users/**").hasRole("ADMIN")
 					// PUBLIC ENDPOINTS
 					.anyRequest().permitAll()
 			);
@@ -114,6 +115,7 @@ public class SecurityConfig {
 						.requestMatchers("/edit-profile").hasAnyRole("USER","ADMIN")
 						.requestMatchers("/edit-profile/**").hasAnyRole("USER","ADMIN")
 						.requestMatchers("/delete-product/**").hasRole("ADMIN")
+						.requestMatchers("/users-management").hasRole("ADMIN")
 						.anyRequest().permitAll()
 				)
 				.formLogin(formLogin -> formLogin

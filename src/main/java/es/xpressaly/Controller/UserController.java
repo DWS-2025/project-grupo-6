@@ -208,8 +208,20 @@ public class UserController {
 
     @PostMapping("/delete-account")
     public String deleteAccount(HttpSession session) {
-        userService.deleteUser(session);
+        userService.deleteOwnUser(session);
         return "redirect:/login";
     }
     
+    @GetMapping("/users-management")
+    public String showUsersManagement(Model model) {
+        List<User> users = userService.getAllUsers();
+        model.addAttribute("users", users);
+        return "users-management";
+    }
+
+    @PostMapping("/delete-user")
+    public String deleteUser(@RequestParam String email) {
+        userService.deleteUser(email);
+        return "redirect:/users-management";
+    }
 }
