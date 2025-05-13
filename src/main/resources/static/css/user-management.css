@@ -1,0 +1,365 @@
+:root {
+    --navy: #294156;
+    --teal: #567C8D;
+    --sky-blue: #8FB3C9;
+    --light-blue: #CBD3E6;
+    --beige: #F5EFEB;
+    --white: #FFFFFF;
+    --transition-normal: 0.3s ease;
+    --danger: #ff5858;
+    --danger-dark: #f63e3e;
+}
+
+.page-title {
+    position: relative;
+    margin-bottom: 2.5rem;
+    padding-bottom: 0.75rem;
+}
+
+.page-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--teal), var(--sky-blue));
+    border-radius: 2px;
+}
+
+.user-card {
+    background-color: var(--white);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(41, 65, 86, 0.1);
+    transition: all var(--transition-normal);
+    position: relative;
+    border: 1px solid rgba(203, 211, 230, 0.3);
+}
+
+.user-card:hover {
+    box-shadow: 0 15px 30px rgba(41, 65, 86, 0.15);
+    transform: translateY(-10px);
+}
+
+.user-header {
+    position: relative;
+    background: linear-gradient(135deg, var(--navy), var(--teal));
+    padding: 20px;
+    color: var(--white);
+    border-radius: 16px 16px 0 0;
+}
+
+.user-role {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    background-color: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+}
+
+.user-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 3px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-avatar i {
+    font-size: 2rem;
+    color: var(--teal);
+}
+
+.user-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+    letter-spacing: 0.5px;
+}
+
+.user-email {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.user-content {
+    padding: 20px;
+}
+
+.info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+}
+
+.info-item {
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(203, 211, 230, 0.3);
+    display: flex;
+    align-items: center;
+    color: var(--navy);
+    transition: all 0.2s ease;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-item:hover {
+    background-color: rgba(203, 211, 230, 0.1);
+    padding-left: 5px;
+}
+
+.info-item i {
+    width: 24px;
+    color: var(--teal);
+    margin-right: 10px;
+    text-align: center;
+}
+
+.delete-btn {
+    background: linear-gradient(135deg, #ff5858, #f857a6);
+    border: none;
+    color: white;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(248, 87, 166, 0.3);
+}
+
+.delete-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(248, 87, 166, 0.4);
+}
+
+.delete-btn:active {
+    transform: translateY(0);
+}
+
+.delete-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: all 0.6s ease;
+}
+
+.delete-btn:hover::before {
+    left: 100%;
+}
+
+.delete-btn i {
+    margin-right: 10px;
+    font-size: 1rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 0;
+    background-color: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(41, 65, 86, 0.1);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: var(--light-blue);
+    margin-bottom: 15px;
+    display: block;
+}
+
+.empty-state p {
+    color: var(--teal);
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+/* Confirmation Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.confirmation-modal {
+    background-color: var(--white);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    padding: 0;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.modal-overlay.active .confirmation-modal {
+    transform: translateY(0);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--danger), var(--danger-dark));
+    padding: 20px;
+    border-radius: 16px 16px 0 0;
+    display: flex;
+    align-items: center;
+    color: var(--white);
+}
+
+.modal-header i {
+    font-size: 2rem;
+    margin-right: 15px;
+    background-color: rgba(255, 255, 255, 0.2);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-header h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.modal-body {
+    padding: 30px;
+}
+
+.modal-message {
+    margin-bottom: 20px;
+    color: var(--navy);
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.modal-user-info {
+    background-color: rgba(203, 211, 230, 0.2);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+}
+
+.modal-user-info i {
+    color: var(--teal);
+    font-size: 1.2rem;
+    margin-right: 10px;
+}
+
+.modal-user-info strong {
+    color: var(--navy);
+    font-weight: 600;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.modal-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-btn-cancel {
+    background-color: #e9ecef;
+    color: var(--navy);
+}
+
+.modal-btn-cancel:hover {
+    background-color: #dee2e6;
+}
+
+.modal-btn-confirm {
+    background-color: var(--danger);
+    color: var(--white);
+    box-shadow: 0 4px 15px rgba(255, 88, 88, 0.3);
+}
+
+.modal-btn-confirm:hover {
+    background-color: var(--danger-dark);
+    box-shadow: 0 4px 20px rgba(255, 88, 88, 0.4);
+    transform: translateY(-3px);
+}
+
+.modal-btn-confirm:active {
+    transform: translateY(0);
+}
+
+.modal-btn i {
+    margin-right: 8px;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.user-card {
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+.user-card:nth-child(1) { animation-delay: 0.1s; }
+.user-card:nth-child(2) { animation-delay: 0.2s; }
+.user-card:nth-child(3) { animation-delay: 0.3s; }
+.user-card:nth-child(4) { animation-delay: 0.4s; }
+.user-card:nth-child(5) { animation-delay: 0.5s; }
+.user-card:nth-child(6) { animation-delay: 0.6s; } 

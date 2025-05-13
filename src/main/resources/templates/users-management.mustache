@@ -7,29 +7,107 @@
     <title>User Management</title>
     <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/profile-modern.css">
+    <link rel="stylesheet" href="/css/user-management.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body class="min-h-screen flex flex-col">
     {{> common/header}}
     <main class="flex-grow p-6 mt-16 mx-auto max-w-7xl w-full">
-    <h1 class="text-[#294156] text-3xl font-light mb-8 flex items-center">
-            Usuarios</h1>
-    {{#users}}
-    <div class="lg:w-1/3">
-      <div class="bg-white rounded-xl card-shadow p-6 sticky top-24">                    
-        <ul class="space-y-3 mb-6">
-            <li class="flex justify-between items-center pb-2 border-b border-[#CBD3E6]/50">
-              <span class="text-[#567C8D]">{{email}}</span>
-            </li>
-            <form action="/delete-user" method="post">
-             <input type="hidden" name="email" value="{{email}}"" />
-              <button type="submit">Eliminar</button>
-            </form>
-        </ul>             
-      </div>
-    </div>
-    {{/users}}
+        <h1 class="text-[#294156] text-3xl font-light mb-8 flex items-center page-title">
+            <i class="fas fa-users mr-3"></i> User Management
+        </h1>
+        
+        {{#error}}
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-lg shadow-sm" role="alert">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-circle mr-3 text-xl"></i>
+                <p>{{error}}</p>
+            </div>
+        </div>
+        {{/error}}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {{#users}}
+            <div class="user-card">  
+                <div class="user-header flex items-center">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <h3 class="user-name">{{firstName}} {{lastName}}</h3>
+                        <p class="user-email">{{email}}</p>
+                    </div>
+                    <span class="user-role">{{role}}</span>
+                </div>
+                
+                <div class="user-content">
+                    <ul class="info-list">
+                        <li class="info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>{{address}}</span>
+                        </li>
+                        <li class="info-item">
+                            <i class="fas fa-phone"></i>
+                            <span>{{phoneNumber}}</span>
+                        </li>
+                        <li class="info-item">
+                            <i class="fas fa-birthday-cake"></i>
+                            <span>{{age}} years</span>
+                        </li>
+                    </ul>
+                    
+                    <button type="button" class="delete-btn open-modal" 
+                            data-email="{{email}}" 
+                            data-name="{{firstName}} {{lastName}}">
+                        <i class="fas fa-trash-alt"></i> Delete User
+                    </button>
+                </div>
+            </div>
+            {{/users}}
+            
+            {{^users}}
+            <div class="col-span-full empty-state">
+                <i class="fas fa-users-slash"></i>
+                <p>No users available</p>
+            </div>
+            {{/users}}
+        </div>
     </main>
-  {{> common/footer}}  
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" id="confirmDeleteModal">
+        <div class="confirmation-modal">
+            <div class="modal-header">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Confirm Deletion</h3>
+            </div>
+            <div class="modal-body">
+                <p class="modal-message">Are you sure you want to delete this user? This action cannot be undone.</p>
+                
+                <div class="modal-user-info">
+                    <i class="fas fa-user"></i>
+                    <span>User: <strong id="userName"></strong></span>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="modal-btn modal-btn-cancel" id="cancelDelete">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <form action="/delete-user" method="post" id="deleteUserForm">
+                        <input type="hidden" name="email" id="userEmailInput">
+                        <button type="submit" class="modal-btn modal-btn-confirm">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {{> common/footer}}  
+    
+    <script src="/js/user-management.js"></script>
 </body>
+
+</html>

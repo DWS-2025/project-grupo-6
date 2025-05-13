@@ -213,15 +213,32 @@ public class UserController {
     }
     
     @GetMapping("/users-management")
-    public String showUsersManagement(Model model) {
-        List<User> users = userService.getAllUsers();
-        model.addAttribute("users", users);
-        return "users-management";
+    public String showUsersManagement(Model model, HttpSession session) {
+        try {
+            User currentUser = userService.getUser();
+            if (currentUser == null) {
+                return "redirect:/login";
+            }
+            
+            List<User> users = userService.getAllUsers();
+            model.addAttribute("users", users);
+            model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
+            model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
+            
+            return "users-management";
+        } catch (Exception e) {
+            return "redirect:/login";
+        }
     }
 
     @PostMapping("/delete-user")
-    public String deleteUser(@RequestParam String email) {
-        userService.deleteUser(email);
-        return "redirect:/users-management";
+    public String deleteUser(@RequestParam String email, Model model) {
+        try {
+            userService.deleteUser(email);
+            return "redirect:/users-management";
+        } catch (Exception e) {
+            model.addAttribute("error", "Error deleting user: " + e.getMessage());
+            return "redirect:/users-management";
+        }
     }
 }
