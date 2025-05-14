@@ -518,3 +518,65 @@
 .back-button svg {
     margin-right: 8px;
 }
+
+/* Login prompt for guests */
+.login-prompt {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: rgba(240, 248, 255, 0.7);
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(5px);
+    border: 1px solid #e1e4e8;
+}
+
+.login-prompt h3 {
+    color: #294156;
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+}
+
+.login-prompt p {
+    color: #567C8D;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.login-prompt a {
+    color: #5e89b3;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    padding-bottom: 2px;
+    border-bottom: 1px solid transparent;
+}
+
+.login-prompt a:hover {
+    color: #294156;
+    border-bottom-color: #294156;
+}
+
+/* Add dark mode styles for the login prompt */
+body.dark-mode .login-prompt {
+    background-color: #333;
+    border-color: #444;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .login-prompt h3 {
+    color: #84b6e0;
+}
+
+body.dark-mode .login-prompt p {
+    color: #a0aec0;
+}
+
+body.dark-mode .login-prompt a {
+    color: #84b6e0;
+}
+
+body.dark-mode .login-prompt a:hover {
+    color: #fff;
+    border-bottom-color: #fff;
+}
