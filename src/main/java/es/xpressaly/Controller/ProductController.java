@@ -71,7 +71,7 @@ public class ProductController {
     public String createProductForm(Model model, HttpSession session) {
         User currentUser = userService.getUser();
         
-        // Verificación más detallada de acceso de administrador
+        // More detailed verification of admin access
         if (currentUser == null) {
             return "redirect:/login";
         }
@@ -294,11 +294,11 @@ public class ProductController {
             @RequestParam(required = false) Double maxPrice) {
         Map<String, Object> response = new HashMap<>();
         try {
-            // Calculamos el precio máximo efectivo
+            // We calculate the maximum effective price
             double dynamicMaxPrice = productService.getMaxPriceForFilter();
             double effectiveMaxPrice = maxPrice != null ? maxPrice : dynamicMaxPrice;
             
-            // Obtenemos los resultados con filtro de precio
+            // We get the results with price filter
             List<Product> searchResults;
             if (minPrice > 0 || maxPrice != null) {
                 searchResults = productService.searchProductsByPrice(term, minPrice, effectiveMaxPrice);

@@ -137,7 +137,8 @@ body.dark-mode .password-container button,
 body.dark-mode .btn,
 body.dark-mode .back-button,
 body.dark-mode .delete-button,
-body.dark-mode [class*="delete"] {
+body.dark-mode [class*="delete"],
+body.dark-mode .btn-guest {
   background-color: #294156 !important;
   background-image: none !important;
   color: #ffffff !important;
@@ -153,7 +154,8 @@ body.dark-mode button[type="submit"]:hover,
 body.dark-mode .update-profile-btn:hover,
 body.dark-mode .change-password-btn:hover,
 body.dark-mode .password-container button:hover,
-body.dark-mode .back-button:hover {
+body.dark-mode .back-button:hover,
+body.dark-mode .btn-guest:hover {
   background-color: #567C8D !important;
   transform: translateY(-2px) !important;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4) !important;

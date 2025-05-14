@@ -110,7 +110,7 @@ public class AuthController {
                 return "register";
             }
             
-            // Validación de teléfono: debe ser numérico y tener entre 6 y 9 dígitos
+            // Phone validation: must be numeric and between 6 and 9 digits long
             if (!phoneNumberStr.matches("^[0-9]{6,9}$")) {
                 model.addAttribute("error", "Phone number must contain between 6 and 9 digits");
                 return "register";

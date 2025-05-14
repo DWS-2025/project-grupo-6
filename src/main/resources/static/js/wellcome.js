@@ -1,6 +1,6 @@
  // Global variables for price filtering
  window.currentProductPage = 1;
- window.productsPerPage = 5;
+ window.productsPerPage = 10;
  window.allProductsLoaded = false;
  window.minPrice = 0;
  window.maxPrice = 1000;

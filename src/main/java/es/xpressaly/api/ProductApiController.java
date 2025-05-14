@@ -55,7 +55,7 @@ public class ProductApiController {
                 // Modified: We no longer ignore price filters in text searches
                 List<Product> products;
                 
-                // Usar el filtro de precio si está especificado
+                // Use the price filter if specified
                 if (minPrice > 0 || maxPrice != null) {
                     products = productService.searchProductsByPrice(search, minPrice, effectiveMaxPrice);
                 } else {

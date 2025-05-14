@@ -42,14 +42,14 @@ public class OrderController {
         Order order = (Order) session.getAttribute(CURRENT_ORDER_SESSION_KEY);
         User currentUser = userService.getUser();
         
-        // Si no hay orden en la sesión o el usuario es null, devuelve null
+        // If there is no order in the session or the user is null, it returns null
         if (order == null || currentUser == null) {
             return null;
         }
         
-        // Verifica que la orden pertenece al usuario actual
+        // Verify that the order belongs to the current user
         if (!order.getUser().getId().equals(currentUser.getId())) {
-            // Si la orden pertenece a otro usuario, crea una nueva orden para el usuario actual
+            // If the order belongs to another user, create a new order for the current user
             order = new Order(currentUser, currentUser.getAddress());
             setCurrentOrder(session, order);
         }
@@ -278,11 +278,11 @@ public class OrderController {
             currentOrder.setAddress(address);
             User currentUser = userService.getUser();
             
-            // Obtener todos los pedidos del usuario ordenados por ID
+            // Get all user orders sorted by ID
             List<Order> userOrders = orderRepository.findByUser(currentUser);
             int userOrderNumber = userOrders.size() + 1;
             
-            // Asignar el número de pedido único para este usuario
+            // Assign the unique order number for this user
             currentOrder.setUserOrderNumber(userOrderNumber);
             
             currentUser.addOrder(currentOrder);

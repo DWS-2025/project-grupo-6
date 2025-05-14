@@ -148,14 +148,14 @@ public class UserService {
     
         String email = authentication.getName();
         User user = userRepository.findUserWithReviews(email).orElse(null);
-        // Inicialización explícita para evitar LazyInitializationException
+        // Explicit initialization to avoid LazyInitializationException
         if (user.getReviews() != null) {
-            user.getReviews().size(); // Fuerza la inicialización
+            user.getReviews().size(); // Force initialization
         }
         if (user.getOrders() != null) {
-            user.getOrders().size(); // Fuerza la inicialización
+            user.getOrders().size(); // Force initialization
             
-            // Aseguramos que todos los pedidos tengan un número de pedido asignado
+            // We ensure that all orders have an assigned order number
             List<Order> userOrders = orderRepository.findByUserOrderById(user);
             int orderCount = 1;
             for (Order order : userOrders) {

@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 1000);
     
-    // Detener el contador si el usuario interactúa con los botones
+    // Stop the counter if the user interacts with the buttons
     document.querySelectorAll('.button-container a').forEach(button => {
         button.addEventListener('click', function() {
             clearInterval(countdown);

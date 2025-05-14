@@ -4,37 +4,37 @@ function updateQuantity(productId, change) {
     if (value < 1) value = 1;
     input.value = value;
 
-    // Mostrar un indicador visual de actualización
+    // Show an update indicator
     const form = input.closest('.quantity-form');
     form.classList.add('updating');
     
-    // Crear FormData con los datos del formulario
+    // Create FormData with the form data
     const formData = new FormData();
     formData.append('productId', productId);
     formData.append('amount', value);
     
-    // Send update to server usando FormData en lugar de JSON
+    // Send update to server using FormData instead of JSON
     fetch('/update-amount', {
         method: 'POST',
         body: formData
     })
     .then(response => {
         if (response.ok) {
-            return response.json(); // Convertir respuesta a JSON si es exitosa
+            return response.json(); // Convert response to JSON if successful
         } else {
-            throw new Error('Error en la respuesta del servidor');
+            throw new Error('Error in server response');
         }
     })
     .then(data => {
         // Update order summary dynamically
         updateOrderSummary(data);
         
-        // Quitar el indicador visual después de una breve pausa
+        // Remove the visual indicator after a brief pause
         setTimeout(() => {
             form.classList.remove('updating');
         }, 500);
         
-        // Actualizar el valor en el input para reflejar el cambio
+        // Update the input value to reflect the change
         const updatedProduct = data.products.find(p => p.id == productId);
         if (updatedProduct) {
             input.value = updatedProduct.amount;
@@ -42,11 +42,11 @@ function updateQuantity(productId, change) {
     })
     .catch(error => {
         console.error("Error:", error);
-        // No mostrar alerta, solo quitar el indicador visual
+        // No show alert, only remove the visual indicator
         form.classList.remove('updating');
-        // Revertir al valor anterior
+        // Revert to the previous value
         setTimeout(() => {
-            window.location.reload(); // Recargar la página si hay un error
+            window.location.reload(); // Reload the page if there's an error
         }, 300);
     });
 }
@@ -55,9 +55,9 @@ function updateOrderSummary(data) {
     const orderSummary = document.querySelector('.bg-white ul');
     const totalElement = document.querySelector('.order-total');
     
-    // Comprobar que los elementos existen
+    // Check that the elements exist
     if (!orderSummary || !totalElement || !data.products) {
-        console.error("No se encontraron elementos necesarios para actualizar el resumen");
+        console.error("No elements found to update the summary");
         return;
     }
 
@@ -84,7 +84,7 @@ function updateOrderSummary(data) {
             </div>
         `;
         
-        // Actualizar también las cantidades en los inputs
+        // Also update the quantities in the inputs
         data.products.forEach(product => {
             const input = document.getElementById(`counter_${product.id}`);
             if (input) {
@@ -92,7 +92,7 @@ function updateOrderSummary(data) {
             }
         });
     } catch (error) {
-        console.error("Error al actualizar el resumen:", error);
+        console.error("Error updating the summary:", error);
     }
 }
 
@@ -120,15 +120,15 @@ function deleteOrder() {
     });
 }
 
-// Agregar event listeners a todos los inputs de cantidad para actualizarlos al cambiar
+// Add event listeners to all quantity inputs to update them when changing
 document.addEventListener('DOMContentLoaded', function() {
     const quantityInputs = document.querySelectorAll('.quantity-input');
     
     quantityInputs.forEach(input => {
-        // Valor original para restaurar en caso de error
+        // Original value to restore in case of error
         let originalValue = input.value;
         
-        // Evento para cuando el usuario termina de editar el valor
+        // Event for when the user finishes editing the value
         input.addEventListener('change', function() {
             const productId = this.closest('.quantity-form').querySelector('input[name="productId"]').value;
             const value = parseInt(this.value);
@@ -138,12 +138,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Actualizar la cantidad con el nuevo valor
+            // Update the quantity with the new value
             updateQuantity(productId, 0);
             originalValue = this.value;
         });
         
-        // Prevenir valores negativos
+        // Prevent negative values
         input.addEventListener('input', function() {
             if (this.value < 1 && this.value !== '') {
                 this.value = 1;
