@@ -1,0 +1,48 @@
+.rich-text-content {
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 10px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+.rich-text-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+.rich-text-content p {
+    margin-bottom: 10px;
+}
+
+.rich-text-content h1, 
+.rich-text-content h2, 
+.rich-text-content h3 {
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+.rich-text-content ul, 
+.rich-text-content ol {
+    padding-left: 20px;
+    margin-bottom: 10px;
+}
+
+.rich-text-content blockquote {
+    border-left: 3px solid #ccc;
+    padding-left: 10px;
+    color: #555;
+    font-style: italic;
+}
+
+.rich-text-content a {
+    color: #3f8299;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.rich-text-content a:hover {
+    text-decoration: underline;
+    color: #1e3a5f;
+} 

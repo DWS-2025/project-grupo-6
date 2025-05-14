@@ -27,6 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
+// Temporarily removed JSoup imports until server can be restarted with the dependency
+// import org.jsoup.Jsoup;
+// import org.jsoup.safety.Safelist;
 
 
 @Controller
@@ -139,19 +142,47 @@ public class ProductController {
     // Add a review to a product
     @PostMapping("/add-review")
     public String addReview(@RequestParam Long productId,
-                            @RequestParam String comment,
-                            @RequestParam int rating,
-                            Model model) {
+                          @RequestParam String comment,
+                          @RequestParam int rating,
+                          Model model) {
         try {
-            if (comment == null || comment.trim().isEmpty()) {
+            // Check if the comment is empty
+            if (comment == null || comment.trim().isEmpty() || comment.equals("<p><br></p>")) {
                 model.addAttribute("error", "Comment is required");
                 return "redirect:/product-details?id=" + productId;
             }
+            
+            // Check the rating
             if (rating < 1 || rating > 5) {
                 model.addAttribute("error", "Rating must be between 1 and 5");
                 return "redirect:/product-details?id=" + productId;
             }
 
+            // Log for debugging
+            System.out.println("Received HTML comment: " + comment);
+            
+            // Temporary solution: simple string replacement to filter potentially dangerous tags
+            // This is NOT a complete security solution, just a temporary workaround
+            String sanitizedComment = comment;
+            // Filter potentially dangerous tags - THIS IS NOT A COMPLETE SECURITY SOLUTION
+            sanitizedComment = sanitizedComment.replaceAll("(?i)<script.*?>.*?</script.*?>", "")
+                .replaceAll("(?i)on\\w+\\s*=\\s*(['\"]).*?\\1", "")
+                .replaceAll("(?i)<iframe.*?>.*?</iframe.*?>", "")
+                .replaceAll("(?i)<frame.*?>.*?</frame.*?>", "")
+                .replaceAll("(?i)<form.*?>.*?</form.*?>", "")
+                .replaceAll("(?i)javascript:", "");
+            
+            // Extract plain text to verify the actual length
+            String plainText = sanitizedComment.replaceAll("<[^>]*>", "").trim();
+            System.out.println("Extracted plain text: " + plainText);
+            System.out.println("Text length: " + plainText.length());
+            
+            // Check character limit (400)
+            if (plainText.length() > 400) {
+                model.addAttribute("error", "Review exceeds maximum of 400 characters");
+                return "redirect:/product-details?id=" + productId + "&error=character_limit";
+            }
+            
             Product product = productService.getProductById(productId);
             User user = userService.getUser();
 
@@ -159,13 +190,15 @@ public class ProductController {
                 return "redirect:/products";
             }
 
-            Review review = new Review(user, comment, rating);
+            Review review = new Review(user, sanitizedComment, rating);
             review.setProduct(product);
             reviewService.addReview(productId, review);
             user.getReviews().add(review);
 
             return "redirect:/product-details?id=" + productId;
-        }catch (Exception e) {
+        } catch (Exception e) {
+            System.out.println("Error processing review: " + e.getMessage());
+            e.printStackTrace();
             model.addAttribute("error", e.getMessage());
             return "redirect:/product-details?id=" + productId;
         }

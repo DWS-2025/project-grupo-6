@@ -52,7 +52,7 @@ public class ProductApiController {
             response.put("maxPriceForFilter", dynamicMaxPrice);
             
             if (search != null && !search.isEmpty()) {
-                // Modificado: Ya no ignoramos los filtros de precio en búsquedas por texto
+                // Modified: We no longer ignore price filters in text searches
                 List<Product> products;
                 
                 // Usar el filtro de precio si está especificado

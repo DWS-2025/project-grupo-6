@@ -1,4 +1,4 @@
-// Función para añadir el comportamiento de hover y click a los botones del carrito
+// Function to add hover and click behavior to cart buttons
 function enhanceCartButtons() {
   // Obtener todos los formularios de añadir al carrito
   const addToCartForms = document.querySelectorAll('.add-to-cart-form, [class*="add-to-cart"]');
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-// Función para inicializar el modo oscuro basado en preferencias guardadas
+// Function to initialize dark mode based on saved preferences
 function initDarkMode() {
   const darkModeEnabled = localStorage.getItem('darkMode') === 'enabled';
   const darkModeToggle = document.getElementById('dark-mode-toggle');
@@ -145,7 +145,7 @@ function initDarkMode() {
   }
 }
 
-// Función para alternar el modo oscuro
+// Function to toggle dark mode
 function toggleDarkMode() {
   const darkModeEnabled = document.body.classList.toggle('dark-mode');
   
@@ -159,7 +159,7 @@ function toggleDarkMode() {
 // Comprobar si el modo oscuro está activado en localStorage
 let darkModeEnabled = localStorage.getItem('darkMode') === 'enabled';
 
-// Función para activar el modo oscuro
+// Function to activate dark mode
 function enableDarkMode() {
   document.body.classList.add('dark-mode');
   localStorage.setItem('darkMode', 'enabled');
@@ -199,7 +199,7 @@ function enableDarkMode() {
   });
 }
 
-// Función para desactivar el modo oscuro
+// Function to deactivate dark mode
 function disableDarkMode() {
   document.body.classList.remove('dark-mode');
   localStorage.setItem('darkMode', 'disabled'); // Usar 'disabled' para claridad

@@ -45,12 +45,18 @@ public class ReviewService {
     }
 
     private void validateReview(Review review) {
-        if (review.getComment() == null || review.getComment().trim().isEmpty()) {
+        if (review.getComment() == null || review.getComment().trim().isEmpty() 
+                || review.getComment().equals("<p><br></p>")) {
             throw new IllegalArgumentException("Comment cannot be empty");
         }
-        if (review.getComment().length() > 500) {
-            throw new IllegalArgumentException("Comment cannot exceed 500 characters");
+        
+        // Extract plain text without HTML tags to count characters correctly
+        String plainText = review.getComment().replaceAll("<[^>]*>", "").trim();
+        
+        if (plainText.length() > 400) {
+            throw new IllegalArgumentException("Comment cannot exceed 400 characters");
         }
+        
         if (review.getRating() < 1 || review.getRating() > 5) {
             throw new IllegalArgumentException("Rating must be between 1 and 5 stars");
         }

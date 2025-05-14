@@ -146,14 +146,14 @@ public class ProductService {
                 .min()
                 .orElse(0.0);
                 
-        // Si la diferencia entre precio máximo y mínimo es pequeña, 
-        // añadir un porcentaje en lugar de un valor fijo
+        // If the difference between maximum and minimum price is small,
+        // add a percentage instead of a fixed value
         double priceDifference = maxPrice - minPrice;
         if (priceDifference < 50) {
-            // Para rangos pequeños, añadir un 20% por encima y por debajo
+            // For small ranges, add 20% above and below
             return maxPrice * 1.2;
         } else {
-            // Para rangos grandes, mantener el comportamiento original
+            // For large ranges, maintain the original behavior
             return maxPrice + 100.0;
         }
     }

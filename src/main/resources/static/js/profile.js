@@ -71,6 +71,22 @@ function showNotification(message, type) {
     }, 5000);
 }
 
+// Sanitize rich text content
+document.addEventListener('DOMContentLoaded', function() {
+    // Sanitize review content
+    document.querySelectorAll('.rich-text-content').forEach(container => {
+        const content = container.innerHTML;
+        container.innerHTML = DOMPurify.sanitize(content, {
+            ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'ol', 'ul', 'li', 'a', 'img', 'blockquote', 'span'],
+            ALLOWED_ATTR: ['href', 'src', 'alt', 'style', 'target', 'class'],
+            ALLOW_DATA_ATTR: false,
+            ADD_ATTR: ['target'],
+            FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover'],
+            FORCE_HTTPS: true,
+        });
+    });
+});
+
 document.querySelector('form').addEventListener('submit', function(e) {
     e.preventDefault();
     const firstName = document.querySelector('input[name="firstName"]').value;

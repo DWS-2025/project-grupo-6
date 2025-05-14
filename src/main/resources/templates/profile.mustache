@@ -7,6 +7,7 @@
     <title>User Profile</title>
     <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/profile-modern.css">
+    <link rel="stylesheet" href="/css/rich-text.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -127,7 +128,9 @@
                     <span class="star">★</span>
                     <span class="rating-value">{{rating}}/5</span>
                 </div>
-                <p class="review-comment">{{comment}}</p>
+                <div class="rich-text-content review-content-{{productId}}">
+                    {{{comment}}}
+                </div>
                 <span class="review-date"><i class="far fa-calendar-alt"></i> {{date}}</span>
             </a>
             {{/reviews}}
@@ -146,6 +149,8 @@
 
     {{> common/footer}}
 
+    <!-- DOMPurify for sanitization -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@2.3.8/dist/purify.min.js"></script>
     <script src="/js/profile.js"></script>
 </body>
 </html>
