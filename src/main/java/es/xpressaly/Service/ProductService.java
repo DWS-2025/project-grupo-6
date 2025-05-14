@@ -119,6 +119,11 @@ public class ProductService {
         productRepository.deleteById(productId);
     }
 
+    public void updateProduct(Product product) {
+        validateProduct(product);
+        productRepository.save(product);
+    }
+
     public Product getProductWithReviews(Long id) {
         return productRepository.findProductWithReviews(id);
     }

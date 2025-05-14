@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import es.xpressaly.Model.Order;
 import es.xpressaly.Model.Product;
@@ -206,22 +207,48 @@ public class ProductController {
 
     // Delete a product - Admin only
     @PostMapping("/delete-product")
-    public String deleteProduct(@RequestParam Long productId,HttpSession session) throws IOException {
+    public String deleteProduct(@RequestParam Long productId, 
+                               HttpSession session, 
+                               Model model,
+                               @RequestParam(required = false) Boolean ajax) throws IOException {
         User currentUser = userService.getUser();
         if (currentUser == null || !currentUser.isAdmin()) {
             return "redirect:/products";
         }
 
-        Order currentOrder = orderController.getCurrentOrder(session);
-        Product product = productService.getProductById(productId);
-        if (currentOrder != null) {
-            currentOrder.removeProduct(product);
+        try {
+            System.out.println("Attempting to delete product with ID: " + productId);
+            
+            // Remove from current order if present
+            Order currentOrder = orderController.getCurrentOrder(session);
+            Product product = productService.getProductById(productId);
+            
+            if (product == null) {
+                System.out.println("Product not found with ID: " + productId);
+                model.addAttribute("error", "Product not found");
+                return "redirect:/product-management";
+            }
+            
+            if (currentOrder != null && product != null) {
+                currentOrder.removeProduct(product);
+            }
+            
+            // Delete the product
+            productService.deleteProduct(productId);
+            System.out.println("Product deleted successfully");
+            
+            // Si es una solicitud AJAX, devolver un JSON simple
+            if (ajax != null && ajax) {
+                return "redirect:/product-management?success=true";
+            }
+            
+            return "redirect:/product-management";
+        } catch (Exception e) {
+            System.out.println("Error deleting product: " + e.getMessage());
+            e.printStackTrace();
+            model.addAttribute("error", "Error deleting product: " + e.getMessage());
+            return "redirect:/product-management";
         }
-        
-        // No need to delete image from filesystem as it's now stored in the database
-        
-        productService.deleteProduct(productId);
-        return "redirect:/products";
     }
 
 
@@ -364,6 +391,123 @@ public class ProductController {
             }
         }
         return 0;
+    }
+
+    // Product Management Page - Admin only
+    @GetMapping("/product-management")
+    public String productManagement(Model model, HttpSession session) {
+        User currentUser = userService.getUser();
+        
+        // Verificación de acceso de administrador
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+        
+        if (!currentUser.isAdmin()) {
+            return "redirect:/products";
+        }
+        
+        // Ya no cargamos todos los productos inicialmente
+        // Los productos se cargarán dinámicamente a través de la API
+        model.addAttribute("products", List.of()); // Lista vacía
+        model.addAttribute("isAdmin", true);
+        model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
+        return "product-management";
+    }
+
+    // Show form to edit a product - Admin only
+    @GetMapping("/edit-product/{id}")
+    public String editProductForm(@PathVariable Long id, Model model, HttpSession session) {
+        User currentUser = userService.getUser();
+        
+        // Verificación de acceso de administrador
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+        
+        if (!currentUser.isAdmin()) {
+            return "redirect:/products";
+        }
+        
+        Product product = productService.getProductById(id);
+        if (product == null) {
+            return "redirect:/product-management";
+        }
+        
+        model.addAttribute("product", product);
+        model.addAttribute("isAdmin", true);
+        model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
+        return "edit-product";
+    }
+
+    // Update an existing product - Admin only
+    @PostMapping("/update-product")
+    public String updateProduct(@RequestParam Long productId,
+                               @RequestParam String name,
+                               @RequestParam String description,
+                               @RequestParam double price,
+                               @RequestParam int stock,
+                               @RequestParam(required = false) MultipartFile mainImage,
+                               Model model) throws IOException {
+        User currentUser = userService.getUser();
+        if (currentUser == null || !currentUser.isAdmin()) {
+            return "redirect:/products";
+        }
+
+        Product existingProduct = productService.getProductById(productId);
+        if (existingProduct == null) {
+            return "redirect:/product-management";
+        }
+
+        // Validations
+        if (name == null || name.trim().isEmpty()) {
+            model.addAttribute("error", "Product name is required");
+            model.addAttribute("product", existingProduct);
+            return "edit-product";
+        }
+        if (description == null || description.trim().isEmpty()) {
+            model.addAttribute("error", "Product description is required");
+            model.addAttribute("product", existingProduct);
+            return "edit-product";
+        }
+        if (price <= 0) {
+            model.addAttribute("error", "Price must be greater than 0");
+            model.addAttribute("product", existingProduct);
+            return "edit-product";
+        }
+        if (stock < 0) {
+            model.addAttribute("error", "Stock cannot be negative");
+            model.addAttribute("product", existingProduct);
+            return "edit-product";
+        }
+
+        try {
+            // Update product properties
+            existingProduct.setName(name);
+            existingProduct.setDescription(description);
+            existingProduct.setPrice(price);
+            existingProduct.setStock(stock);
+            
+            // Update image if provided
+            if (mainImage != null && !mainImage.isEmpty()) {
+                if (!mainImage.getContentType().startsWith("image/")) {
+                    model.addAttribute("error", "The file must be an image");
+                    model.addAttribute("product", existingProduct);
+                    return "edit-product";
+                }
+                
+                byte[] imageBytes = mainImage.getBytes();
+                existingProduct.setImageData(imageBytes);
+                existingProduct.setImagePath("/Images/" + name + ".jpg"); // Update path for consistency
+            }
+            
+            productService.updateProduct(existingProduct);
+            return "redirect:/product-management";
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("product", existingProduct);
+            return "edit-product";
+        }
     }
 }
 
