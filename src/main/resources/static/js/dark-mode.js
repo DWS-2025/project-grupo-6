@@ -1,33 +1,33 @@
 // Function to add hover and click behavior to cart buttons
 function enhanceCartButtons() {
-  // Obtener todos los formularios de añadir al carrito
+  // Get all add to cart forms
   const addToCartForms = document.querySelectorAll('.add-to-cart-form, [class*="add-to-cart"]');
   
   addToCartForms.forEach(form => {
     const button = form.querySelector('button');
     if (!button) return;
     
-    // Guardar el texto original del botón para restaurarlo después
+    // Save the original button text to restore it later
     const originalText = button.innerHTML;
     const originalBgColor = button.style.backgroundColor || '';
     
     form.addEventListener('submit', function(event) {
-      // Añadir clase para cambiar el estilo
+      // Add class to change the style
       button.classList.add('added');
       
-      // Guardar el estilo original si no lo hemos hecho
+      // Save the original style if we haven't done it yet
       if (!button.dataset.originalBackground) {
         button.dataset.originalBackground = window.getComputedStyle(button).backgroundColor;
       }
       
-      // Establecer explícitamente el fondo verde
+      // Set explicitly the green background
       button.style.backgroundColor = '#2e7d32';
       
-      // Cambiar texto a "Added!"
+      // Change text to "Added!"
       const icon = button.querySelector('svg') ? button.querySelector('svg').outerHTML : '';
       button.innerHTML = icon + ' Added!';
       
-      // Restaurar después de 1 segundo
+      // Restore after 1 second
       setTimeout(() => {
         button.classList.remove('added');
         button.innerHTML = originalText;
@@ -35,30 +35,30 @@ function enhanceCartButtons() {
       }, 1000);
     });
     
-    // Añadir manejadores de hover para mejorar la experiencia
+    // Add hover handlers to improve the experience
     button.addEventListener('mouseover', function() {
-      // Solo cambiar a verde si no está en estado "added"
+      // Only change to green if not in "added" state
       if (!this.classList.contains('added')) {
         this.style.backgroundColor = '#2e7d32';
       }
     });
     
     button.addEventListener('mouseout', function() {
-      // Solo restaurar si no está en estado "added"
+      // Only restore if not in "added" state
       if (!this.classList.contains('added')) {
         this.style.backgroundColor = '';
       }
     });
   });
   
-  // Obtener todos los botones de eliminar producto
+  // Get all product delete buttons
   const deleteForms = document.querySelectorAll('form:not(.add-to-cart-form):not(.remove-form), form[action="/delete-product"]');
   
   deleteForms.forEach(form => {
     const button = form.querySelector('button[type="submit"]');
     if (!button) return;
     
-    // Comprobar si es un botón de eliminar basado en el texto o el formulario
+    // Check if it's a delete button based on text or form
     const isDeleteButton = 
       button.textContent.includes('Delete') || 
       form.action.includes('/delete-product') ||
@@ -67,7 +67,7 @@ function enhanceCartButtons() {
     
     if (!isDeleteButton) return;
     
-    // Añadir efecto de hover mediante JavaScript para mayor precisión cuando está en modo oscuro
+    // Add hover effect using JavaScript for greater precision when in dark mode
     button.addEventListener('mouseover', function() {
       if (document.body.classList.contains('dark-mode')) {
         this.style.backgroundColor = '#c53030';
@@ -86,31 +86,31 @@ function enhanceCartButtons() {
   });
 }
 
-// Ejecutar cuando el DOM esté cargado
+// Execute when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-  // Inicializar estado del modo oscuro
+  // Initialize dark mode state
   initDarkMode();
   
-  // Mejorar botones del carrito
+  // Enhance cart buttons
   enhanceCartButtons();
   
-  // Configurar el cambio de tema al hacer clic en el switch
+  // Configure theme change when clicking the switch
   const darkModeToggle = document.getElementById('dark-mode-toggle');
   
   if (darkModeToggle) {
     darkModeToggle.addEventListener('change', function() {
       toggleDarkMode();
       
-      // Re-aplicar mejoras a los botones después de cambiar el tema
+      // Re-apply button enhancements after changing the theme
       setTimeout(enhanceCartButtons, 100);
     });
   }
   
-  // Observar cambios en el DOM para productos cargados dinámicamente
+  // Observe DOM changes for dynamically loaded products
   const observer = new MutationObserver(function(mutations) {
     mutations.forEach(function(mutation) {
       if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-        // Verificar si se han añadido nuevos productos
+        // Verify if new products have been added
         const hasNewProducts = Array.from(mutation.addedNodes).some(node => 
           node.nodeType === 1 && (
             node.classList?.contains('product-card') || 
@@ -156,7 +156,7 @@ function toggleDarkMode() {
   }
 }
 
-// Comprobar si el modo oscuro está activado en localStorage
+// Check if dark mode is enabled in localStorage
 let darkModeEnabled = localStorage.getItem('darkMode') === 'enabled';
 
 // Function to activate dark mode
@@ -165,34 +165,34 @@ function enableDarkMode() {
   localStorage.setItem('darkMode', 'enabled');
   darkModeEnabled = true;
   
-  // Aplicar estilos específicos a los botones de contraseña
+  // Apply specific styles to password buttons
   const passwordButtons = document.querySelectorAll('.password-container button, .password-toggle-btn');
   passwordButtons.forEach(btn => {
-    // Estilos base para modo oscuro
+    // Base styles for dark mode
     btn.style.backgroundColor = "#294156";
     btn.style.color = "white";
-    btn.style.transition = "all 0.3s ease"; // Asegurar transición suave
+    btn.style.transition = "all 0.3s ease"; // Ensure smooth transition
     
-    // Limpiar listeners previos para evitar duplicados
+    // Clean previous listeners to avoid duplicates
     const clonedBtn = btn.cloneNode(true);
     btn.parentNode.replaceChild(clonedBtn, btn);
-    const currentBtn = clonedBtn; // Usar el botón clonado
+    const currentBtn = clonedBtn; // Use the cloned button
 
-    // Agregar event listeners para hover en el botón clonado
+    // Add event listeners for hover on the cloned button
     currentBtn.addEventListener('mouseover', function() {
-      this.style.backgroundColor = "#4080bf"; // Azul claro/turquesa
+      this.style.backgroundColor = "#4080bf"; // Light blue/turquoise
       this.style.transform = "translateY(-2px)";
-      this.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.4)"; // Sombra negra más visible
+      this.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.4)"; // More visible black shadow
     });
     
     currentBtn.addEventListener('mouseout', function() {
-      // Restaurar estilos base modo oscuro
+      // Restore base dark mode styles
       this.style.backgroundColor = "#294156"; 
       this.style.transform = "none";
       this.style.boxShadow = "none";
     });
     
-    // Reasignar el evento onclick si existe (importante para funcionalidad)
+    // Reassign the onclick event if it exists (important for functionality)
     if (btn.onclick) {
         currentBtn.onclick = btn.onclick;
     }
@@ -202,43 +202,43 @@ function enableDarkMode() {
 // Function to deactivate dark mode
 function disableDarkMode() {
   document.body.classList.remove('dark-mode');
-  localStorage.setItem('darkMode', 'disabled'); // Usar 'disabled' para claridad
+  localStorage.setItem('darkMode', 'disabled'); // Use 'disabled' for clarity
   darkModeEnabled = false;
   
-  // Restaurar estilos originales de los botones
+  // Restore original button styles
   const passwordButtons = document.querySelectorAll('.password-container button, .password-toggle-btn');
   passwordButtons.forEach(btn => {
-    // Limpiar estilos inline aplicados por JS
+    // Clean inline styles applied by JS
     btn.style.backgroundColor = "";
     btn.style.color = "";
     btn.style.transform = "";
     btn.style.boxShadow = "";
     btn.style.transition = "";
     
-    // Limpiar listeners previos (importante)
+    // Clean previous listeners (important)
     const clonedBtn = btn.cloneNode(true);
     btn.parentNode.replaceChild(clonedBtn, btn);
-    // Reasignar el evento onclick si existe
+    // Reassign the onclick event if it exists
     if (btn.onclick) {
         clonedBtn.onclick = btn.onclick;
     }
   });
 }
 
-// Aplicar el modo oscuro al cargar la página si está activado
+// Apply dark mode when loading the page if it's enabled
 if (darkModeEnabled) {
   enableDarkMode();
 }
 
-// Agregar evento al interruptor de modo oscuro cuando esté presente en la página
+// Add event to the dark mode switch when present on the page
 document.addEventListener('DOMContentLoaded', function() {
   const darkModeToggle = document.getElementById('darkModeToggle');
   
   if (darkModeToggle) {
-    // Establecer el estado del interruptor según la preferencia guardada
+    // Set the switch state according to the saved preference
     darkModeToggle.checked = darkModeEnabled;
     
-    // Agregar evento al interruptor
+    // Add event to the switch
     darkModeToggle.addEventListener('change', function() {
       if (darkModeEnabled) {
         disableDarkMode();
@@ -246,7 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
         enableDarkMode();
       }
       
-      // Forzar la actualización de los estilos de los botones de contraseña
+      // Force the update of password button styles
       setTimeout(() => {
         const passwordButtons = document.querySelectorAll('.password-container button, .password-toggle-btn');
         if (darkModeEnabled) {

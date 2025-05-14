@@ -1,11 +1,12 @@
-// Global variables for price filtering
-window.currentProductPage = 1;
-window.productsPerPage = 5;
-window.allProductsLoaded = false;
-window.minPrice = 0;
-window.maxPrice = 1000;
-window.dynamicMaxPrice = 1000; // Will be updated from server
-window.currentSortValue = "default";
+
+ // Global variables for price filtering
+ window.currentProductPage = 1;
+ window.productsPerPage = 10;
+ window.allProductsLoaded = false;
+ window.minPrice = 0;
+ window.maxPrice = 1000;
+ window.dynamicMaxPrice = 1000; // Will be updated from server
+ window.currentSortValue = "default";
 
 // Function to get maximum and minimum price from server
 async function fetchInitialMaxPrice() {

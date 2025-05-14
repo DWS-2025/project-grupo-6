@@ -20,8 +20,8 @@ public class UserMapper {
             user.getPhoneNumber(),
             user.getAge(),
             user.getRole() == UserRole.ADMIN,
-            null, // orders se asignarían en otro lugar si es necesario
-            null  // reviews se asignarían en otro lugar si es necesario
+            null, // orders would be assigned elsewhere if needed
+            null  // reviews would be assigned elsewhere if needed
         );
     }
     

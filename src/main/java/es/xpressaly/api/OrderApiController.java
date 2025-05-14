@@ -222,14 +222,14 @@ public class OrderApiController {
             return null;
         }
         
-        // Busca el pedido actual del usuario
+        // Find the user's current order
         List<Order> userOrders = orderRepository.findByUser(currentUser);
         if (userOrders.isEmpty()) {
-            // Si no hay órdenes, crea una nueva
+            // If there are no orders, create a new one
             Order newOrder = new Order(currentUser, currentUser.getAddress());
             return newOrder;
         } else {
-            // Devuelve la última orden del usuario
+            // Returns the user's last command
             return userOrders.get(userOrders.size() - 1);
         }
     }

@@ -17,7 +17,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByStockGreaterThan(int stock);
     @Query("SELECT p FROM Product p LEFT JOIN FETCH p.reviews WHERE p.id = :id")
     Product findProductWithReviews(@Param("id") Long id);
-    //consulta optimizada para el promedio de valoraciones
+    //optimized query for the average rating
     @Query("SELECT AVG(r.rating) FROM Product p JOIN p.reviews r WHERE p.id = :productId")
     Double getAverageRatingByProductId(@Param("productId") Long productId);
     

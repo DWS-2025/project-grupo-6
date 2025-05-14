@@ -81,6 +81,7 @@
                 {{/reviews}}
             </div>
 
+            {{#isLoggedIn}}
             <div class="review-form">
                 <h3 class="form-title">Add Review</h3>
                 <form action="/add-review" method="post" class="add-review-form" id="reviewForm">
@@ -120,6 +121,14 @@
                     <button type="submit" class="btn btn-primary">Submit Review</button>
                 </form>
             </div>
+            {{/isLoggedIn}}
+            
+            {{^isLoggedIn}}
+            <div class="login-prompt">
+                <h3>Want to leave a review?</h3>
+                <p>Please <a href="/login">log in</a> to share your opinion about this product.</p>
+            </div>
+            {{/isLoggedIn}}
         </div>
     </div>
     

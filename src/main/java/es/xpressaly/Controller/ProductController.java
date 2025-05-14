@@ -72,7 +72,7 @@ public class ProductController {
     public String createProductForm(Model model, HttpSession session) {
         User currentUser = userService.getUser();
         
-        // Verificación más detallada de acceso de administrador
+        // More detailed verification of admin access
         if (currentUser == null) {
             return "redirect:/login";
         }
@@ -147,6 +147,12 @@ public class ProductController {
                           @RequestParam int rating,
                           Model model) {
         try {
+            // Check if the user is logged in
+            User user = userService.getUser();
+            if (user == null) {
+                return "redirect:/login";
+            }
+            
             // Check if the comment is empty
             if (comment == null || comment.trim().isEmpty() || comment.equals("<p><br></p>")) {
                 model.addAttribute("error", "Comment is required");
@@ -185,9 +191,8 @@ public class ProductController {
             }
             
             Product product = productService.getProductById(productId);
-            User user = userService.getUser();
 
-            if (product == null || user == null) {
+            if (product == null) {
                 return "redirect:/products";
             }
 
@@ -275,7 +280,7 @@ public class ProductController {
             Product product = productService.getProductWithReviews(id);
             User currentUser = userService.getUser();
             
-            if (product == null || currentUser == null) {
+            if (product == null) {
                 return "redirect:/products";
             }
 
@@ -283,9 +288,18 @@ public class ProductController {
             model.addAttribute("product", product);
             model.addAttribute("reviews", product.getReviews()); 
             model.addAttribute("averageRating", productService.getAverageRating(product.getId()));
-            model.addAttribute("username", currentUser.getFirstName() + " " + currentUser.getLastName());
-            model.addAttribute("isAdmin", currentUser.isAdmin());
             model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
+            
+            // If the user is logged in
+            if (currentUser != null) {
+                model.addAttribute("username", currentUser.getFirstName() + " " + currentUser.getLastName());
+                model.addAttribute("isAdmin", currentUser.isAdmin());
+                model.addAttribute("isLoggedIn", true);
+            } else {
+                // Guest user
+                model.addAttribute("isAdmin", false);
+                model.addAttribute("isLoggedIn", false);
+            }
 
             return "Product";
         } catch (Exception e) {
@@ -321,11 +335,11 @@ public class ProductController {
             @RequestParam(required = false) Double maxPrice) {
         Map<String, Object> response = new HashMap<>();
         try {
-            // Calculamos el precio máximo efectivo
+            // We calculate the maximum effective price
             double dynamicMaxPrice = productService.getMaxPriceForFilter();
             double effectiveMaxPrice = maxPrice != null ? maxPrice : dynamicMaxPrice;
             
-            // Obtenemos los resultados con filtro de precio
+            // We get the results with price filter
             List<Product> searchResults;
             if (minPrice > 0 || maxPrice != null) {
                 searchResults = productService.searchProductsByPrice(term, minPrice, effectiveMaxPrice);

@@ -249,6 +249,37 @@ body {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Style for the "Continue as Guest" button */
+.btn-guest {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.3);
+  color: var(--text-light);
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: var(--transition);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.btn-guest:hover {
+  background: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btn-guest:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
 .signup-prompt {
   margin-top: 24px;
   font-size: 15px;
@@ -475,4 +506,159 @@ body {
   .auth-form input, .auth-form .btn-submit {
     padding: 12px;
   }
+}
+
+/* Login Prompt Message Page Styles */
+.login-prompt-container {
+  max-width: 800px;
+  min-height: 70vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-message-panel {
+  width: 100%;
+  max-width: 600px;
+  background-color: white;
+  border-radius: var(--border-radius);
+  padding: 3rem;
+  text-align: center;
+  box-shadow: var(--box-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-message-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(135deg, #2c3e50 0%, #3a7bd5 100%);
+}
+
+.login-message-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 2rem;
+  background: rgba(58, 123, 213, 0.1);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #3a7bd5;
+}
+
+.login-message-panel h2 {
+  font-size: 1.8rem;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+}
+
+.login-message-panel p {
+  font-size: 1.1rem;
+  color: var(--text-dark);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.login-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.btn-login, .btn-register {
+  padding: 0.8rem 2rem;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.btn-login {
+  background: linear-gradient(135deg, #2c3e50 0%, #3a7bd5 100%);
+  color: white;
+}
+
+.btn-register {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid #3a7bd5;
+  color: #3a7bd5;
+}
+
+.btn-login:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(58, 123, 213, 0.3);
+}
+
+.btn-register:hover {
+  background: rgba(58, 123, 213, 0.1);
+  transform: translateY(-3px);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #2c3e50;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.back-link:hover {
+  color: #3a7bd5;
+}
+
+/* Dark mode styles for login prompt */
+body.dark-mode .login-message-panel {
+  background-color: #262626;
+  color: #f0f0f0;
+}
+
+body.dark-mode .login-message-panel h2 {
+  color: #3a7bd5;
+}
+
+body.dark-mode .login-message-panel p {
+  color: #a0aec0;
+}
+
+body.dark-mode .login-message-icon {
+  background: rgba(58, 123, 213, 0.15);
+  color: #3a7bd5;
+}
+
+body.dark-mode .btn-register {
+  border-color: #3a7bd5;
+  color: #3a7bd5;
+}
+
+body.dark-mode .btn-register:hover {
+  background: rgba(58, 123, 213, 0.15);
+}
+
+body.dark-mode .back-link {
+  color: #3a7bd5;
+}
+
+body.dark-mode .back-link:hover {
+  color: #ffffff;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: var(--size-of-icon,1.4em);
+  width: var(--size-of-icon,1.4em);
+  border-radius: 20px;
+  left: var(--slider-offset,0.3em);
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(40deg, #2c3e50, #3a7bd5 70%);
+  transition: .4s;
 }

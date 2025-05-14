@@ -17,7 +17,7 @@ public class ProductMapper {
             product.getDescription(),
             product.getPrice(),
             product.getStock(),
-            null // reviews se asignarían en otro lugar si es necesario
+            null // reviews would be assigned elsewhere if needed
         );
     }
     

@@ -15,7 +15,7 @@ public class OrderMapper {
             order.getId(),
             order.getAddress(),
             order.getTotal(),
-            null // items se asignarían en otro lugar si es necesario
+            null // items would be allocated elsewhere if needed
         );
     }
     

@@ -5,45 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Error {{status}}</title>
     <link rel="stylesheet" href="/css/error.css">
-    <!-- Añadimos FontAwesome para iconos -->
+    <!-- Added FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
 </head>
 <body>
     <div class="error-container">
-        <!-- Ícono de error -->
+        <!-- Error icon -->
         <div class="error-icon">
             <i class="fas fa-exclamation-circle" style="font-size: 120px; color: var(--accent-color);"></i>
         </div>
         
-        <!-- Código de error -->
+        <!-- Error code -->
         <div class="error-status" th:text="${status}">404</div>
         
-        <!-- Mensajes de error -->
+        <!-- Error messages -->
         <div class="error-text">
             <h2 th:text="${error}">Page Not Found</h2>
             <p th:text="${message}">We can't find the page you're looking for.</p>
         </div>
         
-        <!-- Contenedor para botones -->
+        <!-- Container for buttons -->
         <div class="button-container">
             <a href="/products" class="back-button">
-                <i class="fas fa-home"></i> Volver a inicio
+                <i class="fas fa-home"></i> Back to home
             </a>
             <a href="javascript:history.back();" class="report-button">
                 <i class="fas fa-arrow-left"></i> Volver atrás
             </a>
         </div>
         
-        <!-- Contador de redirección -->
+        <!-- Redirect counter -->
         <div class="redirect-counter">
-            Redirección a la página de inicio en <span class="redirect-countdown">10</span> segundos
+            Redirecting to home page in <span class="redirect-countdown">10</span> seconds
         </div>
     </div>
     
     {{> common/footer}}
     
-    <!-- Script para redirección automática -->
+    <!-- Automatic redirect script -->
 
     <script src="/js/error.js"></script>
 </body>

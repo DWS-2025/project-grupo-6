@@ -109,6 +109,7 @@ public class SecurityConfig {
 						.requestMatchers("/products/**").permitAll()
 						.requestMatchers("/error").permitAll()
 						.requestMatchers("/product-details/**").permitAll()
+						.requestMatchers("/cart-prompt").permitAll()
 						// PRIVATE PAGES
 						.requestMatchers("/profile").hasAnyRole("USER","ADMIN")
 						.requestMatchers("/create-product").hasRole("ADMIN")
