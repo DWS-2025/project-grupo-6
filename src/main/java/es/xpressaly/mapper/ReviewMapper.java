@@ -1,29 +1,40 @@
 package es.xpressaly.mapper;
 
+import es.xpressaly.Model.Product;
 import es.xpressaly.Model.Review;
+import es.xpressaly.Model.User;
+import es.xpressaly.dto.ProductDTO;
 import es.xpressaly.dto.ReviewDTO;
-import org.springframework.stereotype.Component;
+import es.xpressaly.dto.UserDTO;
 
-@Component
-public class ReviewMapper {
+import java.util.Collection;
+import java.util.List;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
+
+@Mapper(componentModel = "spring")
+public interface ReviewMapper {
     
-    public ReviewDTO toDTO(Review review) {
-        return new ReviewDTO(
-            review.getId(),
-            review.getComment(),
-            review.getRating(),
-            review.getUser().getId(),
-            review.getProduct().getId(),
-            review.getUser().getFirstName() + " " + review.getUser().getLastName(),
-            review.getProduct().getName()
-        );
-    }
     
-    public Review toEntity(ReviewDTO dto) {
-        Review review = new Review();
-        review.setId(dto.id());
-        review.setComment(dto.comment());
-        review.setRating(dto.rating());
-        return review;
-    }
+    ReviewDTO toDTO(Review review);
+
+    Review toDomain(ReviewDTO dto);
+
+    List<ReviewDTO> toDTOs(Collection<Review> reviews);
+
+    @Mapping(target = "orders", ignore = true)
+    @Mapping(target = "reviews", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "roles", ignore = true)
+    User toDomain(UserDTO userDTO);
+
+    @Mapping(target = "amount", ignore = true)
+    @Mapping(target = "reviews", ignore = true)
+    @Mapping(target = "imageData", ignore = true)
+    @Mapping(target = "imagePath", ignore = true)
+    Product toDomain(ProductDTO productDTO);
 }

@@ -1,7 +1,6 @@
 package es.xpressaly.dto;
 
 import java.util.List;
-import java.util.Map;
 
 public record UserDTO(
     String firstName,
@@ -10,8 +9,8 @@ public record UserDTO(
     String address,
     int phoneNumber,
     int age,
-    boolean isAdmin,
-    List<Map<String, Object>> orders,
-    List<Map<String, Object>> reviews
+    boolean admin,
+    List<OrderDTO> orders,
+    List<ReviewDTO> reviews
 ) {
 }

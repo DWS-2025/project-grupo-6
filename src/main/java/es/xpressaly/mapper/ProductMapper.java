@@ -1,33 +1,30 @@
 package es.xpressaly.mapper;
 
 import es.xpressaly.Model.Product;
+import es.xpressaly.Model.Review;
 import es.xpressaly.dto.ProductDTO;
-import org.springframework.stereotype.Component;
+import es.xpressaly.dto.ReviewDTO;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-@Component
-public class ProductMapper {
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
+@Mapper(componentModel = "spring")
+public interface ProductMapper {
     
-    public ProductDTO toDTO(Product product) {
-        return new ProductDTO(
-            product.getId(),
-            product.getName(),
-            product.getDescription(),
-            product.getPrice(),
-            product.getStock(),
-            null // reviews would be assigned elsewhere if needed
-        );
-    }
+    ProductDTO toDTO(Product product);
     
-    public Product toEntity(ProductDTO dto) {
-        Product product = new Product();
-        product.setId(dto.id());
-        product.setName(dto.name());
-        product.setDescription(dto.description());
-        product.setPrice(dto.price());
-        product.setStock(dto.stock());
-        return product;
-    }
+    List<ProductDTO> toDTOs(Collection<Product> products);
+
+    @Mapping(target = "imageData", ignore = true)
+    @Mapping(target = "amount", ignore = true)
+    @Mapping(target = "reviews", ignore = true)
+    @Mapping(target = "imagePath", ignore = true)
+    Product toDomain(ProductDTO productDTO);
+
+    @Mapping(target = "product", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    Review toDomain(ReviewDTO reviewDTO);
 }
