@@ -35,11 +35,15 @@ public class UserController {
     
 
     @GetMapping("/profile")
-    public String showProfile(Model model,HttpSession session) {
-
+    public String showProfile(Model model, HttpSession session) {
         try {
-
             User user = userService.getUserWithReviews();
+            
+            // Si el usuario no está autenticado, redirigir a la página de login
+            if (user == null) {
+                return "redirect:/login";
+            }
+            
             //User user = userService.getUser();
             model.addAttribute("name", user.getFirstName());
             model.addAttribute("surname", user.getLastName());
@@ -208,27 +212,28 @@ public class UserController {
 
     @PostMapping("/delete-account")
     public String deleteAccount(HttpSession session) {
+        User currentUser = userService.getUser();
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+
         userService.deleteOwnUser(session);
         return "redirect:/login";
     }
     
     @GetMapping("/users-management")
     public String showUsersManagement(Model model, HttpSession session) {
-        try {
-            User currentUser = userService.getUser();
-            if (currentUser == null) {
-                return "redirect:/login";
-            }
-            
-            List<User> users = userService.getAllUsers();
-            model.addAttribute("users", users);
-            model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
-            model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
-            
-            return "users-management";
-        } catch (Exception e) {
+        User currentUser = userService.getUser();
+        if (currentUser == null) {
             return "redirect:/login";
         }
+        
+        List<User> users = userService.getAllUsers();
+        model.addAttribute("users", users);
+        model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
+        model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
+        
+        return "users-management";
     }
 
     @PostMapping("/delete-user")

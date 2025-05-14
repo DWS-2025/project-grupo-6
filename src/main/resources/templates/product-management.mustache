@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management</title>
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/profile-modern.css">
+    <link rel="stylesheet" href="/css/product-management.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="min-h-screen flex flex-col">
+    {{> common/header}}
+    <main class="flex-grow p-6 mt-16 mx-auto max-w-7xl w-full">
+        <h1 class="text-[#294156] text-3xl font-light mb-8 flex items-center page-title">
+            <i class="fas fa-box-open mr-3"></i> Product Management
+        </h1>
+        
+        {{#error}}
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-lg shadow-sm" role="alert">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-circle mr-3 text-xl"></i>
+                <p>{{error}}</p>
+            </div>
+        </div>
+        {{/error}}
+
+        <div class="mb-10 flex justify-between items-center">
+            <div></div>
+            <a href="/create-product" class="add-product-btn">
+                <i class="fas fa-plus"></i> Add New Product
+            </a>
+        </div>
+        
+        <div class="product-grid" id="productsGrid">
+            {{#products}}
+            <div class="product-item">  
+                <div class="product-image">
+                    <img src="/image/{{id}}" alt="{{name}}" class="product-thumbnail">
+                </div>
+                <div class="product-header">
+                    <h3 class="product-name">{{name}}</h3>
+                </div>
+                
+                <div class="product-actions">
+                    <a href="/edit-product/{{id}}" class="edit-action" title="Edit Product">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <button type="button" class="delete-action" 
+                            data-id="{{id}}" 
+                            data-name="{{name}}" title="Delete Product">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            </div>
+            {{/products}}
+            
+            {{^products}}
+            <div class="empty-state">
+                <i class="fas fa-box-open"></i>
+                <p>No products available</p>
+            </div>
+            {{/products}}
+        </div>
+
+        <!-- Botón de Cargar Más -->
+        <div class="text-center mt-6 mb-4">
+            <button id="loadMoreBtn" class="load-more-btn">
+                <i class="fas fa-plus-circle mr-2"></i> Load More Products
+            </button>
+        </div>
+    </main>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" id="confirmDeleteModal">
+        <div class="confirmation-modal">
+            <div class="modal-header">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Confirm Deletion</h3>
+            </div>
+            <div class="modal-body">
+                <p class="modal-message">Are you sure you want to delete this product? This action cannot be undone.</p>
+                
+                <div class="modal-product-info">
+                    <i class="fas fa-box"></i>
+                    <span>Product: <strong id="productName"></strong></span>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn modal-btn-cancel" id="cancelDelete">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <form action="/delete-product" method="post" id="deleteProductForm">
+                        <input type="hidden" name="productId" id="productIdInput">
+                        <button type="submit" class="modal-btn modal-btn-confirm">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {{> common/footer}}  
+    
+    <script src="/js/product-management.js"></script>
+</body>
+
+</html> 

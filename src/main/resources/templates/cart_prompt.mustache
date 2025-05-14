@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart Access - XpressAly</title>
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/login.css">
+    <link rel="stylesheet" href="/css/dark-mode.css">
+    <link rel="stylesheet" href="/css/cart-prompt.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="page-wrapper">
+        {{> common/header}}
+
+        <div class="content-wrapper">
+            <div class="cart-prompt-container">
+                <div class="cart-message-panel">
+                    <div class="cart-header">
+                        <div class="cart-header-content">
+                            <div class="cart-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <h1 class="cart-title">Shopping Cart Access</h1>
+                            <p class="cart-subtitle">To enjoy all shopping features, please log in or create a new account.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="cart-body">
+                        <div class="features-list">
+                            <div class="feature-item animate-in" data-delay="0.1">
+                                <div class="feature-icon">
+                                    <i class="fas fa-box"></i>
+                                </div>
+                                <h3 class="feature-title">Saved Orders</h3>
+                                <p class="feature-text">Save your orders and access them anytime, from any device.</p>
+                            </div>
+                            
+                            <div class="feature-item animate-in" data-delay="0.3">
+                                <div class="feature-icon">
+                                    <i class="fas fa-truck"></i>
+                                </div>
+                                <h3 class="feature-title">Shipment Tracking</h3>
+                                <p class="feature-text">Track your orders in real-time until they reach your doorstep.</p>
+                            </div>
+                            
+                            <div class="feature-item animate-in" data-delay="0.5">
+                                <div class="feature-icon">
+                                    <i class="fas fa-tag"></i>
+                                </div>
+                                <h3 class="feature-title">Exclusive Offers</h3>
+                                <p class="feature-text">Access exclusive discounts and promotions for registered users.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="cart-actions">
+                            <a href="/login" class="btn-action btn-login animate-in" data-delay="0.7">
+                                <i class="fas fa-sign-in-alt"></i> Log In
+                            </a>
+                            
+                            <div class="divider animate-in" data-delay="0.8">or</div>
+                            
+                            <a href="/register" class="btn-action btn-register animate-in" data-delay="0.9">
+                                <i class="fas fa-user-plus"></i> Create Account
+                            </a>
+                        </div>
+                        
+                        <a href="/products" class="back-link animate-in" data-delay="1.0">
+                            <i class="fas fa-arrow-left"></i> Back to Products
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Footer -->
+        <footer class="custom-footer">
+            <div class="footer-content">
+                <p>&copy; 2025 XpressAly - All rights reserved</p>
+            </div>
+        </footer>
+    </div>
+    
+    <script src="/js/cart-prompt.js"></script>
+</body>
+</html> 

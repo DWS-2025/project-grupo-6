@@ -252,4 +252,32 @@ public class ProductApiController {
             return ResponseEntity.badRequest().body(response);
         }
     }
+
+    @GetMapping("/management")
+    public ResponseEntity<Map<String, Object>> getProductsForManagement(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        try {
+            Map<String, Object> response = new HashMap<>();
+            
+            Page<Product> productPage = productService.getProductsByPage(page, size, null);
+            
+            List<Map<String, Object>> productList = productPage.getContent().stream()
+                .map(this::convertToMap)
+                .collect(Collectors.toList());
+            
+            response.put("products", productList);
+            response.put("totalPages", productPage.getTotalPages());
+            response.put("currentPage", productPage.getNumber() + 1);
+            response.put("hasMore", productPage.getNumber() + 1 < productPage.getTotalPages());
+            response.put("totalElements", productPage.getTotalElements());
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
 }

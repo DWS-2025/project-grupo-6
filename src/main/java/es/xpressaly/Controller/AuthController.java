@@ -147,4 +147,9 @@ public class AuthController {
         session.removeAttribute("currentOrder");
         return "redirect:/login";
     }
+
+    @GetMapping("/cart-prompt")
+    public String showCartPrompt() {
+        return "cart_prompt";
+    }
 }

@@ -92,9 +92,15 @@ public class OrderController {
 
     // Add product to order
     @PostMapping("/add-to-order")
-    public String addToOrder(@RequestParam Long productId, Model model,HttpSession session) {
+    public String addToOrder(@RequestParam Long productId, Model model, HttpSession session) {
         Product product = productService.getProductById(productId);
         User currentUser = userService.getUser();
+        
+        // Check if user is logged in, redirect to cart prompt if not
+        if (currentUser == null) {
+            return "redirect:/cart-prompt";
+        }
+        
         Order currentOrder = getCurrentOrder(session);
         // Check if product exists
         if (product == null) {
@@ -142,8 +148,14 @@ public class OrderController {
     // View current order
     @GetMapping("/view-order")
     public String viewOrder(Model model, HttpSession session) {
-        Order currentOrder = getCurrentOrder(session);
         User currentUser = userService.getUser();
+        
+        // Check if user is logged in, redirect to cart prompt if not
+        if (currentUser == null) {
+            return "redirect:/cart-prompt";
+        }
+        
+        Order currentOrder = getCurrentOrder(session);
         model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
         model.addAttribute("cartItemCount", getCartItemCount(session));
         
@@ -159,7 +171,14 @@ public class OrderController {
 
     // Remove a product from the order
     @PostMapping("/remove-from-order")
-    public String removeFromOrder(@RequestParam Long productId, Model model,HttpSession session) {
+    public String removeFromOrder(@RequestParam Long productId, Model model, HttpSession session) {
+        User currentUser = userService.getUser();
+        
+        // Check if user is logged in, redirect to cart prompt if not
+        if (currentUser == null) {
+            return "redirect:/cart-prompt";
+        }
+        
         Order currentOrder = getCurrentOrder(session);
         if (currentOrder != null) {
             Product product = productService.getProductById(productId);
@@ -173,11 +192,11 @@ public class OrderController {
 
     //Delete order
     @GetMapping("/delete-order")
-    public String deleteOrder(Model model,HttpSession session) {
+    public String deleteOrder(Model model, HttpSession session) {
         User currentUser = userService.getUser();
         Order currentOrder = getCurrentOrder(session);
         if (currentUser == null) {
-            return "redirect:/login";
+            return "redirect:/cart-prompt";
         }
 
         if (currentOrder == null || !currentOrder.hasProducts()) {
@@ -199,6 +218,13 @@ public class OrderController {
     //Update products' amount
     @PostMapping("/update-amount")
     public String updateAmount(Model model, @RequestParam int amount, @RequestParam Long productId, HttpSession session) {
+        User currentUser = userService.getUser();
+        
+        // Check if user is logged in, redirect to cart prompt if not
+        if (currentUser == null) {
+            return "redirect:/cart-prompt";
+        }
+        
         Order currentOrder = getCurrentOrder(session);
         if (currentOrder == null) {
             model.addAttribute("error", "No active order");
@@ -225,7 +251,6 @@ public class OrderController {
         }
 
         if (amount > productInStock.getStock()) {
-            User currentUser = userService.getUser();
             setCurrentOrder(session, currentOrder);
             model.addAttribute("errorMessage", "We're sorry, we do not have enough stock at the moment, try later");
             model.addAttribute("order", currentOrder);
@@ -246,6 +271,13 @@ public class OrderController {
     @PostMapping("/confirm-order")
     public String confirmOrder(Model model, @RequestParam String address, HttpSession session) {
         try {
+            User currentUser = userService.getUser();
+            
+            // Check if user is logged in, redirect to cart prompt if not
+            if (currentUser == null) {
+                return "redirect:/cart-prompt";
+            }
+            
             Order currentOrder = getCurrentOrder(session);
             if (currentOrder == null || currentOrder.getProducts().isEmpty()) {
                 model.addAttribute("error", "No products in the order");
@@ -276,7 +308,6 @@ public class OrderController {
             }
 
             currentOrder.setAddress(address);
-            User currentUser = userService.getUser();
             
             // Get all user orders sorted by ID
             List<Order> userOrders = orderRepository.findByUser(currentUser);

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Product</title>
+    <link rel="stylesheet" href="/css/add_product.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    {{> common/header}}
+    <div class="form-container">
+        <h1>Edit Product</h1>
+        <form action="/update-product" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="productId" value="{{product.id}}">
+            
+            {{#error}}
+            <div class="error-message">
+                {{message}}
+            </div>
+            {{/error}}
+            
+            <div class="form-group">
+                <label for="name"><i class="fas fa-tag"></i> Product Name</label>
+                <input type="text" id="name" name="name" placeholder="Enter product name" value="{{product.name}}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description"><i class="fas fa-align-left"></i> Description</label>
+                <input type="text" id="description" name="description" placeholder="Enter product description" value="{{product.description}}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="price"><i class="fas fa-dollar-sign"></i> Price</label>
+                <div class="input-with-icon">
+                    <input type="number" id="price" name="price" min="0.01" step="0.01" placeholder="0.00" value="{{product.price}}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="stock"><i class="fas fa-boxes"></i> Stock Quantity</label>
+                <div class="input-with-icon">
+                    <input type="number" id="stock" name="stock" min="1" placeholder="Enter stock quantity" value="{{product.stock}}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-image"></i> Current Image</label>
+                <div class="current-image-container">
+                    <img src="/image/{{product.id}}" alt="{{product.name}}" class="current-product-image">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="mainImage"><i class="fas fa-images"></i> New Product Image (Optional)</label>
+                <input type="file" id="mainImage" name="mainImage" accept=".jpg, .jpeg">
+                <p class="help-text">Leave empty to keep current image</p>
+            </div>
+            
+            <div class="button-group">
+                <a href="/product-management" class="cancel-button"><i class="fas fa-times"></i> Cancel</a>
+                <button type="submit" class="save-button"><i class="fas fa-save"></i> Save Changes</button>
+            </div>
+        </form>
+    </div>
+    {{> common/footer}}
+</body>
+</html> 
