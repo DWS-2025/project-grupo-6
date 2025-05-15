@@ -295,9 +295,13 @@ document.addEventListener('DOMContentLoaded', function() {
         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
         submitButton.disabled = true;
         
-        // Usar la API en lugar del formulario normal
-        fetch(`/api/products/${productId}`, {
-            method: 'DELETE'
+        //Delete product request
+        fetch(`/delete-product`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `productId=${productId}`
         })
         .then(response => {
             if (!response.ok) {
