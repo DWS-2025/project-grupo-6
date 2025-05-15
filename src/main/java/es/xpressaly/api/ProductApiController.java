@@ -11,12 +11,14 @@ import es.xpressaly.Model.Review;
 import es.xpressaly.Service.ProductService;
 import es.xpressaly.Service.ReviewService;
 import es.xpressaly.dto.ProductDTO;
+import es.xpressaly.mapper.ProductMapper;
 import es.xpressaly.Model.User;
 import es.xpressaly.Service.UserService;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
@@ -32,7 +34,12 @@ public class ProductApiController {
 
     @Autowired
     private UserService userService;
-    
+
+    @GetMapping("/all")
+    public Collection<ProductDTO> getAllProductsAPI() {
+        return productService.getAllProductsAPI();
+    }
+
     @GetMapping
     public ResponseEntity<Map<String, Object>> getProducts(
             @RequestParam(defaultValue = "1") int page,
@@ -117,13 +124,8 @@ public class ProductApiController {
         return productMap;
     }
 
-    @PostMapping
-    public ResponseEntity<Map<String, Object>> addProduct(
-            @RequestParam String name,
-            @RequestParam String description,
-            @RequestParam double price,
-            @RequestParam int stock,
-            @RequestParam MultipartFile mainImage) {
+    /*@PostMapping
+    public ResponseEntity<ProductDTO> addProduct(@RequestBody ProductDTO productDTO) {
         
         Map<String, Object> response = new HashMap<>();
         
@@ -166,9 +168,9 @@ public class ProductApiController {
             response.put("error", e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
-    }
+    }*/
 
-    @PostMapping("/{productId}/reviews")
+    /*@PostMapping("/{productId}/reviews")
     public ResponseEntity<Map<String, Object>> addReview(
             @PathVariable Long productId,
             @RequestParam String comment,
@@ -202,7 +204,7 @@ public class ProductApiController {
             response.put("error", e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
-    }
+    }*/
 
     @DeleteMapping("/{productId}")
     public ResponseEntity<Map<String, Object>> deleteProduct(@PathVariable Long productId) {
@@ -280,4 +282,5 @@ public class ProductApiController {
             return ResponseEntity.badRequest().body(response);
         }
     }
+    
 }

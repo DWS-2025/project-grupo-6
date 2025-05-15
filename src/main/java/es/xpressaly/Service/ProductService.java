@@ -1,6 +1,7 @@
 package es.xpressaly.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.hibernate.Hibernate;
@@ -12,6 +13,8 @@ import org.springframework.data.domain.PageRequest;
 import es.xpressaly.Model.Product;
 import es.xpressaly.Model.Review;
 import es.xpressaly.Repository.ProductRepository;
+import es.xpressaly.dto.ProductDTO;
+import es.xpressaly.mapper.ProductMapper;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -21,6 +24,13 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private ProductMapper mapper;
+
+    public Collection<ProductDTO> getAllProductsAPI() {
+        return toDTOs(productRepository.findAll());
+    }
+    
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
@@ -83,6 +93,10 @@ public class ProductService {
                          p.getDescription().toLowerCase().contains(searchQuery)) &&
                          p.getPrice() >= minPrice && p.getPrice() <= maxPrice)
             .toList();
+    }
+
+    public ProductDTO getProductByIdAPI(Long id) {
+        return toDTO(productRepository.findById(id).orElse(null));
     }
 
     public Product getProductById(Long id) {
@@ -161,5 +175,14 @@ public class ProductService {
             // For large ranges, maintain the original behavior
             return maxPrice + 100.0;
         }
+    }
+    private ProductDTO toDTO(Product product){
+        return mapper.toDTO(product);
+    }
+    private Product toDomain(ProductDTO productDTO){
+        return mapper.toDomain(productDTO);
+    }
+    private Collection<ProductDTO> toDTOs(Collection<Product> products){
+        return mapper.toDTOs(products);
     }
 }
