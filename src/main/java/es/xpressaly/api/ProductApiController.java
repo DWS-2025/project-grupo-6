@@ -14,6 +14,8 @@ import es.xpressaly.dto.ProductDTO;
 import es.xpressaly.Model.User;
 import es.xpressaly.Service.UserService;
 
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -153,12 +155,19 @@ public class ProductApiController {
         }
 
         try {
+            // Second factor of verification: check if the file really is an image
+            BufferedImage image = ImageIO.read(mainImage.getInputStream());
+            if (image == null) {
+                response.put("error", "The file is not a valid image (binary content check failed)");
+                return ResponseEntity.badRequest().body(response);
+            }
+
             byte[] imageBytes = mainImage.getBytes();
             String relativeImagePath = "/Images/" + name + ".jpg";
-            
+
             Product newProduct = new Product(name, description, price, stock, relativeImagePath);
             newProduct.setImageData(imageBytes);
-            
+
             productService.addProduct(newProduct);
             response.put("success", "Product added successfully");
             return ResponseEntity.ok(response);
