@@ -12,12 +12,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import es.xpressaly.Model.Product;
 import es.xpressaly.Service.ProductService;
+import es.xpressaly.mapper.ProductMapper;
 
 @Controller
 public class ImageController {
 
     @Autowired
     private ProductService productService;
+    @Autowired
+    private ProductMapper productMapper;
     
     @GetMapping("/image/{productId}")
     @ResponseBody

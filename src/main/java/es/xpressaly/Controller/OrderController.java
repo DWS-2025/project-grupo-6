@@ -16,6 +16,7 @@ import es.xpressaly.Model.UserRole;
 import es.xpressaly.Repository.OrderRepository;
 import es.xpressaly.Service.ProductService;
 import es.xpressaly.Service.UserService;
+import es.xpressaly.dto.ProductDTO;
 
 import java.util.List;
 

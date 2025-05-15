@@ -5,8 +5,7 @@ public record ProductDTO(
     String name,
     String description,
     double price,
-    int stock,
-    byte[] imageData
+    int stock
     //List<ReviewDTO> reviews
 ) {
 }

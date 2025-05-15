@@ -7,6 +7,7 @@ import es.xpressaly.Service.ReviewService;
 import es.xpressaly.dto.ReviewDTO;
 import es.xpressaly.mapper.ReviewMapper;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,10 +22,8 @@ public class ReviewController {
     private ReviewMapper reviewMapper;
 
     @GetMapping
-    public List<ReviewDTO> getAllReviews() {
-        return reviewService.getAllReviews().stream()
-                .map(reviewMapper::toDTO)
-                .collect(Collectors.toList());
+    public Collection<ReviewDTO> getAllReviews() {
+        return reviewService.getAllReviews();          
     }
 
     @GetMapping("/{id}")
