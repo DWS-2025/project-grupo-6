@@ -32,7 +32,7 @@ public class ProductApiController {
 
     @Autowired
     private UserService userService;
-
+    
     @GetMapping
     public ResponseEntity<Map<String, Object>> getProducts(
             @RequestParam(defaultValue = "1") int page,

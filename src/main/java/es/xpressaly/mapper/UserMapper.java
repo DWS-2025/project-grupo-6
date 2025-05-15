@@ -1,38 +1,36 @@
 package es.xpressaly.mapper;
 
+import es.xpressaly.Model.Order;
+import es.xpressaly.Model.Review;
 import es.xpressaly.Model.User;
-import es.xpressaly.Model.UserRole;
+import es.xpressaly.dto.OrderDTO;
+import es.xpressaly.dto.ReviewDTO;
 import es.xpressaly.dto.UserDTO;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import java.util.Collection;
 
-@Component
-public class UserMapper {
+@Mapper(componentModel = "spring")
+public interface UserMapper {
     
-    public UserDTO toDTO(User user) {
-        return new UserDTO(
-            user.getFirstName(),
-            user.getLastName(),
-            user.getEmail(),
-            user.getAddress(),
-            user.getPhoneNumber(),
-            user.getAge(),
-            user.getRole() == UserRole.ADMIN,
-            null, // orders would be assigned elsewhere if needed
-            null  // reviews would be assigned elsewhere if needed
-        );
-    }
+    UserDTO toDTO(User user);
     
-    public User toEntity(UserDTO dto) {
-        User user = new User();
-        user.setFirstName(dto.firstName());
-        user.setLastName(dto.lastName());
-        user.setEmail(dto.email());
-        user.setAddress(dto.address());
-        user.setPhoneNumber(dto.phoneNumber());
-        user.setAge(dto.age());
-        return user;
-    }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    User toDomain(UserDTO userDTO);
+
+    List<UserDTO> toDTOs(Collection<User> users);
+    
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "products", ignore = true)
+    @Mapping(target = "userOrderNumber", ignore = true)
+    Order toDomain(OrderDTO orderDTO);
+
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "product", ignore = true)
+    Review toDomain(ReviewDTO reviewDTO);
 }

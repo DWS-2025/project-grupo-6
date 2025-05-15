@@ -34,7 +34,7 @@ public class ReviewController {
 
     @PostMapping
     public ReviewDTO createReview(@RequestBody ReviewDTO reviewDTO) {
-        Review review = reviewMapper.toEntity(reviewDTO);
+        Review review = reviewMapper.toDomain(reviewDTO);
         return reviewMapper.toDTO(reviewService.saveReview(review));
     }
 

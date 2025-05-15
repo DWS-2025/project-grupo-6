@@ -1,29 +1,30 @@
 package es.xpressaly.mapper;
 
 import es.xpressaly.Model.Order;
+import es.xpressaly.Model.Product;
 import es.xpressaly.dto.OrderDTO;
-import org.springframework.stereotype.Component;
+import es.xpressaly.dto.ProductDTO;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-@Component
-public class OrderMapper {
+@Mapper(componentModel = "spring")
+public interface OrderMapper {
     
-    public OrderDTO toDTO(Order order) {
-        return new OrderDTO(
-            order.getId(),
-            order.getAddress(),
-            order.getTotal(),
-            null // items would be allocated elsewhere if needed
-        );
-    }
+    OrderDTO toDTO(Order order);
+
+    List<OrderDTO> toDTOs(Collection<Order> orders);
+
     
-    public Order toEntity(OrderDTO dto) {
-        Order order = new Order();
-        order.setId(dto.id());
-        order.setAddress(dto.address());
-        order.setTotal(dto.total());
-        return order;
-    }
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "userOrderNumber", ignore = true)
+    Order toDomain(OrderDTO dto);
+
+    @Mapping(target = "imageData", ignore = true)
+    @Mapping(target = "amount", ignore = true)
+    @Mapping(target = "reviews", ignore = true)
+    @Mapping(target = "imagePath", ignore = true)
+    Product toDomain(ProductDTO productDTO);
 }
