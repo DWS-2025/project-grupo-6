@@ -89,6 +89,9 @@ public class SecurityConfig {
 
 		// Add JWT Token filter
 		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+		
+		// Require HTTPS for all API requests
+		http.requiresChannel(channel -> channel.anyRequest().requiresSecure());
 
 		return http.build();
 	}
@@ -134,6 +137,10 @@ public class SecurityConfig {
 						.permitAll()
 				)
 				.csrf(csrf->csrf.disable());
+				
+		// Require HTTPS for all web requests
+		http.requiresChannel(channel -> channel.anyRequest().requiresSecure());
+				
 		return http.build();
 	}
 }
