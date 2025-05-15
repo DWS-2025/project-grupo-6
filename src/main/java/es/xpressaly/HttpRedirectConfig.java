@@ -38,8 +38,8 @@ public class HttpRedirectConfig {
         connector.setRedirectPort(8443);
         
         // Ensure the connector is configured correctly
-        connector.setAttribute("relaxedPathChars", "[]|");
-        connector.setAttribute("relaxedQueryChars", "[]|{}^\\`\"<>");
+        connector.setProperty("relaxedPathChars", "[]|");
+        connector.setProperty("relaxedQueryChars", "[]|{}^\\`\"<>");
         
         return connector;
     }
