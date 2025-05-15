@@ -11,7 +11,7 @@
 <body>
     {{> common/header}}
     <div class="form-container">
-        <h1>Create New Product</h1>
+        <h1><i class="fas fa-plus-circle"></i> Create New Product</h1>
         <form action="/add-product" method="POST" enctype="multipart/form-data">
             {{#error}}
             <div class="error-message">
@@ -45,9 +45,17 @@
             <div class="form-group">
                 <label for="mainImage"><i class="fas fa-image"></i> Product Image</label>
                 <input type="file" id="mainImage" name="mainImage" accept=".jpg, .jpeg" required>
+                <p class="help-text">Upload a clear image of the product (JPG format only)</p>
             </div>
             
-            <button type="submit"><i class="fas fa-plus-circle"></i> Create Product</button>
+            <div class="button-group">
+                <a href="/product-management" class="cancel-button">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+                <button type="submit" class="save-button">
+                    <i class="fas fa-plus-circle"></i> Create Product
+                </button>
+            </div>
         </form>
     </div>
     {{> common/footer}}

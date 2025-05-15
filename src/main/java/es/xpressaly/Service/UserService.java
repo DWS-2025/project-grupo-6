@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Arrays;
 import java.util.regex.Pattern;
+import java.util.ArrayList;
 
 @Service
 @Transactional
@@ -243,5 +244,28 @@ public class UserService {
     public void deleteUser(String email) {
         User user=userRepository.findByEmail(email).orElse(null);
         userRepository.delete(user);
+    }
+
+    public String encodePassword(String rawPassword) {
+        return passwordEncoder.encode(rawPassword);
+    }
+
+    // Método mejorado para obtener todos los usuarios
+    @Transactional(readOnly = true)
+    public List<User> getAllUsersInitialized() {
+        List<User> users = userRepository.findAll();
+        
+        // Crear una nueva lista para evitar problemas de modificación durante iteración
+        List<User> initializedUsers = new ArrayList<>();
+        
+        for (User user : users) {
+            // Asegurarse de que el usuario está completamente cargado
+            User userInitialized = userRepository.findById(user.getId()).orElse(null);
+            if (userInitialized != null) {
+                initializedUsers.add(userInitialized);
+            }
+        }
+        
+        return initializedUsers;
     }
 }

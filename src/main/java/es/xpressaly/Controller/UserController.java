@@ -223,17 +223,28 @@ public class UserController {
     
     @GetMapping("/users-management")
     public String showUsersManagement(Model model, HttpSession session) {
-        User currentUser = userService.getUser();
-        if (currentUser == null) {
-            return "redirect:/login";
+        try {
+            User currentUser = userService.getUser();
+            if (currentUser == null) {
+                return "redirect:/login";
+            }
+            
+            if (currentUser.getRole() != UserRole.ADMIN) {
+                return "redirect:/";
+            }
+            
+            List<User> users = userService.getAllUsersInitialized();
+            model.addAttribute("users", users);
+            model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
+            model.addAttribute("userIsAdmin", currentUser.getRole() == UserRole.ADMIN);
+            model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
+            
+            return "users-management";
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "Error al cargar la gestión de usuarios: " + e.getMessage());
+            return "redirect:/";
         }
-        
-        List<User> users = userService.getAllUsers();
-        model.addAttribute("users", users);
-        model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
-        model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
-        
-        return "users-management";
     }
 
     @PostMapping("/delete-user")
@@ -243,6 +254,115 @@ public class UserController {
             return "redirect:/users-management";
         } catch (Exception e) {
             model.addAttribute("error", "Error deleting user: " + e.getMessage());
+            return "redirect:/users-management";
+        }
+    }
+
+    @PostMapping("/edit-user")
+    public String editUser(@RequestParam String originalEmail,
+                         @RequestParam String firstName,
+                         @RequestParam String lastName,
+                         @RequestParam String email,
+                         @RequestParam String address,
+                         @RequestParam(required = false, defaultValue = "0") int phoneNumber,
+                         @RequestParam(required = false, defaultValue = "0") int age,
+                         @RequestParam(required = false) String password,
+                         Model model) {
+        
+        try {
+            // Verificar si el usuario actual es administrador
+            User currentUser = userService.getUser();
+            if (currentUser == null || currentUser.getRole() != UserRole.ADMIN) {
+                model.addAttribute("error", "You do not have permission to edit users");
+                return "redirect:/users-management";
+            }
+            
+            // Buscar el usuario a editar por su email original
+            User userToEdit = userService.findByEmail(originalEmail);
+            if (userToEdit == null) {
+                model.addAttribute("error", "User not found");
+                return "redirect:/users-management";
+            }
+            
+            // Validar datos de entrada
+            if (firstName == null || firstName.trim().isEmpty() || firstName.length() > 50) {
+                model.addAttribute("error", "First name is required and must not exceed 50 characters");
+                return "redirect:/users-management";
+            }
+            if (lastName == null || lastName.trim().isEmpty() || lastName.length() > 50) {
+                model.addAttribute("error", "Last name is required and must not exceed 50 characters");
+                return "redirect:/users-management";
+            }
+            if (email == null || !email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+                model.addAttribute("error", "Please enter a valid email address");
+                return "redirect:/users-management";
+            }
+            if (address == null || address.trim().isEmpty() || address.length() > 200) {
+                model.addAttribute("error", "Address is required and must not exceed 200 characters");
+                return "redirect:/users-management";
+            }
+            
+            // Validación de teléfono y edad si se proporcionaron
+            if (phoneNumber > 0 && (String.valueOf(phoneNumber).length() < 9 || String.valueOf(phoneNumber).length() > 15)) {
+                model.addAttribute("error", "Please enter a valid phone number");
+                return "redirect:/users-management";
+            }
+            if (age > 0 && (age < 18 || age > 120)) {
+                model.addAttribute("error", "Age must be between 18 and 120");
+                return "redirect:/users-management";
+            }
+            
+            // Validación de contraseña si se proporcionó una nueva
+            if (password != null && !password.isEmpty()) {
+                // Verificar longitud mínima
+                if (password.length() < 8) {
+                    model.addAttribute("error", "Password must be at least 8 characters long");
+                    return "redirect:/users-management";
+                }
+                
+                // Verificar que contenga al menos una mayúscula
+                if (!password.matches(".*[A-Z].*")) {
+                    model.addAttribute("error", "Password must contain at least one uppercase letter");
+                    return "redirect:/users-management";
+                }
+                
+                // Verificar que contenga al menos una minúscula
+                if (!password.matches(".*[a-z].*")) {
+                    model.addAttribute("error", "Password must contain at least one lowercase letter");
+                    return "redirect:/users-management";
+                }
+                
+                // Verificar que contenga al menos un número
+                if (!password.matches(".*[0-9].*")) {
+                    model.addAttribute("error", "Password must contain at least one number");
+                    return "redirect:/users-management";
+                }
+                
+                // Hashear la contraseña antes de guardarla
+                userToEdit.setPassword(userService.encodePassword(password));
+            }
+            
+            // Actualizar los datos del usuario
+            userToEdit.setFirstName(firstName);
+            userToEdit.setLastName(lastName);
+            userToEdit.setEmail(email);
+            userToEdit.setAddress(address);
+            
+            if (phoneNumber > 0) {
+                userToEdit.setPhoneNumber(phoneNumber);
+            }
+            
+            if (age > 0) {
+                userToEdit.setAge(age);
+            }
+            
+            // Guardar los cambios
+            userService.updateUser(userToEdit);
+            
+            return "redirect:/users-management";
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "Error updating user: " + e.getMessage());
             return "redirect:/users-management";
         }
     }

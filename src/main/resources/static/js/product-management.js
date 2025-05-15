@@ -8,19 +8,87 @@ document.addEventListener('DOMContentLoaded', function() {
     const productsGrid = document.getElementById('productsGrid');
     const loadMoreBtn = document.getElementById('loadMoreBtn');
     
-    // Variables para paginación
+    // Pagination variables
     let currentPage = 1;
     let hasMore = true;
     const pageSize = 20;
     
-    // Debug info
-    console.log('Product management page initialized');
+    // Función para mostrar notificaciones elegantes
+    function showNotification(message, type = 'success') {
+        // Crear elemento de notificación
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        
+        // Añadir icono según el tipo
+        let icon = 'check-circle';
+        if (type === 'error') icon = 'exclamation-circle';
+        if (type === 'warning') icon = 'exclamation-triangle';
+        if (type === 'info') icon = 'info-circle';
+        
+        notification.innerHTML = `
+            <i class="fas fa-${icon}"></i>
+            <p>${message}</p>
+            <button class="close-notification">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        // Añadir al DOM
+        document.body.appendChild(notification);
+        
+        // Mostrar con animación
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 10);
+        
+        // Configurar botón para cerrar
+        notification.querySelector('.close-notification').addEventListener('click', () => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        });
+        
+        // Auto-cerrar después de 4 segundos
+        setTimeout(() => {
+            if (document.body.contains(notification)) {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        notification.remove();
+                    }
+                }, 300);
+            }
+        }, 4000);
+    }
     
-    // Función para cargar productos
+    // Configurar los enlaces de productos
+    function setupProductLinks() {
+        const productLinks = document.querySelectorAll('.product-link, .product-name-link');
+        
+        productLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Solo para efectos visuales - añadir una pequeña animación al hacer clic
+                e.currentTarget.classList.add('clicked');
+                
+                // Extraer el nombre del producto desde el atributo title
+                const title = e.currentTarget.getAttribute('title');
+                const productName = title ? title.replace('View ', '') : 'product';
+                
+                // Mostrar notificación (opcional, podemos quitar esto si no lo deseas)
+                setTimeout(() => {
+                    showNotification(`Viewing details of "${productName}"`, 'info');
+                }, 300);
+            });
+        });
+    }
+    
+    // Función para cargar productos con animaciones mejoradas
     function loadProducts(page) {
-        // Mostrar un spinner en el botón de cargar más
-        loadMoreBtn.innerHTML = '<span class="loading-spinner"></span> Loading...';
+        // Mostrar un efecto de carga en el botón
+        loadMoreBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Loading Products';
         loadMoreBtn.classList.add('loading');
+        loadMoreBtn.disabled = true;
         
         fetch(`/api/products/management?page=${page}&size=${pageSize}`)
             .then(response => {
@@ -34,7 +102,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentPage = data.currentPage;
                 hasMore = data.hasMore;
                 
-                // Si no hay más productos, ocultar el botón
+                // Actualizar el botón de cargar más
+                loadMoreBtn.disabled = false;
                 if (!hasMore) {
                     loadMoreBtn.style.display = 'none';
                 } else {
@@ -42,26 +111,33 @@ document.addEventListener('DOMContentLoaded', function() {
                     loadMoreBtn.classList.remove('loading');
                 }
                 
-                // Si es la primera página y no hay productos, mostrar mensaje vacío
+                // Si es la primera página y no hay productos, mostrar estado vacío
                 if (page === 1 && data.products.length === 0) {
                     productsGrid.innerHTML = `
                         <div class="empty-state">
                             <i class="fas fa-box-open"></i>
                             <p>No products available</p>
+                            <a href="/create-product" class="add-product-btn mt-6">
+                                <i class="fas fa-plus"></i> Add First Product
+                            </a>
                         </div>
                     `;
                     return;
                 }
                 
-                // Crear elementos para cada producto
+                // Crear elementos para cada producto con clases para animaciones
                 const productElements = data.products.map(product => {
                     return `
-                        <div class="product-item new-product">  
+                        <div class="product-item">  
                             <div class="product-image">
-                                <img src="/image/${product.id}" alt="${product.name}" class="product-thumbnail">
+                                <a href="/product-details?id=${product.id}" class="product-link" title="View ${product.name}">
+                                    <img src="/image/${product.id}" alt="${product.name}" class="product-thumbnail">
+                                </a>
                             </div>
                             <div class="product-header">
-                                <h3 class="product-name">${product.name}</h3>
+                                <a href="/product-details?id=${product.id}" class="product-name-link" title="View ${product.name}">
+                                    <h3 class="product-name">${product.name}</h3>
+                                </a>
                             </div>
                             
                             <div class="product-actions">
@@ -81,80 +157,88 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Si es la primera página, reemplazar el contenido
                 if (page === 1) {
                     productsGrid.innerHTML = productElements;
-                    
-                    // Configurar animaciones para todos los productos (primera carga)
-                    const allProducts = document.querySelectorAll('.product-item');
-                    allProducts.forEach((product, index) => {
-                        // Quitar la clase 'new-product' para mantener consistencia
-                        product.classList.remove('new-product');
-                        
-                        // Calcular el delay basado en el índice (0.05s incremento)
-                        const delay = Math.min(0.05 * (index + 1), 1.5); // máximo 1.5s de retraso
-                        product.style.animationDelay = `${delay}s`;
-                    });
                 } else {
-                    // Si no es la primera página, añadir al final sin alterar los productos existentes
-                    
-                    // Primero, eliminamos la animación de todos los productos existentes
-                    // para que no vuelvan a animarse
+                    // Para páginas adicionales, añadir al final
+                    // Primero, eliminamos las animaciones de los productos existentes
                     const existingProducts = document.querySelectorAll('.product-item');
                     existingProducts.forEach(product => {
                         product.style.opacity = '1';
-                        product.style.animation = 'none';
+                        product.style.transform = 'translateY(0)';
                     });
                     
-                    // Ahora añadimos los nuevos productos
+                    // Crear un fragmento para añadir los nuevos productos
+                    const fragment = document.createDocumentFragment();
                     const tempContainer = document.createElement('div');
                     tempContainer.innerHTML = productElements;
                     
-                    // Obtenemos todos los nuevos elementos para añadirlos al DOM
-                    const newProductElements = Array.from(tempContainer.children);
-                    newProductElements.forEach(product => {
-                        productsGrid.appendChild(product);
-                    });
+                    // Añadir cada nuevo elemento al fragmento
+                    while (tempContainer.firstChild) {
+                        fragment.appendChild(tempContainer.firstChild);
+                    }
                     
-                    // Seleccionamos solo los productos recién añadidos usando la clase 'new-product'
-                    const newProducts = document.querySelectorAll('.new-product');
-                    
-                    // Dar tiempo al DOM para renderizar los elementos antes de aplicar animaciones
-                    setTimeout(() => {
-                        newProducts.forEach((product, index) => {
-                            // Quitar la clase 'new-product' para no volver a seleccionarlos
-                            product.classList.remove('new-product');
-                            
-                            // Calcular el delay basado en el índice (0.05s incremento)
-                            const delay = Math.min(0.05 * (index + 1), 1.0); // máximo 1.0s de retraso
-                            product.style.animationDelay = `${delay}s`;
-                        });
-                    }, 10);
+                    // Añadir todos los nuevos productos al grid
+                    productsGrid.appendChild(fragment);
                 }
                 
-                // Adjuntar event listeners a los nuevos botones de eliminar
+                // Configurar animaciones para todos los productos
+                const allProducts = document.querySelectorAll('.product-item');
+                const startIndex = page === 1 ? 0 : allProducts.length - data.products.length;
+                
+                allProducts.forEach((product, index) => {
+                    // Solo aplicar animación a los productos recién cargados
+                    if (index >= startIndex) {
+                        // Calcular el delay basado en la posición dentro del grupo actual
+                        const positionInCurrentBatch = index - startIndex;
+                        const delay = Math.min(0.05 * positionInCurrentBatch, 0.95);
+                        product.style.animationDelay = `${delay}s`;
+                    }
+                });
+                
+                // Adjuntar event listeners a los botones de eliminar
                 setupDeleteButtons();
+                
+                // Configurar enlaces de productos
+                setupProductLinks();
+                
+                // Animación suave al scroll a nuevos elementos si se están cargando más
+                if (page > 1) {
+                    const newProducts = Array.from(productsGrid.children).slice(-data.products.length);
+                    if (newProducts.length > 0) {
+                        setTimeout(() => {
+                            newProducts[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 100);
+                    }
+                }
             })
             .catch(error => {
                 console.error('Error loading products:', error);
-                loadMoreBtn.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i> Error loading products';
+                loadMoreBtn.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i> Try Again';
                 loadMoreBtn.classList.remove('loading');
+                loadMoreBtn.disabled = false;
+                
+                showNotification('Error loading products. Please try again.', 'error');
             });
     }
     
     // Configurar botones de eliminar
     function setupDeleteButtons() {
         const deleteButtons = document.querySelectorAll('.delete-action');
-        console.log('Delete buttons found:', deleteButtons.length);
         
         deleteButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
+            // Eliminar listeners anteriores para evitar duplicados
+            const newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
+            
+            // Añadir nuevo event listener
+            newButton.addEventListener('click', function(e) {
                 e.preventDefault();
                 const productName = this.getAttribute('data-name');
                 const productId = this.getAttribute('data-id');
                 
-                console.log('Delete clicked for product:', productName, 'ID:', productId);
-                
                 productNameElement.textContent = productName;
                 productIdInput.value = productId;
                 
+                // Abrir modal con animación
                 modalOverlay.classList.add('active');
                 document.body.style.overflow = 'hidden'; // Prevent scrolling
             });
@@ -166,9 +250,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Event listener para el botón "Load More"
     loadMoreBtn.addEventListener('click', function() {
-        if (hasMore) {
-            currentPage++;
-            loadProducts(currentPage);
+        if (hasMore && !this.disabled) {
+            // Mostrar efecto de carga
+            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Loading Products';
+            this.disabled = true;
+            
+            // Añadir pequeña pausa para mejor experiencia visual
+            setTimeout(() => {
+                currentPage++;
+                loadProducts(currentPage);
+            }, 300);
         }
     });
     
@@ -191,13 +282,18 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault(); // Prevenir el envío normal del formulario
         
         const productId = productIdInput.value;
+        const productName = productNameElement.textContent;
+        
         if (!productId) {
-            console.error('No product ID found in form');
-            alert('Error: No product ID found');
+            showNotification('Error: No product ID found', 'error');
             return;
         }
         
-        console.log('Submitting delete form for product ID:', productId);
+        // Actualizar el botón de eliminar para mostrar el estado de carga
+        const submitButton = this.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.innerHTML;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+        submitButton.disabled = true;
         
         // Usar la API en lugar del formulario normal
         fetch(`/api/products/${productId}`, {
@@ -214,28 +310,121 @@ document.addEventListener('DOMContentLoaded', function() {
             modalOverlay.classList.remove('active');
             document.body.style.overflow = '';
             
-            // Recargar los productos (primera página)
-            currentPage = 1;
-            loadProducts(currentPage);
+            // Mostrar notificación de éxito
+            showNotification(`Product "${productName}" deleted successfully`, 'success');
             
-            // Mostrar mensaje de éxito
-            const successMessage = document.createElement('div');
-            successMessage.classList.add('success-message');
-            successMessage.innerHTML = '<i class="fas fa-check-circle"></i> Product deleted successfully';
-            document.querySelector('main').prepend(successMessage);
-            
-            // Eliminar mensaje después de 3 segundos
+            // Añadir una pequeña pausa para mejor UX
             setTimeout(() => {
-                successMessage.remove();
-            }, 3000);
+                // Recargar los productos (primera página)
+                currentPage = 1;
+                loadProducts(currentPage);
+            }, 300);
         })
         .catch(error => {
             console.error('Error deleting product:', error);
-            alert('Error deleting product. Please try again.');
+            showNotification('Error deleting product. Please try again.', 'error');
             
-            // Cerrar el modal
+            // Restaurar el botón
+            submitButton.innerHTML = originalButtonText;
+            submitButton.disabled = false;
+        })
+        .finally(() => {
+            // Asegurarse de que el modal se cierre
             modalOverlay.classList.remove('active');
             document.body.style.overflow = '';
         });
     });
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Escape key closes modal
+        if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+            modalOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
+    
+    // Agregar estilos para las notificaciones
+    const style = document.createElement('style');
+    style.textContent = `
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            max-width: 400px;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            z-index: 9999;
+            border-left: 4px solid #567C8D;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification i {
+            font-size: 1.2rem;
+            margin-right: 12px;
+        }
+        
+        .notification p {
+            flex: 1;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+        
+        .notification-success {
+            border-left-color: #28a745;
+        }
+        
+        .notification-success i {
+            color: #28a745;
+        }
+        
+        .notification-error {
+            border-left-color: #ff5858;
+        }
+        
+        .notification-error i {
+            color: #ff5858;
+        }
+        
+        .notification-warning {
+            border-left-color: #ffc107;
+        }
+        
+        .notification-warning i {
+            color: #ffc107;
+        }
+        
+        .notification-info {
+            border-left-color: #567C8D;
+        }
+        
+        .notification-info i {
+            color: #567C8D;
+        }
+        
+        .close-notification {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            margin-left: 10px;
+            color: #aaa;
+            padding: 0;
+            font-size: 0.8rem;
+            transition: color 0.2s;
+        }
+        
+        .close-notification:hover {
+            color: #333;
+        }
+    `;
+    document.head.appendChild(style);
 }); 

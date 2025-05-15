@@ -27,47 +27,88 @@
         </div>
         {{/error}}
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
             {{#users}}
             <div class="user-card">  
-                <div class="user-header flex items-center">
+                <div class="user-header">
                     <div class="user-avatar">
                         <i class="fas fa-user"></i>
                     </div>
-                    <div>
+                    <div class="user-info">
                         <h3 class="user-name">{{firstName}} {{lastName}}</h3>
                         <p class="user-email">{{email}}</p>
                     </div>
-                    <span class="user-role">{{role}}</span>
+                    <span class="user-role {{#isAdmin}}admin{{/isAdmin}}">{{role}}</span>
                 </div>
                 
                 <div class="user-content">
                     <ul class="info-list">
                         <li class="info-item">
+                            <i class="fas fa-id-card"></i>
+                            <div class="info-label">ID</div>
+                            <div class="info-value">{{id}}</div>
+                        </li>
+                        <li class="info-item">
+                            <i class="fas fa-user-tag"></i>
+                            <div class="info-label">Role</div>
+                            <div class="info-value">{{role}}</div>
+                        </li>
+                        <li class="info-item">
+                            <i class="fas fa-envelope"></i>
+                            <div class="info-label">Email</div>
+                            <div class="info-value">{{email}}</div>
+                        </li>
+                        <li class="info-item">
                             <i class="fas fa-map-marker-alt"></i>
-                            <span>{{address}}</span>
+                            <div class="info-label">Address</div>
+                            <div class="info-value">{{address}}</div>
                         </li>
                         <li class="info-item">
                             <i class="fas fa-phone"></i>
-                            <span>{{phoneNumber}}</span>
+                            <div class="info-label">Phone</div>
+                            <div class="info-value">{{phoneNumber}}</div>
                         </li>
                         <li class="info-item">
                             <i class="fas fa-birthday-cake"></i>
-                            <span>{{age}} years</span>
+                            <div class="info-label">Age</div>
+                            <div class="info-value">{{age}} years</div>
                         </li>
                     </ul>
                     
-                    <button type="button" class="delete-btn open-modal" 
-                            data-email="{{email}}" 
-                            data-name="{{firstName}} {{lastName}}">
-                        <i class="fas fa-trash-alt"></i> Delete User
-                    </button>
+                    {{#userIsAdmin}}
+                    <div class="action-buttons">
+                        <button type="button" class="action-btn edit-btn open-edit-modal" 
+                                data-email="{{email}}" 
+                                data-firstname="{{firstName}}"
+                                data-lastname="{{lastName}}"
+                                data-address="{{address}}"
+                                data-phone="{{phoneNumber}}"
+                                data-age="{{age}}">
+                            <i class="fas fa-edit"></i> <span>Edit</span>
+                        </button>
+                        <button type="button" class="action-btn delete-btn open-modal" 
+                                data-email="{{email}}" 
+                                data-name="{{firstName}} {{lastName}}">
+                            <i class="fas fa-trash-alt"></i> <span>Delete</span>
+                        </button>
+                    </div>
+                    {{/userIsAdmin}}
+                    
+                    {{^userIsAdmin}}
+                    <div class="action-buttons">
+                        <button type="button" class="action-btn delete-btn open-modal" 
+                                data-email="{{email}}" 
+                                data-name="{{firstName}} {{lastName}}">
+                            <i class="fas fa-trash-alt"></i> <span>Delete</span>
+                        </button>
+                    </div>
+                    {{/userIsAdmin}}
                 </div>
             </div>
             {{/users}}
             
             {{^users}}
-            <div class="col-span-full empty-state">
+            <div class="empty-state">
                 <i class="fas fa-users-slash"></i>
                 <p>No users available</p>
             </div>
@@ -101,6 +142,71 @@
                         </button>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit User Modal -->
+    <div class="modal-overlay" id="editUserModal">
+        <div class="confirmation-modal edit-modal">
+            <div class="modal-header edit-header">
+                <i class="fas fa-user-edit"></i>
+                <h3>Edit User</h3>
+            </div>
+            <div class="modal-body">
+                <form action="/edit-user" method="post" id="editUserForm">
+                    <input type="hidden" name="originalEmail" id="originalEmailInput">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editFirstName">First Name</label>
+                            <input type="text" id="editFirstName" name="firstName" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editLastName">Last Name</label>
+                            <input type="text" id="editLastName" name="lastName" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editEmail">Email</label>
+                        <input type="email" id="editEmail" name="email" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editAddress">Address</label>
+                        <input type="text" id="editAddress" name="address" class="form-control">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editPhone">Phone Number</label>
+                            <input type="text" id="editPhone" name="phoneNumber" class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editAge">Age</label>
+                            <input type="number" id="editAge" name="age" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editPassword">New Password</label>
+                        <input type="password" id="editPassword" name="password" class="form-control">
+                        <p class="password-requirements">Leave blank to keep current password. Must be at least 8 characters with at least one uppercase letter, one lowercase letter, and one number.</p>
+                        <div id="passwordValidationMessage" class="validation-message" style="display: none;"></div>
+                    </div>
+                    
+                    <div class="modal-actions edit-actions">
+                        <button type="button" class="modal-btn modal-btn-cancel" id="cancelEdit">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button type="submit" class="modal-btn modal-btn-save" id="saveChangesBtn">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
