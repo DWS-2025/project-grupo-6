@@ -60,10 +60,19 @@ public class ReviewService {
         if (review.getRating() < 1 || review.getRating() > 5) {
             throw new IllegalArgumentException("Rating must be between 1 and 5 stars");
         }
+        
+        // Check if user is valid
+        if (review.getUser() == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
     }
 
-    public Review getReviewById(Long reviewId) {
-        return reviewRepository.findById(reviewId).orElse(null);
+    public Review getReviewById(Long id) {
+        return reviewRepository.findById(id).orElse(null);
+    }
+
+    public List<Review> getReviewsByProduct(Product product) {
+        return reviewRepository.findByProduct(product);
     }
 
     public void deleteReview(Long productId, Long reviewId) {

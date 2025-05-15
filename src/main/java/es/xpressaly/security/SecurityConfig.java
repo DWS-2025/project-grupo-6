@@ -118,6 +118,8 @@ public class SecurityConfig {
 						.requestMatchers("/edit-profile/**").hasAnyRole("USER","ADMIN")
 						.requestMatchers("/delete-product/**").hasRole("ADMIN")
 						.requestMatchers("/users-management").hasRole("ADMIN")
+						.requestMatchers("/product-management").hasRole("ADMIN")
+						.requestMatchers("/review-management").hasRole("ADMIN")
 						.anyRequest().permitAll()
 				)
 				.formLogin(formLogin -> formLogin

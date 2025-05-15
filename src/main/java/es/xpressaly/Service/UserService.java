@@ -140,6 +140,7 @@ public class UserService {
         String email = authentication.getName();
         return userRepository.findByEmail(email).orElse(null);
     }
+    
     @Transactional(readOnly = true)
     public User getUserWithReviews(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -253,19 +254,17 @@ public class UserService {
     // Método mejorado para obtener todos los usuarios
     @Transactional(readOnly = true)
     public List<User> getAllUsersInitialized() {
-        List<User> users = userRepository.findAll();
+        // Usar la consulta optimizada que carga usuarios con sus reseñas y productos en una sola consulta
+        List<User> usersWithReviews = userRepository.findAllUsersWithReviews();
         
-        // Crear una nueva lista para evitar problemas de modificación durante iteración
-        List<User> initializedUsers = new ArrayList<>();
-        
-        for (User user : users) {
-            // Asegurarse de que el usuario está completamente cargado
-            User userInitialized = userRepository.findById(user.getId()).orElse(null);
-            if (userInitialized != null) {
-                initializedUsers.add(userInitialized);
+        // Asegurarse de que todas las colecciones están inicializadas
+        for (User user : usersWithReviews) {
+            if (user.getReviews() != null) {
+                // Forzar initialización
+                user.getReviews().size();
             }
         }
         
-        return initializedUsers;
+        return usersWithReviews;
     }
 }
