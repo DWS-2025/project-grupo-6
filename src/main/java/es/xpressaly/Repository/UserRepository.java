@@ -1,6 +1,7 @@
 package es.xpressaly.Repository;
 
 import java.util.Optional;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,4 +21,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
            "WHERE u.email = :email")
     Optional<User> findUserWithReviews(@Param("email") String email);
     
+    @Query("SELECT DISTINCT u FROM User u " +
+           "LEFT JOIN FETCH u.reviews r " +
+           "LEFT JOIN FETCH r.product")
+    List<User> findAllUsersWithReviews();
 }

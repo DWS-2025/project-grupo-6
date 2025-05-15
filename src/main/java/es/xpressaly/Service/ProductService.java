@@ -176,6 +176,7 @@ public class ProductService {
             return maxPrice + 100.0;
         }
     }
+
     private ProductDTO toDTO(Product product){
         return mapper.toDTO(product);
     }
@@ -184,5 +185,31 @@ public class ProductService {
     }
     private Collection<ProductDTO> toDTOs(Collection<Product> products){
         return mapper.toDTOs(products);
+    }
+    
+    @Transactional
+    public List<Product> getAllProductsWithReviews() {
+        List<Product> products = productRepository.findAll();
+        List<Product> productsWithReviews = new ArrayList<>();
+        
+        // Eager load reviews for each product
+        for (Product product : products) {
+            Product productWithReviews = productRepository.findProductWithReviews(product.getId());
+            if (productWithReviews != null) {
+                // Force initialization of reviews if needed
+                if (productWithReviews.getReviews() != null) {
+                    Hibernate.initialize(productWithReviews.getReviews());
+                    // Initialize each review's user to avoid LazyInitializationException
+                    productWithReviews.getReviews().forEach(review -> {
+                        if (review.getUser() != null) {
+                            Hibernate.initialize(review.getUser());
+                        }
+                    });
+                }
+                productsWithReviews.add(productWithReviews);
+            }
+        }
+        
+        return productsWithReviews;
     }
 }
