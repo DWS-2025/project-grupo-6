@@ -35,7 +35,7 @@ public class OrderApiController {
     
     @PersistenceContext
     private EntityManager entityManager;
-
+    
     @GetMapping("/cart-count")
     public ResponseEntity<Integer> getCartItemCount() {
         try {
@@ -52,7 +52,7 @@ public class OrderApiController {
         }
     }
 
-    @PostMapping("/add-to-order")
+    /*@PostMapping("/add-to-order")
     public ResponseEntity<Map<String, Object>> addToOrder(@RequestParam Long productId) {
         Map<String, Object> response = new HashMap<>();
         try {
@@ -81,7 +81,7 @@ public class OrderApiController {
             response.put("error", e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
-    }
+    }*/
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> viewOrder() {
@@ -103,7 +103,7 @@ public class OrderApiController {
         }
     }
 
-    @PostMapping("/remove-from-order")
+    /*@PostMapping("/remove-from-order")
     public ResponseEntity<Map<String, Object>> removeFromOrder(@RequestParam Long productId) {
         Map<String, Object> response = new HashMap<>();
         try {
@@ -120,9 +120,9 @@ public class OrderApiController {
             response.put("error", e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
-    }
+    }*/
 
-    @PostMapping("/update-amount")
+    /*@PostMapping("/update-amount")
     public ResponseEntity<Map<String, Object>> updateAmount(
             @RequestParam int amount, 
             @RequestParam Long productId) {
@@ -165,9 +165,9 @@ public class OrderApiController {
             response.put("error", e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
-    }
+    }*/
 
-    @PostMapping("/confirm")
+    /*@PostMapping("/confirm")
     public ResponseEntity<Map<String, Object>> confirmOrder(@RequestParam String address) {
         Map<String, Object> response = new HashMap<>();
         try {
@@ -214,7 +214,7 @@ public class OrderApiController {
             response.put("error", e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
-    }
+    }*/
 
     private Order getCurrentOrder() {
         User currentUser = userService.getUser();
