@@ -193,6 +193,15 @@ public class UserService {
 
     // Method to update the user with validations
     public void updateUser(User updatedUser) {
+
+        if (updatedUser == null || updatedUser.getId() == null) {
+            throw new IllegalArgumentException("Invalid user data");
+        }
+
+        // Obtener el usuario existente desde la base de datos
+        User existingUser = userRepository.findById(updatedUser.getId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
         if (updatedUser == null || updatedUser.getId() == null) {
             throw new IllegalArgumentException("Invalid user data");
         }
@@ -219,11 +228,14 @@ public class UserService {
             throw new IllegalArgumentException("Address cannot be empty");
         }
 
-        // Check if email is being changed and if it's already in use by another user
-        User existingUser = userRepository.findById(updatedUser.getId()).orElse(null);
-        if (existingUser != null && !existingUser.getEmail().equals(updatedUser.getEmail()) && 
-            userRepository.existsByEmail(updatedUser.getEmail())) {
-            throw new IllegalArgumentException("Email already exists");
+        if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
+            // Solo codificamos si la nueva contraseña es diferente de la actual guardada
+            if (!passwordEncoder.matches(updatedUser.getPassword(), existingUser.getPassword())) {
+                updatedUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+            }
+        } else {
+            // Si no se provee contraseña nueva, mantenemos la antigua para no sobreescribirla con null o vacío
+            updatedUser.setPassword(existingUser.getPassword());
         }
 
         userRepository.save(updatedUser);
