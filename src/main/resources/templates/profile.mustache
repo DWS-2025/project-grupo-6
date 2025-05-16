@@ -2,155 +2,295 @@
 <html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>User Profile</title>
-    <link rel="stylesheet" href="/css/header.css">
-    <link rel="stylesheet" href="/css/profile-modern.css">
-    <link rel="stylesheet" href="/css/rich-text.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/header.css" />
+    <link rel="stylesheet" href="/css/profile-modern.css" />
+    <link rel="stylesheet" href="/css/rich-text.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        /* Estilos para el modal de cambio de contraseña */
+        #passwordModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            z-index: 1000;
+            width: 450px; /* Aumentado */
+            max-width: 90%;
+        }
+
+        /* Fondo semi-transparente */
+        #modalOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 999;
+        }
+
+        #passwordModal.active,
+        #modalOverlay.active {
+            display: block;
+        }
+
+        .password-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .password-container input {
+            flex: 1;
+        }
+
+        .password-toggle-btn {
+            background-color: #294156 !important;
+            color: white !important;
+            border: none;
+            padding: 6px 12px;
+            cursor: pointer;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+        /* Botones modal */
+        #passwordModal button {
+            margin-top: 10px;
+            background-color: #294156;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #passwordModal .close-btn {
+            background-color: #dc3545;
+            margin-left: 10px;
+        }
+
+    </style>
 </head>
 
 <body>
 
-    {{> common/header}}
-    <!-- Notification container -->
-    <div id="notification-container" class="notification-container"></div>
-    <main>
-        <!-- Profile Picture -->
-        <div class="profile-section">
-            <div class="profile-picture">
-                👤
+{{> common/header}}
+<div id="notification-container" class="notification-container"></div>
+<main>
+    <div class="profile-section">
+        <div class="profile-picture">👤</div>
+        <p id="userName">{{name}} {{surname}}</p>
+    </div>
+
+    <div class="personal-data">
+        <h2>Personal Data</h2>
+        <a href="/logout" class="Btn" style="text-decoration: none; display: block; margin-bottom: 20px;">
+            <div class="sign">
+                <svg viewBox="0 0 512 512">
+                    <path
+                            d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z">
+                    </path>
+                </svg>
             </div>
-            <p id="userName">{{name}} {{surname}}</p>
-        </div>
+            <div class="text">Logout</div>
+        </a>
+        <form action="/update-profile" method="post">
 
-        <!-- Personal data section -->
-        <div class="personal-data">
-            <h2>Personal Data</h2>
-            <a href="/logout" class="Btn" style="text-decoration: none; display: block; margin-bottom: 20px;">
-                <div class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z"></path></svg></div>
-                <div class="text">Logout</div>
-            </a>
-            <form action="/update-profile" method="post">
-                <div class="form-group">
-                    <label><i class="fas fa-user"></i> Name:</label>
-                    <input type="text" name="firstName" value="{{name}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
-                </div>
+            <div class="form-group">
+                <label><i class="fas fa-user"></i> Name:</label>
+                <input type="text" name="firstName" value="{{name}}" class="w-full p-2 border rounded mb-4 text-[#294156]" />
+            </div>
 
-                <div class="form-group">
-                    <label><i class="fas fa-user"></i> Surname:</label>
-                    <input type="text" name="lastName" value="{{surname}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
-                </div>
+            <div class="form-group">
+                <label><i class="fas fa-user"></i> Surname:</label>
+                <input type="text" name="lastName" value="{{surname}}" class="w-full p-2 border rounded mb-4 text-[#294156]" />
+            </div>
 
-                <div class="form-group">
-                    <label><i class="fas fa-envelope"></i> Email:</label>
-                    <input type="email" name="email" value="{{email}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
-                </div>
+            <div class="form-group">
+                <label><i class="fas fa-envelope"></i> Email:</label>
+                <input type="email" name="email" value="{{email}}" class="w-full p-2 border rounded mb-4 text-[#294156]" />
+            </div>
 
-                <div class="form-group">
-                    <label><i class="fas fa-map-marker-alt"></i> Address:</label>
-                    <input type="text" name="address" value="{{address}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
-                </div>
+            <div class="form-group">
+                <label><i class="fas fa-map-marker-alt"></i> Address:</label>
+                <input type="text" name="address" value="{{address}}" class="w-full p-2 border rounded mb-4 text-[#294156]" />
+            </div>
 
-                <div class="form-group">
-                    <label><i class="fas fa-phone"></i> Phone Number:</label>
-                    <input type="text" name="phone" value="{{phone}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
-                </div>
+            <div class="form-group">
+                <label><i class="fas fa-phone"></i> Phone Number:</label>
+                <input type="text" name="phone" value="{{phone}}" class="w-full p-2 border rounded mb-4 text-[#294156]" />
+            </div>
 
-                <div class="form-group">
-                    <label><i class="fas fa-birthday-cake"></i> Age:</label>
-                    <input type="number" name="age" value="{{age}}" class="w-full p-2 border rounded mb-4 text-[#294156]">
-                </div>
+            <div class="form-group">
+                <label><i class="fas fa-birthday-cake"></i> Age:</label>
+                <input type="number" name="age" value="{{age}}" class="w-full p-2 border rounded mb-4 text-[#294156]" />
+            </div>
 
-                <div class="form-group">
-                    <label><i class="fas fa-lock"></i> Current Password:</label>
-                    <div class="password-container">
-                        <input type="password" id="currentPasswordInput" value="{{password}}" class="w-full p-2 border rounded mb-4 text-[#294156]" disabled>
-                        <button type="button" onclick="toggleCurrentPasswordVisibility()" class="password-toggle-btn" style="background-color: #294156 !important; color: white !important;">Show</button>
-                    </div>
-                </div>
+            <!-- Eliminamos la contraseña actual -->
 
-                <button type="button" onclick="togglePasswordSection()" class="change-password-btn">
-                    <i class="fas fa-key"></i> Change Password
-                </button>
-                <div id="passwordSection" style="display: none;">
-                    <div class="form-group">
-                        <label><i class="fas fa-lock"></i> New Password:</label>
-                        <div class="password-container">
-                            <input type="password" id="passwordInput" name="password" placeholder="Enter new password" class="w-full p-2 border rounded mb-4 text-[#294156]">
-                            <button type="button" onclick="togglePasswordVisibility()" class="password-toggle-btn" style="background-color: #294156 !important; color: white !important;">Show</button>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-lock"></i> Confirm Password:</label>
-                        <div class="password-container">
-                            <input type="password" id="confirmPasswordInput" name="confirmPassword" placeholder="Confirm new password" class="w-full p-2 border rounded mb-4 text-[#294156]">
-                            <button type="button" onclick="toggleConfirmPasswordVisibility()" class="password-toggle-btn" style="background-color: #294156 !important; color: white !important;">Show</button>
-                        </div>
-                    </div>
-                </div>
+            <button type="button" id="openPasswordModalBtn" class="change-password-btn">
+                <i class="fas fa-key"></i> Change Password
+            </button>
 
-                <button type="submit" class="update-profile-btn">
-                    <i class="fas fa-save"></i> Update Profile
-                </button>
-            </form>
-        </div>
-
-        <!-- Options menu -->
-        <div class="options-menu">
-            <a class="option-card">
-                <h3><i class="fas fa-shopping-bag"></i> My Orders</h3>
-                {{#orders}}
-                    <div class="order-card">
-                        <h3>Order #{{userOrderNumber}}</h3>
-                        <p><i class="fas fa-map-marker-alt"></i> Delivery Address: {{address}}</p>
-                        {{#products}}
-                            <p>-{{name}} x {{amount}}: ${{price}}</p>
-                        {{/products}}
-                        <p class="total"><strong>Total: ${{total}}</strong></p>
-                    </div>
-                {{/orders}}
-                {{^orders}}
-                    <p class="no-reviews"><i class="fas fa-info-circle"></i> No orders yet.</p>
-                {{/orders}}
-            </a>
-        </div>
-
-        <!-- Reviews Section -->
-        <div class="reviews-section">
-            <h2><i class="fas fa-star"></i> My Reviews</h2>
-            {{#reviews}}
-            <a href="/product-details?id={{productId}}" class="review-card" style="text-decoration: none; color: inherit; display: block;">
-                <input type="number" name="productId" value="{{productId}}" hidden>
-                <h3>{{productName}}</h3>
-                <div class="rating">
-                    <span class="star">★</span>
-                    <span class="rating-value">{{rating}}/5</span>
-                </div>
-                <div class="rich-text-content review-content-{{productId}}">
-                    {{{comment}}}
-                </div>
-                <span class="review-date"><i class="far fa-calendar-alt"></i> {{date}}</span>
-            </a>
-            {{/reviews}}
-            {{^reviews}}
-            <p class="no-reviews"><i class="fas fa-info-circle"></i> No reviews yet.</p>
-            {{/reviews}}
-        </div>
-    </main>
-    
-    <div class="delete-account-section" style="text-align: center; margin: 20px 0;">
-        <form action="/delete-account" method="post">
-            <button type="submit" class="delete-account-btn" style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
-                <i class="fas fa-trash-alt"></i> Delete Account</button>
+            <button type="submit" class="update-profile-btn">
+                <i class="fas fa-save"></i> Update Profile
+            </button>
         </form>
     </div>
 
-    {{> common/footer}}
+    <!-- Modal para cambio de contraseña -->
+    <div id="modalOverlay"></div>
+    <div id="passwordModal">
+        <h3>Change Password</h3>
+        <form id="passwordChangeForm" onsubmit="return validatePasswordForm()">
+            <div class="form-group">
+                <label><i class="fas fa-lock"></i> New Password:</label>
+                <div class="password-container">
+                    <input type="password" id="newPassword" name="password" placeholder="Enter new password"
+                           class="w-full p-2 border rounded mb-4 text-[#294156]" required />
+                    <button type="button" onclick="togglePasswordVisibility('newPassword', this)"
+                            class="password-toggle-btn">Show</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-lock"></i> Confirm Password:</label>
+                <div class="password-container">
+                    <input type="password" id="confirmPassword" name="confirmPassword"
+                           placeholder="Confirm new password" class="w-full p-2 border rounded mb-4 text-[#294156]" required />
+                    <button type="button" onclick="togglePasswordVisibility('confirmPassword', this)"
+                            class="password-toggle-btn">Show</button>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <button type="submit">Save</button>
+                <button type="button" class="close-btn" onclick="closePasswordModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
 
-    <!-- DOMPurify for sanitization -->
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@2.3.8/dist/purify.min.js"></script>
-    <script src="/js/profile.js"></script>
+    <!-- Resto del contenido igual -->
+
+    <!-- Options menu -->
+    <div class="options-menu">
+        <a class="option-card">
+            <h3><i class="fas fa-shopping-bag"></i> My Orders</h3>
+            {{#orders}}
+                <div class="order-card">
+                    <h3>Order #{{userOrderNumber}}</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> Delivery Address: {{address}}</p>
+                    {{#products}}
+                        <p>-{{name}} x {{amount}}: ${{price}}</p>
+                    {{/products}}
+                    <p class="total"><strong>Total: ${{total}}</strong></p>
+                </div>
+            {{/orders}}
+            {{^orders}}
+                <p class="no-reviews"><i class="fas fa-info-circle"></i> No orders yet.</p>
+            {{/orders}}
+        </a>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="reviews-section">
+        <h2><i class="fas fa-star"></i> My Reviews</h2>
+        {{#reviews}}
+            <a href="/product-details?id={{productId}}" class="review-card" style="text-decoration: none; color: inherit; display: block;">
+            <input type="number" name="productId" value="{{productId}}" hidden />
+            <h3>{{productName}}</h3>
+            <div class="rating">
+                <span class="star">★</span>
+                <span class="rating-value">{{rating}}/5</span>
+            </div>
+            <div class="rich-text-content review-content-{{productId}}">
+                {{{comment}}}
+            </div>
+            <span class="review-date"><i class="far fa-calendar-alt"></i> {{date}}</span>
+            </a>
+        {{/reviews}}
+        {{^reviews}}
+            <p class="no-reviews"><i class="fas fa-info-circle"></i> No reviews yet.</p>
+        {{/reviews}}
+    </div>
+</main>
+
+<div class="delete-account-section" style="text-align: center; margin: 20px 0;">
+    <form action="/delete-account" method="post">
+        <button type="submit" class="delete-account-btn"
+                style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
+            <i class="fas fa-trash-alt"></i> Delete Account</button>
+    </form>
+</div>
+
+{{> common/footer}}
+
+<script src="https://cdn.jsdelivr.net/npm/dompurify@2.3.8/dist/purify.min.js"></script>
+<script src="/js/profile.js"></script>
+
+<script>
+    // Mostrar modal al hacer clic en el botón
+    const openModalBtn = document.getElementById("openPasswordModalBtn");
+    const passwordModal = document.getElementById("passwordModal");
+    const modalOverlay = document.getElementById("modalOverlay");
+
+    openModalBtn.addEventListener("click", () => {
+        passwordModal.classList.add("active");
+        modalOverlay.classList.add("active");
+    });
+
+    // Cerrar modal
+    function closePasswordModal() {
+        passwordModal.classList.remove("active");
+        modalOverlay.classList.remove("active");
+        // Limpiar inputs
+        document.getElementById("newPassword").value = "";
+        document.getElementById("confirmPassword").value = "";
+    }
+
+    modalOverlay.addEventListener("click", closePasswordModal);
+
+    // Mostrar/ocultar contraseña
+    function togglePasswordVisibility(inputId, btn) {
+        const input = document.getElementById(inputId);
+        if (input.type === "password") {
+            input.type = "text";
+            btn.textContent = "Hide";
+        } else {
+            input.type = "password";
+            btn.textContent = "Show";
+        }
+    }
+
+    // Validar que las contraseñas coincidan antes de enviar
+    function validatePasswordForm() {
+        const newPassword = document.getElementById("newPassword").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+
+        if (newPassword !== confirmPassword) {
+            alert("Passwords do not match.");
+            return false;
+        }
+
+        // Aquí podrías añadir más validaciones si quieres (longitud, caracteres, etc.)
+
+        // Si pasa validación, se puede cerrar el modal y enviar el formulario principal:
+        // Por ejemplo, agregamos el valor al formulario principal y cerramos el modal.
+        // Aquí solo se deja el modal cerrado, y se espera que el usuario haga submit en el form principal.
+        closePasswordModal();
+        // Opcional: podrías también actualizar un input oculto en el formulario principal con la nueva contraseña
+        // Pero eso depende de cómo quieras manejar el backend
+
+        return false; // Para que no recargue la página, tú decides si quieres enviar el form aquí o no
+    }
+</script>
 </body>
+
 </html>
