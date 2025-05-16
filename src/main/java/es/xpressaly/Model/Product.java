@@ -35,6 +35,7 @@ public class Product {
 
     public Product() {
         // default constructor
+        this.reviews = new ArrayList<>();  // Initialize reviews list in default constructor
     }
 
     public Product(String name, String description, double price, int stock, String imagePath ) {
