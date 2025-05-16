@@ -14,6 +14,8 @@ import es.xpressaly.Model.UserRole;
 import es.xpressaly.Service.ProductService;
 import es.xpressaly.Service.ReviewService;
 import es.xpressaly.Service.UserService;
+import es.xpressaly.dto.ProductWebDTO;
+import es.xpressaly.mapper.ProductWebMapper;
 
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
@@ -34,12 +36,13 @@ public class ReviewManagementController {
     @Autowired
     private OrderController orderController;
 
+    @Autowired
+    private ProductWebMapper productWebMapper;
+
     @GetMapping("/review-management")
     public String reviewManagement(Model model, HttpSession session) {
-        
         User currentUser = userService.getUser();
         
-        // Verificar que sea administrador
         if (currentUser == null) {
             return "redirect:/login";
         }
@@ -48,15 +51,11 @@ public class ReviewManagementController {
             return "redirect:/products";
         }
         
-        // Obtener todos los usuarios con sus reviews inicializadas
         List<User> users = userService.getAllUsersInitialized();
+        List<ProductWebDTO> allProducts = productService.getAllProductsWeb();
         
-        // Obtener todos los productos con sus reviews inicializadas
-        List<Product> allProducts = productService.getAllProductsWithReviews();
-        
-        // Filtrar productos que tienen al menos una reseña
-        List<Product> productsWithReviews = allProducts.stream()
-                .filter(product -> product.getReviews() != null && !product.getReviews().isEmpty())
+        List<ProductWebDTO> productsWithReviews = allProducts.stream()
+                .filter(product -> product.reviews() != null && !product.reviews().isEmpty())
                 .collect(Collectors.toList());
         
         model.addAttribute("users", users);

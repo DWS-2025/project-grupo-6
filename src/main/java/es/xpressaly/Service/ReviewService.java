@@ -10,9 +10,9 @@ import es.xpressaly.Model.Product;
 import es.xpressaly.Model.Review;
 import es.xpressaly.Model.User;
 import es.xpressaly.Repository.ReviewRepository;
-import es.xpressaly.dto.ProductDTO;
+import es.xpressaly.dto.ProductWebDTO;
 import es.xpressaly.dto.ReviewDTO;
-import es.xpressaly.mapper.ProductMapper;
+import es.xpressaly.mapper.ProductWebMapper;
 import es.xpressaly.mapper.ReviewMapper;
 
 @Service
@@ -23,7 +23,7 @@ public class ReviewService {
     private final UserService userService;
     private final ReviewRepository reviewRepository;
     @Autowired
-    private ProductMapper productMapper;
+    private ProductWebMapper productWebMapper;
     @Autowired
     private ReviewMapper reviewMapper;
     public ReviewService(ProductService productService, UserService userService, ReviewRepository reviewRepository) {
@@ -43,7 +43,7 @@ public class ReviewService {
     
     public void addReview(Long productId, Review review) {
         validateReview(review);
-        Product product = productToDomain(productService.getProductByIdAPI(productId));
+        Product product = productWebMapper.toDomain(productService.getProductByIdWeb(productId));
         if (product != null) {
             review.setProduct(product);
             product.addReview(review);
@@ -85,7 +85,7 @@ public class ReviewService {
     }
 
     public void deleteReview(Long productId, Long reviewId) {
-        Product product = productToDomain(productService.getProductByIdAPI(productId));
+        Product product = productWebMapper.toDomain(productService.getProductByIdWeb(productId));
         User user = userService.getUser();
         
         if (product != null && user != null) {
@@ -111,9 +111,6 @@ public class ReviewService {
         }
     }
     
-    private Product productToDomain(ProductDTO productDTO){
-        return productMapper.toDomain(productDTO);
-    }
     private Review reviewToDomain(ReviewDTO reviewDTO){
         return reviewMapper.toDomain(reviewDTO);
     }

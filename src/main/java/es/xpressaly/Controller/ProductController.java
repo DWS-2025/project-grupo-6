@@ -19,6 +19,10 @@ import es.xpressaly.Model.User;
 import es.xpressaly.Service.ProductService;
 import es.xpressaly.Service.ReviewService;
 import es.xpressaly.Service.UserService;
+import es.xpressaly.dto.ProductDTO;
+import es.xpressaly.dto.ProductWebDTO;
+import es.xpressaly.mapper.ProductMapper;
+import es.xpressaly.mapper.ProductWebMapper;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
@@ -50,14 +54,19 @@ public class ProductController {
     @Autowired
     private OrderController orderController;    
 
+    @Autowired
+    private ProductMapper productMapper;
+
+    @Autowired
+    private ProductWebMapper productWebMapper;
+
     // Show product list
     @GetMapping("/products")
-    public String showProducts(Model model, @RequestParam(required = false, defaultValue = "default") String sort,HttpSession session) {
+    public String showProducts(Model model, @RequestParam(required = false, defaultValue = "default") String sort, HttpSession session) {
         try {
-            // We no longer load all products initially
-            // Products will be loaded dynamically through the API
             User currentUser = userService.getUser();
-            model.addAttribute("products", List.of()); // Empty list
+            List<ProductWebDTO> products = productService.getAllProductsWeb();
+            model.addAttribute("products", products);
             model.addAttribute("isAdmin", currentUser != null && currentUser.isAdmin());
             model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
             return "Wellcome";
@@ -126,14 +135,14 @@ public class ProductController {
         }
 
         try {
-            // Convert the image to a byte array instead of saving to filesystem
             byte[] imageBytes = mainImage.getBytes();
-            String relativeImagePath = "/Images/" + name + ".jpg"; // Keep the path for backward compatibility
+            String relativeImagePath = "/Images/" + name + ".jpg";
             
-            Product newProduct = new Product(name, description, price, stock, relativeImagePath);
-            newProduct.setImageData(imageBytes); // Set the image data
+            Product product = new Product(name, description, price, stock, relativeImagePath);
+            product.setImageData(imageBytes);
             
-            productService.addProduct(newProduct);
+            ProductWebDTO productWebDTO = productWebMapper.toDTO(product);
+            productService.addProduct(productWebDTO);
             return "redirect:/products";
         } catch (IOException e) {
             model.addAttribute("error", e.getMessage());
@@ -191,12 +200,13 @@ public class ProductController {
                 return "redirect:/product-details?id=" + productId + "&error=character_limit";
             }
             
-            Product product = productService.getProductById(productId);
+            ProductDTO productDTO = productService.getProductById(productId);
 
-            if (product == null) {
+            if (productDTO == null) {
                 return "redirect:/products";
             }
 
+            Product product = productMapper.toDomain(productDTO);
             Review review = new Review(user, sanitizedComment, rating);
             review.setProduct(product);
             reviewService.addReview(productId, review);
@@ -227,15 +237,16 @@ public class ProductController {
             
             // Remove from current order if present
             Order currentOrder = orderController.getCurrentOrder(session);
-            Product product = productService.getProductById(productId);
+            ProductDTO productDTO = productService.getProductById(productId);
             
-            if (product == null) {
+            if (productDTO == null) {
                 System.out.println("Product not found with ID: " + productId);
                 model.addAttribute("error", "Product not found");
                 return "redirect:/product-management";
             }
             
-            if (currentOrder != null && product != null) {
+            if (currentOrder != null && productDTO != null) {
+                Product product = productMapper.toDomain(productDTO);
                 currentOrder.removeProduct(product);
             }
             
@@ -262,7 +273,7 @@ public class ProductController {
     @GetMapping("/search-products")
     public String searchProducts(@RequestParam String term, Model model, HttpSession session) {
         try {
-            List<Product> searchResults = productService.searchProducts(term);
+            List<ProductWebDTO> searchResults = productService.searchProductsWeb(term);
             User currentUser = userService.getUser();
             model.addAttribute("products", searchResults);
             model.addAttribute("isAdmin", currentUser != null && currentUser.isAdmin());
@@ -278,26 +289,23 @@ public class ProductController {
     @GetMapping("/product-details")
     public String productDetails(@RequestParam Long id, Model model, HttpSession session) {
         try {
-            Product product = productService.getProductWithReviews(id);
+            ProductWebDTO productWebDTO = productService.getProductWithReviewsWeb(id);
             User currentUser = userService.getUser();
             
-            if (product == null) {
+            if (productWebDTO == null) {
                 return "redirect:/products";
             }
 
-            // All these accesses are secure because the reviews are already loaded
-            model.addAttribute("product", product);
-            model.addAttribute("reviews", product.getReviews()); 
-            model.addAttribute("averageRating", productService.getAverageRating(product.getId()));
+            model.addAttribute("product", productWebDTO);
+            model.addAttribute("reviews", productWebDTO.reviews()); 
+            model.addAttribute("averageRating", productWebDTO.averageRating());
             model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
             
-            // If the user is logged in
             if (currentUser != null) {
                 model.addAttribute("username", currentUser.getFirstName() + " " + currentUser.getLastName());
                 model.addAttribute("isAdmin", currentUser.isAdmin());
                 model.addAttribute("isLoggedIn", true);
             } else {
-                // Guest user
                 model.addAttribute("isAdmin", false);
                 model.addAttribute("isLoggedIn", false);
             }
@@ -341,7 +349,7 @@ public class ProductController {
             double effectiveMaxPrice = maxPrice != null ? maxPrice : dynamicMaxPrice;
             
             // We get the results with price filter
-            List<Product> searchResults;
+            List<ProductDTO> searchResults;
             if (minPrice > 0 || maxPrice != null) {
                 searchResults = productService.searchProductsByPrice(term, minPrice, effectiveMaxPrice);
             } else {
@@ -354,7 +362,7 @@ public class ProductController {
             int end = Math.min(start + size, total);
             
             // Create sublist for current page
-            List<Product> pageContent = start < end 
+            List<ProductDTO> pageContent = start < end 
                 ? searchResults.subList(start, end) 
                 : List.of();
             
@@ -380,13 +388,13 @@ public class ProductController {
     }
     
     // Method to convert a product to a map, excluding binary image data
-    private Map<String, Object> convertToMap(Product product) {
+    private Map<String, Object> convertToMap(ProductDTO productDTO) {
         Map<String, Object> productMap = new HashMap<>();
-        productMap.put("id", product.getId());
-        productMap.put("name", product.getName());
-        productMap.put("description", product.getDescription());
-        productMap.put("price", product.getPrice());
-        productMap.put("stock", product.getStock());
+        productMap.put("id", productDTO.id());
+        productMap.put("name", productDTO.name());
+        productMap.put("description", productDTO.description());
+        productMap.put("price", productDTO.price());
+        productMap.put("stock", productDTO.stock());
         // Add isAdmin attribute for administrator button rendering if needed
         User currentUser = userService.getUser();
         productMap.put("isAdmin", currentUser != null && currentUser.isAdmin());
@@ -424,7 +432,8 @@ public class ProductController {
         
         // Ya no cargamos todos los productos inicialmente
         // Los productos se cargarán dinámicamente a través de la API
-        model.addAttribute("products", List.of()); // Lista vacía
+        List<ProductDTO> products = productService.getAllProducts();
+        model.addAttribute("products", products);
         model.addAttribute("isAdmin", true);
         model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
         return "product-management";
@@ -444,11 +453,12 @@ public class ProductController {
             return "redirect:/products";
         }
         
-        Product product = productService.getProductById(id);
-        if (product == null) {
+        ProductDTO productDTO = productService.getProductById(id);
+        if (productDTO == null) {
             return "redirect:/product-management";
         }
         
+        Product product = productMapper.toDomain(productDTO);
         model.addAttribute("product", product);
         model.addAttribute("isAdmin", true);
         model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
@@ -469,58 +479,60 @@ public class ProductController {
             return "redirect:/products";
         }
 
-        Product existingProduct = productService.getProductById(productId);
-        if (existingProduct == null) {
+        ProductDTO existingProductDTO = productService.getProductById(productId);
+        if (existingProductDTO == null) {
             return "redirect:/product-management";
         }
 
         // Validations
         if (name == null || name.trim().isEmpty()) {
             model.addAttribute("error", "Product name is required");
-            model.addAttribute("product", existingProduct);
+            model.addAttribute("product", productMapper.toDomain(existingProductDTO));
             return "edit-product";
         }
         if (description == null || description.trim().isEmpty()) {
             model.addAttribute("error", "Product description is required");
-            model.addAttribute("product", existingProduct);
+            model.addAttribute("product", productMapper.toDomain(existingProductDTO));
             return "edit-product";
         }
         if (price <= 0) {
             model.addAttribute("error", "Price must be greater than 0");
-            model.addAttribute("product", existingProduct);
+            model.addAttribute("product", productMapper.toDomain(existingProductDTO));
             return "edit-product";
         }
         if (stock < 0) {
             model.addAttribute("error", "Stock cannot be negative");
-            model.addAttribute("product", existingProduct);
+            model.addAttribute("product", productMapper.toDomain(existingProductDTO));
             return "edit-product";
         }
 
         try {
-            // Update product properties
-            existingProduct.setName(name);
-            existingProduct.setDescription(description);
-            existingProduct.setPrice(price);
-            existingProduct.setStock(stock);
+            Product product = productMapper.toDomain(existingProductDTO);
+            product.setName(name);
+            product.setDescription(description);
+            product.setPrice(price);
+            product.setStock(stock);
             
             // Update image if provided
             if (mainImage != null && !mainImage.isEmpty()) {
                 if (!mainImage.getContentType().startsWith("image/")) {
                     model.addAttribute("error", "The file must be an image");
-                    model.addAttribute("product", existingProduct);
+                    model.addAttribute("product", product);
                     return "edit-product";
                 }
                 
                 byte[] imageBytes = mainImage.getBytes();
-                existingProduct.setImageData(imageBytes);
-                existingProduct.setImagePath("/Images/" + name + ".jpg"); // Update path for consistency
+                String relativeImagePath = "/Images/" + name + ".jpg";
+                product.setImagePath(relativeImagePath);
+                product.setImageData(imageBytes);
             }
             
-            productService.updateProduct(existingProduct);
+            ProductDTO updatedProductDTO = productMapper.toDTO(product);
+            productService.updateProduct(updatedProductDTO);
             return "redirect:/product-management";
-        } catch (Exception e) {
+        } catch (IOException e) {
             model.addAttribute("error", e.getMessage());
-            model.addAttribute("product", existingProduct);
+            model.addAttribute("product", productMapper.toDomain(existingProductDTO));
             return "edit-product";
         }
     }

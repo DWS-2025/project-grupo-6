@@ -10,30 +10,27 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import es.xpressaly.Model.Product;
 import es.xpressaly.Service.ProductService;
-import es.xpressaly.mapper.ProductMapper;
+import es.xpressaly.dto.ProductWebDTO;
 
 @Controller
 public class ImageController {
 
     @Autowired
     private ProductService productService;
-    @Autowired
-    private ProductMapper productMapper;
     
     @GetMapping("/image/{productId}")
     @ResponseBody
     public ResponseEntity<byte[]> getProductImage(@PathVariable Long productId) {
-        Product product = productService.getProductById(productId);
+        ProductWebDTO product = productService.getProductByIdWeb(productId);
         
-        if (product == null || product.getImageData() == null) {
+        if (product == null || product.imageData() == null) {
             return ResponseEntity.notFound().build();
         }
         
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_JPEG);
         
-        return new ResponseEntity<>(product.getImageData(), headers, HttpStatus.OK);
+        return new ResponseEntity<>(product.imageData(), headers, HttpStatus.OK);
     }
 }

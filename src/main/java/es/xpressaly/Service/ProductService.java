@@ -1,21 +1,27 @@
 package es.xpressaly.Service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import es.xpressaly.Model.Product;
 import es.xpressaly.Model.Review;
 import es.xpressaly.Repository.ProductRepository;
 import es.xpressaly.dto.ProductDTO;
+import es.xpressaly.dto.ProductWebDTO;
 import es.xpressaly.mapper.ProductMapper;
-import jakarta.transaction.Transactional;
+import es.xpressaly.mapper.ProductWebMapper;
+
 
 @Service
 @Transactional
@@ -25,85 +31,54 @@ public class ProductService {
     private ProductRepository productRepository;
 
     @Autowired
-    private ProductMapper mapper;
+    private ProductMapper productMapper;
 
-    public Collection<ProductDTO> getAllProductsAPI() {
-        return toDTOs(productRepository.findAll());
+    @Autowired
+    private ProductWebMapper productWebMapper;
+
+    public List<ProductDTO> getAllProducts() {
+        return productRepository.findAll().stream()
+            .map(productMapper::toDTO)
+            .collect(Collectors.toList());
     }
     
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public Page<ProductDTO> getProductsByPage(int page, int size, String sort) {
+        Pageable pageable = createPageable(page, size, sort);
+        return productRepository.findAll(pageable).map(productMapper::toDTO);
     }
 
-    public Page<Product> getProductsByPage(int page, int size, String sortOrder) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-        
-        if (sortOrder != null) {
-            switch (sortOrder) {
-                case "price_asc":
-                    return productRepository.findAllByPriceAsc(pageable);
-                case "price_desc":
-                    return productRepository.findAllByPriceDesc(pageable);
-                default:
-                    return productRepository.findAll(pageable);
-            }
-        }
-        
-        return productRepository.findAll(pageable);
+    public Page<ProductDTO> getProductsByPageAndPrice(int page, int size, String sort, double minPrice, double maxPrice) {
+        Pageable pageable = createPageable(page, size, sort);
+        return productRepository.findByPriceBetween(minPrice, maxPrice, pageable)
+            .map(productMapper::toDTO);
     }
 
-    public Page<Product> getProductsByPageAndPrice(int page, int size, String sortOrder, double minPrice, double maxPrice) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-        
-        if (sortOrder != null) {
-            switch (sortOrder) {
-                case "price_asc":
-                    return productRepository.findByPriceBetweenOrderByPriceAsc(minPrice, maxPrice, pageable);
-                case "price_desc":
-                    return productRepository.findByPriceBetweenOrderByPriceDesc(minPrice, maxPrice, pageable);
-                default:
-                    return productRepository.findByPriceBetween(minPrice, maxPrice, pageable);
-            }
-        }
-        
-        return productRepository.findByPriceBetween(minPrice, maxPrice, pageable);
+    public List<ProductDTO> searchProducts(String term) {
+        return productRepository.findByNameContainingIgnoreCase(term).stream()
+            .map(productMapper::toDTO)
+            .collect(Collectors.toList());
     }
 
-    public List<Product> searchProducts(String query) {
-        if (query == null || query.trim().isEmpty()) {
-            return productRepository.findAll();
-        }
-        
-        String searchQuery = query.toLowerCase();
-        return productRepository.findAll().stream()
-            .filter(p -> p.getName().toLowerCase().contains(searchQuery) ||
-                    p.getDescription().toLowerCase().contains(searchQuery))
-            .toList();
+    public List<ProductDTO> searchProductsByPrice(String term, double minPrice, double maxPrice) {
+        return productRepository.findByNameContainingIgnoreCaseAndPriceBetween(term, minPrice, maxPrice).stream()
+            .map(productMapper::toDTO)
+            .collect(Collectors.toList());
     }
 
-    public List<Product> searchProductsByPrice(String query, double minPrice, double maxPrice) {
-        if (query == null || query.trim().isEmpty()) {
-            return productRepository.findByPriceBetween(minPrice, maxPrice, PageRequest.of(0, Integer.MAX_VALUE))
-                   .getContent();
-        }
-        
-        String searchQuery = query.toLowerCase();
-        return productRepository.findAll().stream()
-            .filter(p -> (p.getName().toLowerCase().contains(searchQuery) ||
-                         p.getDescription().toLowerCase().contains(searchQuery)) &&
-                         p.getPrice() >= minPrice && p.getPrice() <= maxPrice)
-            .toList();
+    public ProductDTO getProductById(Long id) {
+        return productRepository.findById(id)
+            .map(productMapper::toDTO)
+            .orElse(null);
     }
 
-    public ProductDTO getProductByIdAPI(Long id) {
-        return toDTO(productRepository.findById(id).orElse(null));
+    public ProductDTO getProductWithReviews(Long id) {
+        return productRepository.findById(id)
+            .map(productMapper::toDTO)
+            .orElse(null);
     }
 
-    public Product getProductById(Long id) {
-        return productRepository.findById(id).orElse(null);
-    }
-
-    public void addProduct(Product product) {
+    public void addProduct(ProductWebDTO productWebDTO) {
+        Product product = productWebMapper.toDomain(productWebDTO);
         validateProduct(product);
         productRepository.save(product);
     }
@@ -129,25 +104,30 @@ public class ProductService {
         }
     }
 
-    public void deleteProduct(Long productId) {
-        productRepository.deleteById(productId);
+    public void deleteProduct(Long id) {
+        productRepository.deleteById(id);
     }
 
-    public void updateProduct(Product product) {
+    public void updateProduct(ProductDTO productDTO) {
+        Product product = productMapper.toDomain(productDTO);
         validateProduct(product);
         productRepository.save(product);
     }
 
-    public Product getProductWithReviews(Long id) {
-        return productRepository.findProductWithReviews(id);
-    }
-
     public double getAverageRating(Long productId) {
-        Product product = getProductWithReviews(productId);
-        return product.getReviews().stream()
-            .mapToDouble(Review::getRating)
-            .average()
-            .orElse(0.0);
+        Optional<Product> productOpt = productRepository.findById(productId);
+        if (productOpt.isPresent()) {
+            Product product = productOpt.get();
+            List<Review> reviews = product.getReviews();
+            if (reviews.isEmpty()) {
+                return 0.0;
+            }
+            return reviews.stream()
+                .mapToDouble(Review::getRating)
+                .average()
+                .orElse(0.0);
+        }
+        return 0.0;
     }
 
     public double getMaxProductPrice() {
@@ -155,51 +135,44 @@ public class ProductService {
         return allProducts.stream()
                 .mapToDouble(Product::getPrice)
                 .max()
-                .orElse(1000.0); // Default value if no products exist
+                .orElse(1000.0);
     }
 
     public double getMaxPriceForFilter() {
-        double maxPrice = getMaxProductPrice();
-        double minPrice = productRepository.findAll().stream()
-                .mapToDouble(Product::getPrice)
-                .min()
-                .orElse(0.0);
-                
-        // If the difference between maximum and minimum price is small,
-        // add a percentage instead of a fixed value
-        double priceDifference = maxPrice - minPrice;
-        if (priceDifference < 50) {
-            // For small ranges, add 20% above and below
-            return maxPrice * 1.2;
-        } else {
-            // For large ranges, maintain the original behavior
-            return maxPrice + 100.0;
-        }
+        return productRepository.findMaxPrice();
     }
 
-    private ProductDTO toDTO(Product product){
-        return mapper.toDTO(product);
+    private Pageable createPageable(int page, int size, String sort) {
+        Sort sortObj;
+        switch (sort) {
+            case "price_asc":
+                sortObj = Sort.by("price").ascending();
+                break;
+            case "price_desc":
+                sortObj = Sort.by("price").descending();
+                break;
+            case "name_asc":
+                sortObj = Sort.by("name").ascending();
+                break;
+            case "name_desc":
+                sortObj = Sort.by("name").descending();
+                break;
+            default:
+                sortObj = Sort.by("id").ascending();
+        }
+        return PageRequest.of(page - 1, size, sortObj);
     }
-    private Product toDomain(ProductDTO productDTO){
-        return mapper.toDomain(productDTO);
-    }
-    private Collection<ProductDTO> toDTOs(Collection<Product> products){
-        return mapper.toDTOs(products);
-    }
-    
+
     @Transactional
-    public List<Product> getAllProductsWithReviews() {
+    public List<ProductDTO> getAllProductsWithReviews() {
         List<Product> products = productRepository.findAll();
         List<Product> productsWithReviews = new ArrayList<>();
         
-        // Eager load reviews for each product
         for (Product product : products) {
             Product productWithReviews = productRepository.findProductWithReviews(product.getId());
             if (productWithReviews != null) {
-                // Force initialization of reviews if needed
                 if (productWithReviews.getReviews() != null) {
                     Hibernate.initialize(productWithReviews.getReviews());
-                    // Initialize each review's user to avoid LazyInitializationException
                     productWithReviews.getReviews().forEach(review -> {
                         if (review.getUser() != null) {
                             Hibernate.initialize(review.getUser());
@@ -210,6 +183,47 @@ public class ProductService {
             }
         }
         
-        return productsWithReviews;
+        return productMapper.toDTOs(productsWithReviews);
+    }
+
+    public List<ProductWebDTO> getAllProductsWeb() {
+        return productRepository.findAll().stream()
+            .map(productWebMapper::toDTO)
+            .collect(Collectors.toList());
+    }
+
+    public Page<ProductWebDTO> getProductsByPageWeb(int page, int size, String sort) {
+        Pageable pageable = createPageable(page, size, sort);
+        return productRepository.findAll(pageable).map(productWebMapper::toDTO);
+    }
+
+    public Page<ProductWebDTO> getProductsByPageAndPriceWeb(int page, int size, String sort, double minPrice, double maxPrice) {
+        Pageable pageable = createPageable(page, size, sort);
+        return productRepository.findByPriceBetween(minPrice, maxPrice, pageable)
+            .map(productWebMapper::toDTO);
+    }
+
+    public List<ProductWebDTO> searchProductsWeb(String term) {
+        return productRepository.findByNameContainingIgnoreCase(term).stream()
+            .map(productWebMapper::toDTO)
+            .collect(Collectors.toList());
+    }
+
+    public List<ProductWebDTO> searchProductsByPriceWeb(String term, double minPrice, double maxPrice) {
+        return productRepository.findByNameContainingIgnoreCaseAndPriceBetween(term, minPrice, maxPrice).stream()
+            .map(productWebMapper::toDTO)
+            .collect(Collectors.toList());
+    }
+
+    public ProductWebDTO getProductByIdWeb(Long id) {
+        return productRepository.findById(id)
+            .map(productWebMapper::toDTO)
+            .orElse(null);
+    }
+
+    public ProductWebDTO getProductWithReviewsWeb(Long id) {
+        return productRepository.findById(id)
+            .map(productWebMapper::toDTO)
+            .orElse(null);
     }
 }

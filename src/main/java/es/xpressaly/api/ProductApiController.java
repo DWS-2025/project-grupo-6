@@ -11,6 +11,7 @@ import es.xpressaly.Model.Review;
 import es.xpressaly.Service.ProductService;
 import es.xpressaly.Service.ReviewService;
 import es.xpressaly.dto.ProductDTO;
+import es.xpressaly.dto.ProductWebDTO;
 import es.xpressaly.mapper.ProductMapper;
 import es.xpressaly.Model.User;
 import es.xpressaly.Service.UserService;
@@ -37,9 +38,12 @@ public class ProductApiController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private ProductMapper productMapper;
+
     @GetMapping("/all")
-    public Collection<ProductDTO> getAllProductsAPI() {
-        return productService.getAllProductsAPI();
+    public List<ProductDTO> getAllProductsAPI() {
+        return productService.getAllProducts();
     }
 
     @GetMapping
@@ -53,18 +57,14 @@ public class ProductApiController {
         try {
             Map<String, Object> response = new HashMap<>();
             
-            // Calculate dynamic max price if not provided
             double dynamicMaxPrice = productService.getMaxPriceForFilter();
             double effectiveMaxPrice = maxPrice != null ? maxPrice : dynamicMaxPrice;
             
-            // Add the dynamic max price to response for client-side slider
             response.put("maxPriceForFilter", dynamicMaxPrice);
             
             if (search != null && !search.isEmpty()) {
-                // Modified: We no longer ignore price filters in text searches
-                List<Product> products;
+                List<ProductDTO> products;
                 
-                // Use the price filter if specified
                 if (minPrice > 0 || maxPrice != null) {
                     products = productService.searchProductsByPrice(search, minPrice, effectiveMaxPrice);
                 } else {
@@ -80,10 +80,8 @@ public class ProductApiController {
                 response.put("currentPage", 1);
                 response.put("hasMore", false);
             } else {
-                // Normal pagination with price filtering
-                Page<Product> productPage;
+                Page<ProductDTO> productPage;
                 
-                // Use price filter if specified
                 if (minPrice > 0 || maxPrice != null) {
                     productPage = productService.getProductsByPageAndPrice(page, size, sort, minPrice, effectiveMaxPrice);
                 } else {
@@ -107,77 +105,61 @@ public class ProductApiController {
         }
     }
     
-    // Method to convert a product to a map, excluding binary image data
-    private Map<String, Object> convertToMap(Product product) {
+    private Map<String, Object> convertToMap(ProductDTO productDTO) {
         Map<String, Object> productMap = new HashMap<>();
-        productMap.put("id", product.getId());
-        productMap.put("name", product.getName());
-        productMap.put("description", product.getDescription());
-        productMap.put("price", product.getPrice());
-        productMap.put("stock", product.getStock());
-        // Check if the current user is an administrator
+        productMap.put("id", productDTO.id());
+        productMap.put("name", productDTO.name());
+        productMap.put("description", productDTO.description());
+        productMap.put("price", productDTO.price());
+        productMap.put("stock", productDTO.stock());
         try {
             User currentUser = userService.getUser();
             productMap.put("isAdmin", currentUser != null && currentUser.isAdmin());
         } catch (Exception e) {
             productMap.put("isAdmin", false);
         }
-        // We don't include imageData to avoid overloading the JSON response
         return productMap;
     }
 
-    /*@PostMapping
-    public ResponseEntity<ProductDTO> addProduct(@RequestBody ProductDTO productDTO) {
-        
-        Map<String, Object> response = new HashMap<>();
-        
-        if (name == null || name.trim().isEmpty()) {
-            response.put("error", "Product name is required");
-            return ResponseEntity.badRequest().body(response);
-        }
-        if (description == null || description.trim().isEmpty()) {
-            response.put("error", "Product description is required");
-            return ResponseEntity.badRequest().body(response);
-        }
-        if (price <= 0) {
-            response.put("error", "Price must be greater than 0");
-            return ResponseEntity.badRequest().body(response);
-        }
-        if (stock < 0) {
-            response.put("error", "Stock cannot be negative");
-            return ResponseEntity.badRequest().body(response);
-        }
-        if (mainImage == null || mainImage.isEmpty()) {
-            response.put("error", "Product image is required");
-            return ResponseEntity.badRequest().body(response);
-        }
-        if (!mainImage.getContentType().startsWith("image/")) {
-            response.put("error", "The file must be an image");
-            return ResponseEntity.badRequest().body(response);
-        }
-
+    @PostMapping
+    public ResponseEntity<ProductWebDTO> addProduct(@RequestBody ProductWebDTO productWebDTO) {
         try {
-            // Second factor of verification: check if the file really is an image
-            BufferedImage image = ImageIO.read(mainImage.getInputStream());
-            if (image == null) {
-                response.put("error", "The file is not a valid image (binary content check failed)");
-                return ResponseEntity.badRequest().body(response);
+            // Validaciones
+            if (productWebDTO.name() == null || productWebDTO.name().trim().isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+            if (productWebDTO.description() == null || productWebDTO.description().trim().isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+            if (productWebDTO.price() <= 0) {
+                return ResponseEntity.badRequest().build();
+            }
+            if (productWebDTO.stock() < 0) {
+                return ResponseEntity.badRequest().build();
+            }
+            if (productWebDTO.imagePath() == null || productWebDTO.imagePath().trim().isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+            if (productWebDTO.imageData() == null || productWebDTO.imageData().length == 0) {
+                return ResponseEntity.badRequest().build();
             }
 
-            byte[] imageBytes = mainImage.getBytes();
-            String relativeImagePath = "/Images/" + name + ".jpg";
+            // Verificar que la imagen sea válida
+            try {
+                BufferedImage image = ImageIO.read(new java.io.ByteArrayInputStream(productWebDTO.imageData()));
+                if (image == null) {
+                    return ResponseEntity.badRequest().build();
+                }
+            } catch (IOException e) {
+                return ResponseEntity.badRequest().build();
+            }
 
-            Product newProduct = new Product(name, description, price, stock, relativeImagePath);
-            newProduct.setImageData(imageBytes);
-
-            productService.addProduct(newProduct);
-            response.put("success", "Product added successfully");
-            return ResponseEntity.ok(response);
-        } catch (IOException e) {
-            response.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            productService.addProduct(productWebDTO);
+            return ResponseEntity.ok(productWebDTO);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
-    }*/
+    }
 
     /*@PostMapping("/{productId}/reviews")
     public ResponseEntity<Map<String, Object>> addReview(
@@ -232,12 +214,13 @@ public class ProductApiController {
     public ResponseEntity<Map<String, Object>> getProductDetails(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
         try {
-            Product product = productService.getProductWithReviews(id);
-            if (product == null) {
+            ProductDTO productDTO = productService.getProductWithReviews(id);
+            if (productDTO == null) {
                 response.put("error", "Product not found");
                 return ResponseEntity.badRequest().body(response);
             }
 
+            Product product = productMapper.toDomain(productDTO);
             response.put("product", product);
             response.put("reviews", product.getReviews());
             response.put("averageRating", productService.getAverageRating(product.getId()));
@@ -271,7 +254,7 @@ public class ProductApiController {
         try {
             Map<String, Object> response = new HashMap<>();
             
-            Page<Product> productPage = productService.getProductsByPage(page, size, null);
+            Page<ProductDTO> productPage = productService.getProductsByPage(page, size, null);
             
             List<Map<String, Object>> productList = productPage.getContent().stream()
                 .map(this::convertToMap)

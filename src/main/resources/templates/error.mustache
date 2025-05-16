@@ -17,12 +17,12 @@
         </div>
         
         <!-- Error code -->
-        <div class="error-status" th:text="${status}">404</div>
+        <div class="error-status">{{status}}</div>
         
         <!-- Error messages -->
         <div class="error-text">
-            <h2 th:text="${error}">Page Not Found</h2>
-            <p th:text="${message}">We can't find the page you're looking for.</p>
+            <h2>{{error}}</h2>
+            <p>{{message}}</p>
         </div>
         
         <!-- Container for buttons -->
@@ -44,7 +44,6 @@
     {{> common/footer}}
     
     <!-- Automatic redirect script -->
-
     <script src="/js/error.js"></script>
 </body>
 </html>
