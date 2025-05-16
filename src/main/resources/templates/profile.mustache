@@ -147,31 +147,21 @@
         </form>
     </div>
 
-    <!-- Modal para cambio de contraseña -->
+    <!-- Modal de cambio de contraseña -->
     <div id="modalOverlay"></div>
     <div id="passwordModal">
         <h3>Change Password</h3>
-        <form id="passwordChangeForm" onsubmit="return validatePasswordForm()">
+        <form id="passwordChangeForm" onsubmit="return savePasswordAndClose()">
             <div class="form-group">
-                <label><i class="fas fa-lock"></i> New Password:</label>
-                <div class="password-container">
-                    <input type="password" id="newPassword" name="password" placeholder="Enter new password"
-                           class="w-full p-2 border rounded mb-4 text-[#294156]" required />
-                    <button type="button" onclick="togglePasswordVisibility('newPassword', this)"
-                            class="password-toggle-btn">Show</button>
-                </div>
+                <label for="newPassword">New Password:</label>
+                <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password" required />
             </div>
             <div class="form-group">
-                <label><i class="fas fa-lock"></i> Confirm Password:</label>
-                <div class="password-container">
-                    <input type="password" id="confirmPassword" name="confirmPassword"
-                           placeholder="Confirm new password" class="w-full p-2 border rounded mb-4 text-[#294156]" required />
-                    <button type="button" onclick="togglePasswordVisibility('confirmPassword', this)"
-                            class="password-toggle-btn">Show</button>
-                </div>
+                <label for="confirmPassword">Confirm Password:</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm new password" required />
             </div>
-            <div style="text-align: right;">
-                <button type="submit">Save</button>
+            <div class="form-group">
+                <button type="submit" class="save-password-btn">Save</button>
                 <button type="button" class="close-btn" onclick="closePasswordModal()">Cancel</button>
             </div>
         </form>
@@ -236,59 +226,40 @@
 <script src="/js/profile.js"></script>
 
 <script>
-    // Mostrar modal al hacer clic en el botón
-    const openModalBtn = document.getElementById("openPasswordModalBtn");
-    const passwordModal = document.getElementById("passwordModal");
-    const modalOverlay = document.getElementById("modalOverlay");
-
-    openModalBtn.addEventListener("click", () => {
-        passwordModal.classList.add("active");
-        modalOverlay.classList.add("active");
+    document.getElementById('openPasswordModalBtn').addEventListener('click', function () {
+        document.getElementById('passwordModal').classList.add('active');
+        document.getElementById('modalOverlay').classList.add('active');
     });
 
-    // Cerrar modal
     function closePasswordModal() {
-        passwordModal.classList.remove("active");
-        modalOverlay.classList.remove("active");
-        // Limpiar inputs
-        document.getElementById("newPassword").value = "";
-        document.getElementById("confirmPassword").value = "";
+        document.getElementById('passwordModal').classList.remove('active');
+        document.getElementById('modalOverlay').classList.remove('active');
     }
 
-    modalOverlay.addEventListener("click", closePasswordModal);
+    function savePasswordAndClose() {
+        const pwd = document.getElementById('newPassword').value;
+        const confirmPwd = document.getElementById('confirmPassword').value;
 
-    // Mostrar/ocultar contraseña
-    function togglePasswordVisibility(inputId, btn) {
-        const input = document.getElementById(inputId);
-        if (input.type === "password") {
-            input.type = "text";
-            btn.textContent = "Hide";
-        } else {
-            input.type = "password";
-            btn.textContent = "Show";
-        }
-    }
-
-    // Validar que las contraseñas coincidan antes de enviar
-    function validatePasswordForm() {
-        const newPassword = document.getElementById("newPassword").value;
-        const confirmPassword = document.getElementById("confirmPassword").value;
-
-        if (newPassword !== confirmPassword) {
-            alert("Passwords do not match.");
+        if (pwd !== confirmPwd) {
+            alert('Passwords do not match.');
             return false;
         }
 
-        // Aquí podrías añadir más validaciones si quieres (longitud, caracteres, etc.)
+        if (pwd.length < 8 || !/\d/.test(pwd) || !/[a-zA-Z]/.test(pwd)) {
+            alert('Password must be at least 8 characters and include letters and numbers.');
+            return false;
+        }
 
-        // Si pasa validación, se puede cerrar el modal y enviar el formulario principal:
-        // Por ejemplo, agregamos el valor al formulario principal y cerramos el modal.
-        // Aquí solo se deja el modal cerrado, y se espera que el usuario haga submit en el form principal.
+        // Guardar en el campo oculto del formulario principal
+        document.getElementById('hiddenPassword').value = pwd;
+
         closePasswordModal();
-        // Opcional: podrías también actualizar un input oculto en el formulario principal con la nueva contraseña
-        // Pero eso depende de cómo quieras manejar el backend
+        return false;
+    }
 
-        return false; // Para que no recargue la página, tú decides si quieres enviar el form aquí o no
+    function handleSubmitProfileForm() {
+        // Validación adicional si fuera necesaria
+        return true;
     }
 </script>
 </body>
