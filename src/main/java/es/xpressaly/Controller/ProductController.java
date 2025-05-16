@@ -54,11 +54,7 @@ public class ProductController {
     @Autowired
     private OrderController orderController;    
 
-    @Autowired
-    private ProductMapper productMapper;
-
-    @Autowired
-    private ProductWebMapper productWebMapper;
+   
 
     // Show product list
     @GetMapping("/products")
@@ -141,7 +137,7 @@ public class ProductController {
             Product product = new Product(name, description, price, stock, relativeImagePath);
             product.setImageData(imageBytes);
             
-            ProductWebDTO productWebDTO = productWebMapper.toDTO(product);
+            ProductWebDTO productWebDTO = toWebDTO(product);
             productService.addProduct(productWebDTO);
             return "redirect:/products";
         } catch (IOException e) {
@@ -200,13 +196,13 @@ public class ProductController {
                 return "redirect:/product-details?id=" + productId + "&error=character_limit";
             }
             
-            ProductDTO productDTO = productService.getProductById(productId);
+            ProductWebDTO productWebDTO = productService.getProductByIdWeb(productId);
 
-            if (productDTO == null) {
+            if (productWebDTO == null) {
                 return "redirect:/products";
             }
 
-            Product product = productMapper.toDomain(productDTO);
+            Product product = toDomain(productWebDTO);
             Review review = new Review(user, sanitizedComment, rating);
             review.setProduct(product);
             reviewService.addReview(productId, review);
@@ -237,16 +233,16 @@ public class ProductController {
             
             // Remove from current order if present
             Order currentOrder = orderController.getCurrentOrder(session);
-            ProductDTO productDTO = productService.getProductById(productId);
+            ProductWebDTO productWebDTO = productService.getProductByIdWeb(productId);
             
-            if (productDTO == null) {
+            if (productWebDTO == null) {
                 System.out.println("Product not found with ID: " + productId);
                 model.addAttribute("error", "Product not found");
                 return "redirect:/product-management";
             }
             
-            if (currentOrder != null && productDTO != null) {
-                Product product = productMapper.toDomain(productDTO);
+            if (currentOrder != null && productWebDTO != null) {
+                Product product = toDomain(productWebDTO);
                 currentOrder.removeProduct(product);
             }
             
@@ -444,7 +440,7 @@ public class ProductController {
     public String editProductForm(@PathVariable Long id, Model model, HttpSession session) {
         User currentUser = userService.getUser();
         
-        // Verificación de acceso de administrador
+        //Verification of admin access
         if (currentUser == null) {
             return "redirect:/login";
         }
@@ -453,13 +449,13 @@ public class ProductController {
             return "redirect:/products";
         }
         
-        ProductDTO productDTO = productService.getProductById(id);
-        if (productDTO == null) {
+        ProductWebDTO productWebDTO = productService.getProductByIdWeb(id);
+        if (productWebDTO == null) {
             return "redirect:/product-management";
         }
         
-        Product product = productMapper.toDomain(productDTO);
-        model.addAttribute("product", product);
+        
+        model.addAttribute("product", productWebDTO);
         model.addAttribute("isAdmin", true);
         model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
         return "edit-product";
@@ -479,35 +475,35 @@ public class ProductController {
             return "redirect:/products";
         }
 
-        ProductDTO existingProductDTO = productService.getProductById(productId);
-        if (existingProductDTO == null) {
+        ProductWebDTO existingProductWebDTO = productService.getProductByIdWeb(productId);
+        if (existingProductWebDTO == null) {
             return "redirect:/product-management";
         }
 
         // Validations
         if (name == null || name.trim().isEmpty()) {
             model.addAttribute("error", "Product name is required");
-            model.addAttribute("product", productMapper.toDomain(existingProductDTO));
+            model.addAttribute("product", existingProductWebDTO);
             return "edit-product";
         }
         if (description == null || description.trim().isEmpty()) {
             model.addAttribute("error", "Product description is required");
-            model.addAttribute("product", productMapper.toDomain(existingProductDTO));
+            model.addAttribute("product", existingProductWebDTO);
             return "edit-product";
         }
         if (price <= 0) {
             model.addAttribute("error", "Price must be greater than 0");
-            model.addAttribute("product", productMapper.toDomain(existingProductDTO));
+            model.addAttribute("product", existingProductWebDTO);
             return "edit-product";
         }
         if (stock < 0) {
             model.addAttribute("error", "Stock cannot be negative");
-            model.addAttribute("product", productMapper.toDomain(existingProductDTO));
+            model.addAttribute("product", existingProductWebDTO);
             return "edit-product";
         }
 
         try {
-            Product product = productMapper.toDomain(existingProductDTO);
+            Product product = toDomain(existingProductWebDTO);
             product.setName(name);
             product.setDescription(description);
             product.setPrice(price);
@@ -517,7 +513,7 @@ public class ProductController {
             if (mainImage != null && !mainImage.isEmpty()) {
                 if (!mainImage.getContentType().startsWith("image/")) {
                     model.addAttribute("error", "The file must be an image");
-                    model.addAttribute("product", product);
+                    model.addAttribute("product", existingProductWebDTO);
                     return "edit-product";
                 }
                 
@@ -527,14 +523,22 @@ public class ProductController {
                 product.setImageData(imageBytes);
             }
             
-            ProductDTO updatedProductDTO = productMapper.toDTO(product);
-            productService.updateProduct(updatedProductDTO);
+            ProductWebDTO updatedProductWebDTO = toWebDTO(product);
+            productService.updateProductWeb(updatedProductWebDTO);
             return "redirect:/product-management";
         } catch (IOException e) {
             model.addAttribute("error", e.getMessage());
-            model.addAttribute("product", productMapper.toDomain(existingProductDTO));
+            model.addAttribute("product", existingProductWebDTO);
             return "edit-product";
         }
+    }
+
+    private Product toDomain(ProductWebDTO productWebDTO) {
+        return productService.toWebDomain(productWebDTO);
+    }
+
+    private ProductWebDTO toWebDTO(Product product) {
+        return productService.toWebDTO(product);
     }
 }
 

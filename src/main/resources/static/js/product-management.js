@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function() {
         submitButton.disabled = true;
         
         //Delete product request
-        fetch(`/delete-product`, {
+        fetch('/delete-product', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',

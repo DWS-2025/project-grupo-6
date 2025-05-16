@@ -43,8 +43,19 @@ public class ProductService {
     }
     
     public Page<ProductDTO> getProductsByPage(int page, int size, String sort) {
-        Pageable pageable = createPageable(page, size, sort);
-        return productRepository.findAll(pageable).map(productMapper::toDTO);
+        try {
+            Pageable pageable = createPageable(page, size, sort);
+            Page<Product> productPage = productRepository.findAll(pageable);
+            
+            if (productPage == null || productPage.isEmpty()) {
+                return Page.empty(pageable);
+            }
+            
+            return productPage.map(productMapper::toDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Page.empty(PageRequest.of(page - 1, size));
+        }
     }
 
     public Page<ProductDTO> getProductsByPageAndPrice(int page, int size, String sort, double minPrice, double maxPrice) {
@@ -110,6 +121,12 @@ public class ProductService {
 
     public void updateProduct(ProductDTO productDTO) {
         Product product = productMapper.toDomain(productDTO);
+        validateProduct(product);
+        productRepository.save(product);
+    }
+
+    public void updateProductWeb(ProductWebDTO productWebDTO) {
+        Product product = productWebMapper.toDomain(productWebDTO);
         validateProduct(product);
         productRepository.save(product);
     }
@@ -193,8 +210,23 @@ public class ProductService {
     }
 
     public Page<ProductWebDTO> getProductsByPageWeb(int page, int size, String sort) {
-        Pageable pageable = createPageable(page, size, sort);
-        return productRepository.findAll(pageable).map(productWebMapper::toDTO);
+        try {
+            Pageable pageable = createPageable(page, size, sort);
+            Page<Product> productPage = productRepository.findAll(pageable);
+            
+            if (productPage == null) {
+                throw new RuntimeException("No se pudieron cargar los productos");
+            }
+            
+            if (productPage.isEmpty()) {
+                return Page.empty(pageable);
+            }
+            
+            return productPage.map(productWebMapper::toDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error al cargar los productos: " + e.getMessage());
+        }
     }
 
     public Page<ProductWebDTO> getProductsByPageAndPriceWeb(int page, int size, String sort, double minPrice, double maxPrice) {
@@ -225,5 +257,21 @@ public class ProductService {
         return productRepository.findById(id)
             .map(productWebMapper::toDTO)
             .orElse(null);
+    }
+
+    public Product toWebDomain(ProductWebDTO productWebDTO) {
+        return productWebMapper.toDomain(productWebDTO);
+    }
+
+    public ProductWebDTO toWebDTO(Product product) {
+        return productWebMapper.toDTO(product);
+    }
+
+    public ProductDTO toDTO(Product product) {
+        return productMapper.toDTO(product);
+    }
+
+    public Product toDomain(ProductDTO productDTO) {
+        return productMapper.toDomain(productDTO);
     }
 }

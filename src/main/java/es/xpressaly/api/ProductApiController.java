@@ -38,9 +38,7 @@ public class ProductApiController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private ProductMapper productMapper;
-
+    
     @GetMapping("/all")
     public List<ProductDTO> getAllProductsAPI() {
         return productService.getAllProducts();
@@ -220,7 +218,7 @@ public class ProductApiController {
                 return ResponseEntity.badRequest().body(response);
             }
 
-            Product product = productMapper.toDomain(productDTO);
+            Product product = toDomain(productDTO);
             response.put("product", product);
             response.put("reviews", product.getReviews());
             response.put("averageRating", productService.getAverageRating(product.getId()));
@@ -251,13 +249,26 @@ public class ProductApiController {
     public ResponseEntity<Map<String, Object>> getProductsForManagement(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size) {
+        Map<String, Object> response = new HashMap<>();
+        
         try {
-            Map<String, Object> response = new HashMap<>();
+            // Validar parámetros de entrada
+            if (page < 1) {
+                page = 1;
+            }
+            if (size < 1 || size > 100) {
+                size = 20;
+            }
             
-            Page<ProductDTO> productPage = productService.getProductsByPage(page, size, null);
+            Page<ProductWebDTO> productPage = productService.getProductsByPageWeb(page, size, "default");
+            
+            if (productPage == null) {
+                response.put("error", "No se pudieron cargar los productos");
+                return ResponseEntity.badRequest().body(response);
+            }
             
             List<Map<String, Object>> productList = productPage.getContent().stream()
-                .map(this::convertToMap)
+                .map(this::convertWebToMap)
                 .collect(Collectors.toList());
             
             response.put("products", productList);
@@ -269,10 +280,30 @@ public class ProductApiController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
-            Map<String, Object> response = new HashMap<>();
-            response.put("error", e.getMessage());
+            response.put("error", "Error al cargar los productos: " + e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
+
+    private Map<String, Object> convertWebToMap(ProductWebDTO productWebDTO) {
+        Map<String, Object> productMap = new HashMap<>();
+        productMap.put("id", productWebDTO.id());
+        productMap.put("name", productWebDTO.name());
+        productMap.put("description", productWebDTO.description());
+        productMap.put("price", productWebDTO.price());
+        productMap.put("stock", productWebDTO.stock());
+        try {
+            User currentUser = userService.getUser();
+            productMap.put("isAdmin", currentUser != null && currentUser.isAdmin());
+        } catch (Exception e) {
+            productMap.put("isAdmin", false);
+        }
+        return productMap;
+    }
     
+    
+    
+    private Product toDomain(ProductDTO productDTO) {
+        return productService.toDomain(productDTO);
+    }
 }
