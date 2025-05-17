@@ -50,11 +50,12 @@ public class OrderController {
         UserWebDTO currentUser = userService.getUser();
         
         // If there is no order in the session or the user is null, it returns null
-        if (order == null || currentUser == null) {
+        if (order == null || currentUser == null || currentUser.id() == null) {
             return null;
         }
         
-        if (!order.user().id().equals(currentUser.id())) {
+        // If the order exists but belongs to a different user, create a new one
+        if (order.user() == null || order.user().id() == null || !order.user().id().equals(currentUser.id())) {
             String address = userService.getAddress(currentUser);
             order = orderService.createOrder(currentUser, address);
             setCurrentOrder(session, order);
@@ -69,7 +70,7 @@ public class OrderController {
     // View products and add to order
     public int getCartItemCount(HttpSession session) {
         OrderDTO currentOrder = getCurrentOrder(session);
-        if (currentOrder == null) {
+        if (currentOrder == null || currentOrder.products() == null) {
             return 0;
         }
         return currentOrder.products().size();
@@ -93,51 +94,52 @@ public class OrderController {
 
     // Add product to order
     @PostMapping("/add-to-order")
-    public String addToOrder(@RequestParam Long productId, Model model, HttpSession session) {
-        ProductWebDTO productWebDTO = productService.getProductByIdWeb(productId);
-        UserWebDTO currentUser = userService.getUser();
-        
-        if (currentUser == null) {
-            return "redirect:/cart-prompt";
-        }
-        
-        OrderDTO currentOrder = getCurrentOrder(session);
-        if (productWebDTO == null) {
-            model.addAttribute("error", "Product not found");
-            return "redirect:/products";
-        }
+    @ResponseBody
+    public Map<String, Object> addToOrder(@RequestParam Long productId, HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            ProductWebDTO productWebDTO = productService.getProductByIdWeb(productId);
+            UserWebDTO currentUser = userService.getUser();
+            
+            if (currentUser == null) {
+                response.put("error", "User not logged in");
+                return response;
+            }
+            
+            OrderDTO currentOrder = getCurrentOrder(session);
+            if (productWebDTO == null) {
+                response.put("error", "Product not found");
+                return response;
+            }
 
-        //Product product = productWebMapper.toDomain(productWebDTO);
-        if (productWebDTO.stock() <= 0) {
-            model.addAttribute("errorMessage", "We're sorry, we do not have enough stock at the moment, try later");
-            model.addAttribute("products", productService.getAllProductsWeb());
-            model.addAttribute("cartItemCount", getCartItemCount(session));
-            model.addAttribute("isAdmin", currentUser.role() == UserRole.ADMIN);
-            return "Wellcome";
-        }
+            if (productWebDTO.stock() <= 0) {
+                response.put("error", "We're sorry, we do not have enough stock at the moment, try later");
+                return response;
+            }
 
-        if (currentOrder == null) {
-            currentOrder = orderService.createOrder(currentUser, currentUser.address());
+            if (currentOrder == null) {
+                currentOrder = orderService.createOrder(currentUser, currentUser.address());
+                setCurrentOrder(session, currentOrder);
+            }
+
+            int currentQuantity = getProductQuantity(currentOrder, productId);
+            if (currentQuantity + 1 > productWebDTO.stock()) {
+                response.put("error", "We're sorry, we do not have enough stock at the moment, try later");
+                return response;
+            }
+
+            currentOrder = orderService.setProductQuantity(currentOrder, productWebDTO, currentQuantity + 1);
+            currentOrder = orderService.addProductToOrder(currentOrder, productWebDTO, currentQuantity + 1, session);
+            currentOrder = orderService.calculateTotal(currentOrder);
             setCurrentOrder(session, currentOrder);
+            
+            response.put("success", true);
+            response.put("cartSize", getCartItemCount(session));
+            return response;
+        } catch (Exception e) {
+            response.put("error", e.getMessage());
+            return response;
         }
-
-        int currentQuantity = getProductQuantity(currentOrder, productId);
-        if (currentQuantity + 1 > productWebDTO.stock()) {
-            setCurrentOrder(session, currentOrder);
-            model.addAttribute("errorMessage", "We're sorry, we do not have enough stock at the moment, try later");
-            model.addAttribute("products", productService.getAllProductsWeb());
-            model.addAttribute("cartItemCount", getCartItemCount(session));
-            model.addAttribute("isAdmin", currentUser.role() == UserRole.ADMIN);
-            return "Wellcome";
-        }
-
-        currentOrder = orderService.addProductToOrder(currentOrder, productWebDTO, currentQuantity + 1);
-        setCurrentOrder(session, currentOrder);
-        model.addAttribute("products", productService.getAllProductsWeb());
-        model.addAttribute("order", currentOrder);
-        model.addAttribute("isAdmin", currentUser.role() == UserRole.ADMIN);
-        model.addAttribute("cartItemCount", getCartItemCount(session));
-        return "redirect:/view_order_products";
     }
 
     // View current order
@@ -154,16 +156,16 @@ public class OrderController {
         model.addAttribute("isAdmin", currentUser.role() == UserRole.ADMIN);
         model.addAttribute("cartItemCount", getCartItemCount(session));
         
-        if (currentOrder == null || currentOrder.products().isEmpty()) {
+        if (currentOrder == null || currentOrder.products() == null || currentOrder.products().isEmpty()) {
             model.addAttribute("message", "Your cart is empty");
-            return "order";
+            return "my_Order";
         }
         
         model.addAttribute("order", currentOrder);
         model.addAttribute("products", currentOrder.products());
         model.addAttribute("quantities", currentOrder.quantities());
         model.addAttribute("total", currentOrder.total());
-        return "order";
+        return "my_Order";
     }
 
     // Remove a product from the order

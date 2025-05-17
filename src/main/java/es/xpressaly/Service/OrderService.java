@@ -14,6 +14,7 @@ import es.xpressaly.dto.UserWebDTO;
 import es.xpressaly.mapper.OrderMapper;
 import es.xpressaly.mapper.ProductWebMapper;
 import es.xpressaly.mapper.UserWebMapper;
+import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 
 import java.util.Collection;
@@ -40,8 +41,11 @@ public class OrderService {
 
     public OrderDTO createOrder(UserWebDTO user, String address) {
         User userEntity = userWebMapper.toDomain(user);
-        Order order = new Order(userEntity, address);
-        return orderWebMapper.toDTO(orderRepository.save(order));
+        Order order = new Order();
+        order.setUser(userEntity);
+        order.setAddress(address);
+        order.setTotal(0.0);
+        return orderWebMapper.toDTO(order);
     }
 
     public Order getOrderById(Long id) {
@@ -52,7 +56,7 @@ public class OrderService {
         return orderRepository.findByUser(user);
     }
 
-    public OrderDTO addProductToOrder(OrderDTO orderDTO, ProductWebDTO productWebDTO, int amount) {
+    public OrderDTO addProductToOrder(OrderDTO orderDTO, ProductWebDTO productWebDTO, int amount, HttpSession session) {
         Order order = orderWebMapper.toDomain(orderDTO);
         Product product = productWebMapper.toDomain(productWebDTO);
 
@@ -64,11 +68,9 @@ public class OrderService {
             throw new IllegalArgumentException("Insufficient stock");
         }
 
-        product.setAmount(amount);
-        product.setStock(product.getStock() - amount);
-        order.addProduct(product);
+        order.setProductQuantity(product, amount);
         order.calculateTotal();
-
+        session.setAttribute("order", orderWebMapper.toDTO(order));
         productRepository.save(product);
         return orderWebMapper.toDTO(order);
     }
@@ -89,7 +91,7 @@ public class OrderService {
         order.calculateTotal();
 
         productRepository.save(product);
-        return orderRepository.save(order);
+        return order;
     }
 
     public Order updateOrderStatus(Long orderId) {
@@ -105,7 +107,7 @@ public class OrderService {
         Order order = orderWebMapper.toDomain(orderDTO);
         Product product = productWebMapper.toDomain(productWebDTO);
         order.removeProduct(product);
-        return orderWebMapper.toDTO(orderRepository.save(order));
+        return orderWebMapper.toDTO(order);
     }
 
     public OrderDTO clearOrder(OrderDTO orderDTO) {

@@ -213,8 +213,8 @@ public class ProductController {
                 null, // id será generado por la base de datos
                 sanitizedComment,
                 rating,
-                userService.getUserDTO(user),
-                productService.getProductDTO(productWebDTO)
+                user,
+                productWebDTO
             );
 
             reviewService.addReview(productId, reviewDTO);

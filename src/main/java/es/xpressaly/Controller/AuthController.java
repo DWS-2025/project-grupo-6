@@ -63,7 +63,6 @@ public class AuthController {
                 session.setAttribute("userId", user.id());
                 session.setAttribute("userEmail", user.email());
                 session.setAttribute("userRole", user.role());
-                //userService.setCurrentUser(user);
                 return "redirect:/products";
             }
             model.addAttribute("error", "Invalid email or password");

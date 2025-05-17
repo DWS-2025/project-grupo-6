@@ -4,7 +4,7 @@ public record ReviewDTO(
     Long id,
     String comment,
     int rating,
-    UserDTO user,
-    ProductDTO product
+    UserWebDTO user,
+    ProductWebDTO product
 ) {
 }
