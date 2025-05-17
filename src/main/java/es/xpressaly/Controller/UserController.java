@@ -14,7 +14,8 @@ import es.xpressaly.Model.Review;
 import es.xpressaly.Service.UserService;
 import jakarta.servlet.http.HttpSession;
 import es.xpressaly.Service.ReviewService;
-
+import es.xpressaly.dto.ReviewDTO;
+import es.xpressaly.dto.UserWebDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -37,39 +38,34 @@ public class UserController {
     @GetMapping("/profile")
     public String showProfile(Model model, HttpSession session) {
         try {
-            User user = userService.getUserWithReviews();
-            
-            // Si el usuario no está autenticado, redirigir a la página de login
-            if (user == null) {
+            UserWebDTO currentUser = userService.getUser();
+            if (currentUser == null) {
                 return "redirect:/login";
             }
             
             //User user = userService.getUser();
-            model.addAttribute("name", user.getFirstName());
-            model.addAttribute("surname", user.getLastName());
-            model.addAttribute("email", user.getEmail());
-            model.addAttribute("address", user.getAddress());
-            model.addAttribute("phone", user.getPhoneNumber());
-            model.addAttribute("age", user.getAge());
-            model.addAttribute("orders", user.getOrders());
-            model.addAttribute("password", user.getPassword());
-            model.addAttribute("isAdmin", user.getRole() == UserRole.ADMIN);
+            model.addAttribute("name", currentUser.firstName());
+            model.addAttribute("surname", currentUser.lastName());
+            model.addAttribute("email", currentUser.email());
+            model.addAttribute("address", currentUser.address());
+            model.addAttribute("phone", currentUser.phoneNumber());
+            model.addAttribute("age", currentUser.age());
+            model.addAttribute("orders", currentUser.orders());
+            model.addAttribute("password", currentUser.password());
+            model.addAttribute("isAdmin", currentUser.role() == UserRole.ADMIN);
             model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
            
             // Get user's reviews and add product information
             List<Map<String, Object>> reviewsWithProducts = new ArrayList<>();
-            for (Review review : user.getReviews()) {
-                // Verify if the review still exists in the database
-                if (reviewService.getReviewById(review.getId()) != null) {
-                    Map<String, Object> reviewMap = new HashMap<>();
-                    reviewMap.put("rating", review.getRating());
-                    reviewMap.put("comment", review.getComment());
-                    reviewMap.put("date", "Recently"); // You can add actual date if available
-                    reviewMap.put("userName", review.getUser()); // Store the user name
-                    reviewMap.put("productName", review.getProduct().getName()); // Store the product name
-                    reviewMap.put("productId", review.getProduct().getId()); // Add the product ID
-                    reviewsWithProducts.add(reviewMap);
-                }
+            for (ReviewDTO review : currentUser.reviews()) {
+                Map<String, Object> reviewMap = new HashMap<>();
+                reviewMap.put("rating", review.rating());
+                reviewMap.put("comment", review.comment());
+                reviewMap.put("date", "Recently");
+                reviewMap.put("userName", review.user());
+                reviewMap.put("productName", review.product().name());
+                reviewMap.put("productId", review.product().id());
+                reviewsWithProducts.add(reviewMap);
             }
             model.addAttribute("reviews", reviewsWithProducts);
             return "profile";
@@ -91,7 +87,7 @@ public class UserController {
                           Model model) {
 
         try{                    
-            User user = userService.getUser();
+            UserWebDTO user = userService.getUser();
 
             if(user == null ){
                 return "redirect:/login";
@@ -142,21 +138,24 @@ public class UserController {
                     addUserDataToModel(model, user);
                     return "profile";
                 }
-                
-                // Set the new password
-                user.setPassword(password);
-                //System.out.println("Updated password to: " + password); // Debug logging
             }
 
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            user.setEmail(email);
-            user.setAddress(address);
-            user.setPhoneNumber(phone);
-            user.setAge(age);
+            UserWebDTO updatedUser = new UserWebDTO(
+                user.id(),
+                firstName,
+                lastName,
+                email,
+                password != null && !password.isEmpty() ? password : user.password(),
+                address,
+                age,
+                phone,
+                user.reviews(),
+                user.orders(),
+                user.role()
+            );
             
             // Save the updated user
-            userService.updateUser(user);
+            userService.updateUser(updatedUser);
             model.addAttribute("success", "Profile updated successfully");
             return "redirect:/profile";
 
@@ -169,26 +168,26 @@ public class UserController {
         }
     }
 
-    private void addUserDataToModel(Model model, User user) {
-        model.addAttribute("name", user.getFirstName());
-        model.addAttribute("surname", user.getLastName());
-        model.addAttribute("email", user.getEmail());
-        model.addAttribute("address", user.getAddress());
-        model.addAttribute("phone", user.getPhoneNumber());
-        model.addAttribute("age", user.getAge());
-        model.addAttribute("password", user.getPassword());
+    private void addUserDataToModel(Model model, UserWebDTO user) {
+        model.addAttribute("name", user.firstName());
+        model.addAttribute("surname", user.lastName());
+        model.addAttribute("email", user.email());
+        model.addAttribute("address", user.address());
+        model.addAttribute("phone", user.phoneNumber());
+        model.addAttribute("age", user.age());
+        model.addAttribute("password", user.password());
         
         List<Map<String, Object>> reviewsWithProducts = new ArrayList<>();
-        for (Review review : user.getReviews()) {
+        for (ReviewDTO review : user.reviews()) {
             // Verify if the review still exists in the database
-            if (reviewService.getReviewById(review.getId()) != null) {
+            if (reviewService.getReviewById(review.id()) != null) {
                 Map<String, Object> reviewMap = new HashMap<>();
-                reviewMap.put("rating", review.getRating());
-                reviewMap.put("comment", review.getComment());
+                reviewMap.put("rating", review.rating());
+                reviewMap.put("comment", review.comment());
                 reviewMap.put("date", "Recently");
-                reviewMap.put("userName", review.getUser());
-                reviewMap.put("productName", review.getProduct().getName());
-                reviewMap.put("productId", review.getProduct().getId());
+                reviewMap.put("userName", review.user());
+                reviewMap.put("productName", review.product().name());
+                reviewMap.put("productId", review.product().id());
                 reviewsWithProducts.add(reviewMap);
             }
         }
@@ -198,11 +197,11 @@ public class UserController {
     @GetMapping("/reviews")
     public String showMyReviews(Model model) {
         try {
-            User currentUser = userService.getUser();
+            UserWebDTO currentUser = userService.getUser();
             if (currentUser == null) {
                 return "redirect:/login";
             }
-            model.addAttribute("myReviews", currentUser.getReviews());
+            model.addAttribute("myReviews", currentUser.reviews());
             return "myReviews";
         } catch (Exception e) {
             model.addAttribute("error", "Error loading reviews. Please try again.");
@@ -212,7 +211,7 @@ public class UserController {
 
     @PostMapping("/delete-account")
     public String deleteAccount(HttpSession session) {
-        User currentUser = userService.getUser();
+        UserWebDTO currentUser = userService.getUser();
         if (currentUser == null) {
             return "redirect:/login";
         }
@@ -224,19 +223,20 @@ public class UserController {
     @GetMapping("/users-management")
     public String showUsersManagement(Model model, HttpSession session) {
         try {
-            User currentUser = userService.getUser();
+            UserWebDTO currentUser = userService.getUser();
             if (currentUser == null) {
                 return "redirect:/login";
             }
             
-            if (currentUser.getRole() != UserRole.ADMIN) {
+            if (currentUser.role() != UserRole.ADMIN) {
                 return "redirect:/";
             }
             
-            List<User> users = userService.getAllUsersInitialized();
+            List<UserWebDTO> users = userService.getAllUsersInitialized();
+            
             model.addAttribute("users", users);
-            model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
-            model.addAttribute("userIsAdmin", currentUser.getRole() == UserRole.ADMIN);
+            model.addAttribute("isAdmin", currentUser.role() == UserRole.ADMIN);
+            model.addAttribute("userIsAdmin", currentUser.role() == UserRole.ADMIN);
             model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
             
             return "users-management";
@@ -271,14 +271,14 @@ public class UserController {
         
         try {
             // Verificar si el usuario actual es administrador
-            User currentUser = userService.getUser();
-            if (currentUser == null || currentUser.getRole() != UserRole.ADMIN) {
+            UserWebDTO currentUser = userService.getUser();
+            if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
                 model.addAttribute("error", "You do not have permission to edit users");
                 return "redirect:/users-management";
             }
             
             // Buscar el usuario a editar por su email original
-            User userToEdit = userService.findByEmail(originalEmail);
+            UserWebDTO userToEdit = userService.findByEmail(originalEmail);
             if (userToEdit == null) {
                 model.addAttribute("error", "User not found");
                 return "redirect:/users-management";
@@ -339,21 +339,22 @@ public class UserController {
                 }
                 
                 // Hashear la contraseña antes de guardarla
-                userToEdit.setPassword(userService.encodePassword(password));
+                //userToEdit.setPassword(userService.encodePassword(password));
+                userToEdit = userService.setPassword(userToEdit, password);
             }
             
             // Actualizar los datos del usuario
-            userToEdit.setFirstName(firstName);
-            userToEdit.setLastName(lastName);
-            userToEdit.setEmail(email);
-            userToEdit.setAddress(address);
+            userToEdit = userService.setFirstName(userToEdit, firstName);
+            userToEdit = userService.setLastName(userToEdit, lastName);
+            userToEdit = userService.setEmail(userToEdit, email);
+            userToEdit = userService.setAddress(userToEdit, address);
             
             if (phoneNumber > 0) {
-                userToEdit.setPhoneNumber(phoneNumber);
+                userToEdit = userService.setPhoneNumber(userToEdit, phoneNumber);
             }
             
             if (age > 0) {
-                userToEdit.setAge(age);
+                userToEdit = userService.setAge(userToEdit, age);
             }
             
             // Guardar los cambios

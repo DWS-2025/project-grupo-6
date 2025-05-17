@@ -22,7 +22,6 @@ import es.xpressaly.dto.ProductWebDTO;
 import es.xpressaly.mapper.ProductMapper;
 import es.xpressaly.mapper.ProductWebMapper;
 
-
 @Service
 @Transactional
 public class ProductService {
@@ -76,10 +75,18 @@ public class ProductService {
             .collect(Collectors.toList());
     }
 
-    public ProductDTO getProductById(Long id) {
-        return productRepository.findById(id)
-            .map(productMapper::toDTO)
-            .orElse(null);
+    public Product getProductById(Long id) {
+        return productRepository.findById(id).orElse(null);
+    }
+
+    public ProductDTO getProductDTO(Long id) {
+        Product product = productRepository.findById(id).orElse(null);
+        return product != null ? productMapper.toDTO(product) : null;
+    }
+
+    public ProductWebDTO getProductByIdWeb(Long id) {
+        Product product = productRepository.findById(id).orElse(null);
+        return product != null ? productWebMapper.toDTO(product) : null;
     }
 
     public ProductDTO getProductWithReviews(Long id) {
@@ -247,16 +254,14 @@ public class ProductService {
             .collect(Collectors.toList());
     }
 
-    public ProductWebDTO getProductByIdWeb(Long id) {
+    public ProductWebDTO getProductWithReviewsWeb(Long id) {
         return productRepository.findById(id)
             .map(productWebMapper::toDTO)
             .orElse(null);
     }
 
-    public ProductWebDTO getProductWithReviewsWeb(Long id) {
-        return productRepository.findById(id)
-            .map(productWebMapper::toDTO)
-            .orElse(null);
+    public Product toDomain(ProductDTO productDTO) {
+        return productMapper.toDomain(productDTO);
     }
 
     public Product toWebDomain(ProductWebDTO productWebDTO) {
@@ -271,7 +276,15 @@ public class ProductService {
         return productMapper.toDTO(product);
     }
 
-    public Product toDomain(ProductDTO productDTO) {
-        return productMapper.toDomain(productDTO);
+
+    public ProductDTO getProductDTO(ProductWebDTO productWebDTO) {
+        Product product = productWebMapper.toDomain(productWebDTO);
+        return productMapper.toDTO(product);
+    }
+
+    public ProductWebDTO setStock(ProductWebDTO productWebDTO, int stock) {
+        Product product = productWebMapper.toDomain(productWebDTO);
+        product.setStock(stock);
+        return productWebMapper.toDTO(product);
     }
 }

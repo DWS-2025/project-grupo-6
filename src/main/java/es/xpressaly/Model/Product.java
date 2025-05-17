@@ -30,12 +30,16 @@ public class Product {
     @Column(name = "image_data", columnDefinition = "MEDIUMBLOB")
     private byte[] imageData;
 
+    @Column(name = "rating", nullable = false)
+    private double rating = 0.0;
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews; // List of comments for each product
 
     public Product() {
         // default constructor
         this.reviews = new ArrayList<>();  // Initialize reviews list in default constructor
+        this.rating = 0.0; // Initialize rating
     }
 
     public Product(String name, String description, double price, int stock, String imagePath ) {
@@ -45,13 +49,13 @@ public class Product {
         this.stock = stock;
         this.imagePath = imagePath;
         this.reviews = new ArrayList<>();  // We initialize the list of reviews
+        this.rating = 0.0; // Initialize rating
     }
     
     public void setName(String name) { this.name = name; }
     public void setDescription(String description) { this.description = description; }
     public void setPrice(double price) { this.price = price; }
-
-
+    public void setRating(double rating) { this.rating = rating; }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -66,6 +70,8 @@ public class Product {
     public byte[] getImageData() { return imageData; }
     public void setImageData(byte[] imageData) { this.imageData = imageData; }
     public List<Review> getReviews() { return reviews; }
+    public void setReviews(List<Review> reviews) { this.reviews = reviews; }
+    public double getRating() { return rating; }
 
     public void addReview(Review review) {
         this.reviews.add(review);
@@ -75,7 +81,7 @@ public class Product {
     private int amount;
     public int getAmount(){return amount;}
     public void setAmount(int amount){this.amount=amount;}
-    
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;

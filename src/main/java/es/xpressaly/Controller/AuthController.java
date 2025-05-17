@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import es.xpressaly.Model.Order;
 import es.xpressaly.Model.User;
+import es.xpressaly.Service.OrderService;
 import es.xpressaly.Service.UserService;
+import es.xpressaly.dto.OrderDTO;
+import es.xpressaly.dto.UserWebDTO;
 import jakarta.servlet.http.HttpSession;
 
 import java.util.HashMap;
@@ -19,12 +22,16 @@ import java.util.Map;
 @Controller
 public class AuthController {
 
+    @Autowired
     private final UserService userService;
-    
+    @Autowired
+    private final OrderService orderService;
+
     private final OrderController orderController= new OrderController();
 
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, OrderService orderService) {
         this.userService = userService;
+        this.orderService = orderService;
     }
 
     @GetMapping("/login")
@@ -49,13 +56,13 @@ public class AuthController {
                 return "login";
             }
             
-            User user = userService.authenticateUser(email, password);
+            UserWebDTO user = userService.authenticateUser(email, password);
             if (user != null) {
-                Order newOrder = new Order(user, user.getAddress());
+                OrderDTO newOrder=orderService.createOrder(user, userService.getAddress(user));
                 orderController.setCurrentOrder(session, newOrder);
-                session.setAttribute("userId", user.getId());
-                session.setAttribute("userEmail", user.getEmail());
-                session.setAttribute("userRole", user.getRole());
+                session.setAttribute("userId", user.id());
+                session.setAttribute("userEmail", user.email());
+                session.setAttribute("userRole", user.role());
                 //userService.setCurrentUser(user);
                 return "redirect:/products";
             }
@@ -122,11 +129,11 @@ public class AuthController {
                 return "register";
             }
             
-            User newUser = userService.registerUser(firstName, lastName, email, password, address, phoneNumber, age);
+            UserWebDTO newUser = userService.registerUser(firstName, lastName, email, password, address, phoneNumber, age);
             if (newUser != null) {
-                session.setAttribute("userId", newUser.getId());
-                session.setAttribute("userEmail", newUser.getEmail());
-                session.setAttribute("userRole", newUser.getRole());
+                session.setAttribute("userId", newUser.id());
+                session.setAttribute("userEmail", newUser.email());
+                session.setAttribute("userRole", newUser.role());
                 //userService.setCurrentUser(newUser);
                 return "redirect:/login";
             }

@@ -9,6 +9,9 @@ import es.xpressaly.Model.UserRole;
 import es.xpressaly.Model.Review;
 import es.xpressaly.Service.UserService;
 import es.xpressaly.Service.ReviewService;
+import es.xpressaly.dto.UserDTO;
+import es.xpressaly.dto.UserWebDTO;
+import es.xpressaly.dto.ReviewDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -27,31 +30,31 @@ public class UserApiController {
     @GetMapping("/profile")
     public ResponseEntity<Map<String, Object>> getProfile() {
         try {
-            User user = userService.getUser();
-            user.getOrders().size();
+            UserWebDTO user = userService.getUser();
+            if (user == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
+            }
             
             Map<String, Object> response = new HashMap<>();
-            response.put("name", user.getFirstName());
-            response.put("surname", user.getLastName());
-            response.put("email", user.getEmail());
-            response.put("address", user.getAddress());
-            response.put("phone", user.getPhoneNumber());
-            response.put("age", user.getAge());
-            response.put("orders", user.getOrders());
-            response.put("isAdmin", user.getRole() == UserRole.ADMIN);
+            response.put("name", user.firstName());
+            response.put("surname", user.lastName());
+            response.put("email", user.email());
+            response.put("address", user.address());
+            response.put("phone", user.phoneNumber());
+            response.put("age", user.age());
+            response.put("orders", user.orders());
+            response.put("isAdmin", user.role() == UserRole.ADMIN);
 
             List<Map<String, Object>> reviewsWithProducts = new ArrayList<>();
-            for (Review review : user.getReviews()) {
-                if (reviewService.getReviewById(review.getId()) != null) {
-                    Map<String, Object> reviewMap = new HashMap<>();
-                    reviewMap.put("rating", review.getRating());
-                    reviewMap.put("comment", review.getComment());
-                    reviewMap.put("date", "Recently");
-                    reviewMap.put("userName", review.getUser());
-                    reviewMap.put("productName", review.getProduct().getName());
-                    reviewMap.put("productId", review.getProduct().getId());
-                    reviewsWithProducts.add(reviewMap);
-                }
+            for (ReviewDTO review : user.reviews()) {
+                Map<String, Object> reviewMap = new HashMap<>();
+                reviewMap.put("rating", review.rating());
+                reviewMap.put("comment", review.comment());
+                reviewMap.put("date", "Recently");
+                reviewMap.put("userName", review.user());
+                reviewMap.put("productName", review.product().name());
+                reviewMap.put("productId", review.product().id());
+                reviewsWithProducts.add(reviewMap);
             }
             response.put("reviews", reviewsWithProducts);
             
@@ -73,7 +76,7 @@ public class UserApiController {
             @RequestParam(required = false) String confirmPassword) {
         
         try {
-            User user = userService.getUser();
+            UserWebDTO user = userService.getUser();
             if(user == null) {
                 return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
             }
@@ -106,15 +109,15 @@ public class UserApiController {
                 }
             }
 
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            user.setEmail(email);
-            user.setAddress(address);
-            user.setPhoneNumber(phone);
-            user.setAge(age);
+            user = userService.setFirstName(user, firstName);
+            user = userService.setLastName(user, lastName);
+            user = userService.setEmail(user, email);
+            user = userService.setAddress(user, address);
+            user = userService.setPhoneNumber(user, phone);
+            user = userService.setAge(user, age);
             
             if (password != null && !password.isEmpty() && password.equals(confirmPassword)) {
-                user.setPassword(password);
+                user = userService.setPassword(user, password);
             }
             
             userService.updateUser(user);
@@ -127,11 +130,11 @@ public class UserApiController {
     @GetMapping("/reviews")
     public ResponseEntity<?> getMyReviews() {
         try {
-            User currentUser = userService.getUser();
+            UserWebDTO currentUser = userService.getUser();
             if (currentUser == null) {
                 return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
             }
-            return ResponseEntity.ok(currentUser.getReviews());
+            return ResponseEntity.ok(currentUser.reviews());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", "Error loading reviews"));
         }

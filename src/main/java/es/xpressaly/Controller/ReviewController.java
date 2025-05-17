@@ -18,9 +18,6 @@ public class ReviewController {
     @Autowired
     private ReviewService reviewService;
 
-    @Autowired
-    private ReviewMapper reviewMapper;
-
     @GetMapping
     public Collection<ReviewDTO> getAllReviews() {
         return reviewService.getAllReviews();          
@@ -28,21 +25,21 @@ public class ReviewController {
 
     @GetMapping("/{id}")
     public ReviewDTO getReviewById(@PathVariable Long id) {
-        return reviewMapper.toDTO(reviewService.getReviewById(id));
+        return reviewService.getReviewById(id);
     }
 
     @PostMapping
     public ReviewDTO createReview(@RequestBody ReviewDTO reviewDTO) {
-        Review review = reviewMapper.toDomain(reviewDTO);
-        return reviewMapper.toDTO(reviewService.saveReview(review));
+        return reviewService.saveReview(reviewDTO);
     }
 
     @PutMapping("/{id}")
     public ReviewDTO updateReview(@PathVariable Long id, @RequestBody ReviewDTO reviewDTO) {
-        Review existingReview = reviewService.getReviewById(id);
-        existingReview.setComment(reviewDTO.comment());
-        existingReview.setRating(reviewDTO.rating());
-        return reviewMapper.toDTO(reviewService.saveReview(existingReview));
+        ReviewDTO existingReview = reviewService.getReviewById(id);
+        reviewService.setComment(reviewDTO.comment(), existingReview);
+        reviewService.setRating(reviewDTO.rating(), existingReview);
+        reviewService.saveReview(existingReview);
+        return existingReview;
     }
 
     @DeleteMapping("/{productId}/reviews/{reviewId}")

@@ -12,8 +12,10 @@ import es.xpressaly.Service.ProductService;
 import es.xpressaly.Service.ReviewService;
 import es.xpressaly.dto.ProductDTO;
 import es.xpressaly.dto.ProductWebDTO;
+import es.xpressaly.dto.UserWebDTO;
 import es.xpressaly.mapper.ProductMapper;
 import es.xpressaly.Model.User;
+import es.xpressaly.Model.UserRole;
 import es.xpressaly.Service.UserService;
 
 import java.awt.image.BufferedImage;
@@ -111,8 +113,8 @@ public class ProductApiController {
         productMap.put("price", productDTO.price());
         productMap.put("stock", productDTO.stock());
         try {
-            User currentUser = userService.getUser();
-            productMap.put("isAdmin", currentUser != null && currentUser.isAdmin());
+            UserWebDTO currentUser = userService.getUser();
+            productMap.put("isAdmin", currentUser != null && currentUser.role() == UserRole.ADMIN);
         } catch (Exception e) {
             productMap.put("isAdmin", false);
         }
@@ -212,16 +214,15 @@ public class ProductApiController {
     public ResponseEntity<Map<String, Object>> getProductDetails(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
         try {
-            ProductDTO productDTO = productService.getProductWithReviews(id);
-            if (productDTO == null) {
+            ProductWebDTO productWebDTO = productService.getProductWithReviewsWeb(id);
+            if (productWebDTO == null) {
                 response.put("error", "Product not found");
                 return ResponseEntity.badRequest().body(response);
             }
 
-            Product product = toDomain(productDTO);
-            response.put("product", product);
-            response.put("reviews", product.getReviews());
-            response.put("averageRating", productService.getAverageRating(product.getId()));
+            response.put("product", productWebDTO);
+            response.put("reviews", productWebDTO.reviews());
+            response.put("rating", productWebDTO.rating());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("error", e.getMessage());
@@ -293,8 +294,8 @@ public class ProductApiController {
         productMap.put("price", productWebDTO.price());
         productMap.put("stock", productWebDTO.stock());
         try {
-            User currentUser = userService.getUser();
-            productMap.put("isAdmin", currentUser != null && currentUser.isAdmin());
+            UserWebDTO currentUser = userService.getUser();
+            productMap.put("isAdmin", currentUser != null && currentUser.role() == UserRole.ADMIN);
         } catch (Exception e) {
             productMap.put("isAdmin", false);
         }

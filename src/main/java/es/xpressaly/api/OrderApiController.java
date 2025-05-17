@@ -7,8 +7,13 @@ import org.springframework.web.bind.annotation.*;
 import es.xpressaly.Model.Order;
 import es.xpressaly.Model.Product;
 import es.xpressaly.Model.User;
+import es.xpressaly.Service.OrderService;
 import es.xpressaly.Service.ProductService;
 import es.xpressaly.Service.UserService;
+import es.xpressaly.dto.OrderDTO;
+import es.xpressaly.dto.ProductWebDTO;
+import es.xpressaly.dto.UserDTO;
+import es.xpressaly.dto.UserWebDTO;
 import es.xpressaly.Repository.OrderRepository;
 
 import jakarta.persistence.EntityManager;
@@ -35,16 +40,19 @@ public class OrderApiController {
     
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Autowired
+    private OrderService orderService;
     
     @GetMapping("/cart-count")
     public ResponseEntity<Integer> getCartItemCount() {
         try {
-            Order currentOrder = getCurrentOrder();
-            if (currentOrder == null || currentOrder.getProducts() == null) {
+            OrderDTO currentOrder = getCurrentOrder();
+            if (currentOrder == null || currentOrder.products() == null) {
                 return ResponseEntity.ok(0);
             }
-            int count = currentOrder.getProducts().stream()
-                    .mapToInt(Product::getAmount)
+            int count = currentOrder.products().stream()
+                    .mapToInt(product -> currentOrder.quantities().getOrDefault(product.id(), 0))
                     .sum();
             return ResponseEntity.ok(count);
         } catch (Exception e) {
@@ -87,15 +95,15 @@ public class OrderApiController {
     public ResponseEntity<Map<String, Object>> viewOrder() {
         Map<String, Object> response = new HashMap<>();
         try {
-            Order currentOrder = getCurrentOrder();
+            OrderDTO currentOrder = getCurrentOrder();
             if (currentOrder == null) {
                 response.put("message", "No active order");
                 return ResponseEntity.ok(response);
             }
             
-            currentOrder.calculateTotal();
+            currentOrder = orderService.calculateTotal(currentOrder);
             response.put("order", currentOrder);
-            response.put("total", currentOrder.getTotal());
+            response.put("total", currentOrder.total());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("error", e.getMessage());
@@ -216,17 +224,17 @@ public class OrderApiController {
         }
     }*/
 
-    private Order getCurrentOrder() {
-        User currentUser = userService.getUser();
+    private OrderDTO getCurrentOrder() {
+        UserWebDTO currentUser = userService.getUser();
         if (currentUser == null) {
             return null;
         }
         
         // Find the user's current order
-        List<Order> userOrders = orderRepository.findByUser(currentUser);
+        List<OrderDTO> userOrders = orderService.getOrdersByUser(currentUser);
         if (userOrders.isEmpty()) {
             // If there are no orders, create a new one
-            Order newOrder = new Order(currentUser, currentUser.getAddress());
+            OrderDTO newOrder = orderService.createOrder(currentUser, currentUser.address());
             return newOrder;
         } else {
             // Returns the user's last command

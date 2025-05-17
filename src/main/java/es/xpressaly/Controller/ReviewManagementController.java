@@ -15,6 +15,7 @@ import es.xpressaly.Service.ProductService;
 import es.xpressaly.Service.ReviewService;
 import es.xpressaly.Service.UserService;
 import es.xpressaly.dto.ProductWebDTO;
+import es.xpressaly.dto.UserWebDTO;
 import es.xpressaly.mapper.ProductWebMapper;
 
 import jakarta.servlet.http.HttpSession;
@@ -41,17 +42,17 @@ public class ReviewManagementController {
 
     @GetMapping("/review-management")
     public String reviewManagement(Model model, HttpSession session) {
-        User currentUser = userService.getUser();
+        UserWebDTO currentUser = userService.getUser();
         
         if (currentUser == null) {
             return "redirect:/login";
         }
         
-        if (currentUser.getRole() != UserRole.ADMIN) {
+        if (currentUser.role() != UserRole.ADMIN) {
             return "redirect:/products";
         }
         
-        List<User> users = userService.getAllUsersInitialized();
+        List<UserWebDTO> users = userService.getAllUsersInitialized();
         List<ProductWebDTO> allProducts = productService.getAllProductsWeb();
         
         List<ProductWebDTO> productsWithReviews = allProducts.stream()
@@ -71,8 +72,8 @@ public class ReviewManagementController {
             @RequestParam Long productId, 
             @RequestParam Long reviewId) {
         
-        User currentUser = userService.getUser();
-        if (currentUser == null || !currentUser.isAdmin()) {
+        UserWebDTO currentUser = userService.getUser();
+        if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
             return "redirect:/login";
         }
 

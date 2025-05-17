@@ -12,5 +12,5 @@ public record ProductWebDTO(
     String imagePath,
     byte[] imageData,
     List<Review> reviews,
-    double averageRating
+    double rating
 ) {} 

@@ -16,11 +16,16 @@ import es.xpressaly.Model.Order;
 import es.xpressaly.Model.Product;
 import es.xpressaly.Model.Review;
 import es.xpressaly.Model.User;
+import es.xpressaly.Model.UserRole;
+import es.xpressaly.Service.OrderService;
 import es.xpressaly.Service.ProductService;
 import es.xpressaly.Service.ReviewService;
 import es.xpressaly.Service.UserService;
+import es.xpressaly.dto.OrderDTO;
 import es.xpressaly.dto.ProductDTO;
 import es.xpressaly.dto.ProductWebDTO;
+import es.xpressaly.dto.ReviewDTO;
+import es.xpressaly.dto.UserWebDTO;
 import es.xpressaly.mapper.ProductMapper;
 import es.xpressaly.mapper.ProductWebMapper;
 import jakarta.servlet.http.HttpSession;
@@ -54,16 +59,17 @@ public class ProductController {
     @Autowired
     private OrderController orderController;    
 
-   
+    @Autowired
+    private OrderService orderService;
 
     // Show product list
     @GetMapping("/products")
     public String showProducts(Model model, @RequestParam(required = false, defaultValue = "default") String sort, HttpSession session) {
         try {
-            User currentUser = userService.getUser();
+            UserWebDTO currentUser = userService.getUser();
             List<ProductWebDTO> products = productService.getAllProductsWeb();
             model.addAttribute("products", products);
-            model.addAttribute("isAdmin", currentUser != null && currentUser.isAdmin());
+            model.addAttribute("isAdmin", currentUser != null && currentUser.role() == UserRole.ADMIN);
             model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
             return "Wellcome";
         } catch (Exception e) {
@@ -76,14 +82,14 @@ public class ProductController {
     // Show form to create a product - Admin only
     @GetMapping("/create-product")
     public String createProductForm(Model model, HttpSession session) {
-        User currentUser = userService.getUser();
+        UserWebDTO currentUser = userService.getUser();
         
         // More detailed verification of admin access
         if (currentUser == null) {
             return "redirect:/login";
         }
         
-        if (!currentUser.isAdmin()) {
+        if (currentUser.role() != UserRole.ADMIN) {
             return "redirect:/products";
         }
         
@@ -100,8 +106,8 @@ public class ProductController {
                              @RequestParam int stock,
                              @RequestParam MultipartFile mainImage,
                              Model model) throws IOException {
-        User currentUser = userService.getUser();
-        if (currentUser == null || !currentUser.isAdmin()) {
+        UserWebDTO currentUser = userService.getUser();
+        if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
             return "redirect:/products";
         }
 
@@ -154,7 +160,7 @@ public class ProductController {
                           Model model) {
         try {
             // Check if the user is logged in
-            User user = userService.getUser();
+            UserWebDTO user = userService.getUser();
             if (user == null) {
                 return "redirect:/login";
             }
@@ -202,11 +208,16 @@ public class ProductController {
                 return "redirect:/products";
             }
 
-            Product product = toDomain(productWebDTO);
-            Review review = new Review(user, sanitizedComment, rating);
-            review.setProduct(product);
-            reviewService.addReview(productId, review);
-            user.getReviews().add(review);
+            // Crear ReviewDTO en lugar de Review
+            ReviewDTO reviewDTO = new ReviewDTO(
+                null, // id será generado por la base de datos
+                sanitizedComment,
+                rating,
+                userService.getUserDTO(user),
+                productService.getProductDTO(productWebDTO)
+            );
+
+            reviewService.addReview(productId, reviewDTO);
 
             return "redirect:/product-details?id=" + productId;
         } catch (Exception e) {
@@ -223,8 +234,8 @@ public class ProductController {
                                HttpSession session, 
                                Model model,
                                @RequestParam(required = false) Boolean ajax) throws IOException {
-        User currentUser = userService.getUser();
-        if (currentUser == null || !currentUser.isAdmin()) {
+        UserWebDTO currentUser = userService.getUser();
+        if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
             return "redirect:/products";
         }
 
@@ -232,7 +243,7 @@ public class ProductController {
             System.out.println("Attempting to delete product with ID: " + productId);
             
             // Remove from current order if present
-            Order currentOrder = orderController.getCurrentOrder(session);
+            OrderDTO currentOrder = orderController.getCurrentOrder(session);
             ProductWebDTO productWebDTO = productService.getProductByIdWeb(productId);
             
             if (productWebDTO == null) {
@@ -242,8 +253,8 @@ public class ProductController {
             }
             
             if (currentOrder != null && productWebDTO != null) {
-                Product product = toDomain(productWebDTO);
-                currentOrder.removeProduct(product);
+                OrderDTO updatedOrder = orderService.removeProductFromOrder(currentOrder, productWebDTO);
+                orderController.setCurrentOrder(session, updatedOrder);
             }
             
             // Delete the product
@@ -270,9 +281,9 @@ public class ProductController {
     public String searchProducts(@RequestParam String term, Model model, HttpSession session) {
         try {
             List<ProductWebDTO> searchResults = productService.searchProductsWeb(term);
-            User currentUser = userService.getUser();
+            UserWebDTO currentUser = userService.getUser();
             model.addAttribute("products", searchResults);
-            model.addAttribute("isAdmin", currentUser != null && currentUser.isAdmin());
+            model.addAttribute("isAdmin", currentUser != null && currentUser.role() == UserRole.ADMIN);
             model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
             model.addAttribute("searchTerm", term);
             return "Wellcome";
@@ -283,39 +294,25 @@ public class ProductController {
     }
 
     @GetMapping("/product-details")
-    public String productDetails(@RequestParam Long id, Model model, HttpSession session) {
+    public String getProductDetails(@RequestParam Long id, Model model) {
         try {
-            ProductWebDTO productWebDTO = productService.getProductWithReviewsWeb(id);
-            User currentUser = userService.getUser();
-            
-            if (productWebDTO == null) {
-                return "redirect:/products";
+            ProductWebDTO productWebDTO = productService.getProductByIdWeb(id);
+            if (productWebDTO != null) {
+                model.addAttribute("product", productWebDTO);
+                model.addAttribute("rating", productWebDTO.rating());
+                model.addAttribute("reviews", productWebDTO.reviews());
+                model.addAttribute("isLoggedIn", userService.getUser() != null);
+                return "Product";
             }
-
-            model.addAttribute("product", productWebDTO);
-            model.addAttribute("reviews", productWebDTO.reviews()); 
-            model.addAttribute("averageRating", productWebDTO.averageRating());
-            model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
-            
-            if (currentUser != null) {
-                model.addAttribute("username", currentUser.getFirstName() + " " + currentUser.getLastName());
-                model.addAttribute("isAdmin", currentUser.isAdmin());
-                model.addAttribute("isLoggedIn", true);
-            } else {
-                model.addAttribute("isAdmin", false);
-                model.addAttribute("isLoggedIn", false);
-            }
-
-            return "Product";
+            return "redirect:/products";
         } catch (Exception e) {
-            System.out.println(e);
             return "redirect:/products";
         }
     }
 
     @PostMapping("/delete-review")
     public String deleteReview(@RequestParam Long productId, @RequestParam Long reviewId, Model model) {
-        User currentUser = userService.getUser();
+        UserWebDTO currentUser = userService.getUser();
         if (currentUser == null) {
             return "redirect:/login";
         }
@@ -392,8 +389,8 @@ public class ProductController {
         productMap.put("price", productDTO.price());
         productMap.put("stock", productDTO.stock());
         // Add isAdmin attribute for administrator button rendering if needed
-        User currentUser = userService.getUser();
-        productMap.put("isAdmin", currentUser != null && currentUser.isAdmin());
+        UserWebDTO currentUser = userService.getUser();
+        productMap.put("isAdmin", currentUser != null && currentUser.role() == UserRole.ADMIN);
         // We don't include imageData to avoid overloading the JSON response
         return productMap;
     }
@@ -401,13 +398,9 @@ public class ProductController {
     @GetMapping("/get-cart-quantity")
     @ResponseBody
     public int getCartQuantity(@RequestParam Long productId, HttpSession session) {
-        Order currentOrder = orderController.getCurrentOrder(session);
-        if (currentOrder != null && currentOrder.hasProducts()) {
-            for (Product product : currentOrder.getProducts()) {
-                if (product.getId().equals(productId)) {
-                    return product.getAmount();
-                }
-            }
+        OrderDTO currentOrder = orderController.getCurrentOrder(session);
+        if (currentOrder != null && currentOrder.products() != null) {
+            return orderController.getProductQuantity(currentOrder, productId);
         }
         return 0;
     }
@@ -415,14 +408,14 @@ public class ProductController {
     // Product Management Page - Admin only
     @GetMapping("/product-management")
     public String productManagement(Model model, HttpSession session) {
-        User currentUser = userService.getUser();
+        UserWebDTO currentUser = userService.getUser();
         
         // Verificación de acceso de administrador
         if (currentUser == null) {
             return "redirect:/login";
         }
         
-        if (!currentUser.isAdmin()) {
+        if (currentUser.role() != UserRole.ADMIN) {
             return "redirect:/products";
         }
         
@@ -438,14 +431,14 @@ public class ProductController {
     // Show form to edit a product - Admin only
     @GetMapping("/edit-product/{id}")
     public String editProductForm(@PathVariable Long id, Model model, HttpSession session) {
-        User currentUser = userService.getUser();
+        UserWebDTO currentUser = userService.getUser();
         
         //Verification of admin access
         if (currentUser == null) {
             return "redirect:/login";
         }
         
-        if (!currentUser.isAdmin()) {
+        if (currentUser.role() != UserRole.ADMIN) {
             return "redirect:/products";
         }
         
@@ -470,8 +463,8 @@ public class ProductController {
                                @RequestParam int stock,
                                @RequestParam(required = false) MultipartFile mainImage,
                                Model model) throws IOException {
-        User currentUser = userService.getUser();
-        if (currentUser == null || !currentUser.isAdmin()) {
+        UserWebDTO currentUser = userService.getUser();
+        if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
             return "redirect:/products";
         }
 
