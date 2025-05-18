@@ -101,9 +101,13 @@ public class OrderApiController {
                 return ResponseEntity.ok(response);
             }
             
-            currentOrder = orderService.calculateTotal(currentOrder);
+            // Calculate the total using the DTO data
+            double total = currentOrder.products().stream()
+                .mapToDouble(product -> product.price() * currentOrder.quantities().getOrDefault(product.id(), 0))
+                .sum();
+            
             response.put("order", currentOrder);
-            response.put("total", currentOrder.total());
+            response.put("total", total);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("error", e.getMessage());
@@ -111,16 +115,26 @@ public class OrderApiController {
         }
     }
 
-    /*@PostMapping("/remove-from-order")
+    @PostMapping("/remove-from-order")
     public ResponseEntity<Map<String, Object>> removeFromOrder(@RequestParam Long productId) {
         Map<String, Object> response = new HashMap<>();
         try {
-            Order currentOrder = getCurrentOrder();
+            OrderDTO currentOrder = getCurrentOrder();
             if (currentOrder != null) {
-                Product product = productService.getProductById(productId);
-                currentOrder.removeProduct(product);
-                response.put("success", "Product removed from order");
-                return ResponseEntity.ok(response);
+                ProductWebDTO product = productService.getProductByIdWeb(productId);
+                if (product == null) {
+                    response.put("error", "Product not found");
+                    return ResponseEntity.badRequest().body(response);
+                }
+
+                // Get the Order entity to remove the product
+                Order orderEntity = orderService.getOrderById(currentOrder.id());
+                if (orderEntity != null) {
+                    orderEntity = orderService.removeProductFromOrder(orderEntity, product);
+                    orderService.save(orderEntity);
+                    response.put("success", "Product removed from order");
+                    return ResponseEntity.ok(response);
+                }
             }
             response.put("error", "No active order");
             return ResponseEntity.badRequest().body(response);
@@ -128,7 +142,7 @@ public class OrderApiController {
             response.put("error", e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
-    }*/
+    }
 
     /*@PostMapping("/update-amount")
     public ResponseEntity<Map<String, Object>> updateAmount(
@@ -175,12 +189,12 @@ public class OrderApiController {
         }
     }*/
 
-    /*@PostMapping("/confirm")
+    @PostMapping("/confirm")
     public ResponseEntity<Map<String, Object>> confirmOrder(@RequestParam String address) {
         Map<String, Object> response = new HashMap<>();
         try {
-            Order currentOrder = getCurrentOrder();
-            if (currentOrder == null || currentOrder.getProducts().isEmpty()) {
+            OrderDTO currentOrderDTO = getCurrentOrder();
+            if (currentOrderDTO == null || currentOrderDTO.products().isEmpty()) {
                 response.put("error", "No products in order");
                 return ResponseEntity.badRequest().body(response);
             }
@@ -190,9 +204,17 @@ public class OrderApiController {
                 return ResponseEntity.badRequest().body(response);
             }
 
-            User currentUser = userService.getUser();
+            UserWebDTO currentUserDTO = userService.getUser();
+            User currentUser = userService.getUserEntityById(currentUserDTO.id());
             
-            // Calcular el número de pedido para este usuario
+            // Get the Order entity
+            Order currentOrder = orderService.getOrderById(currentOrderDTO.id());
+            if (currentOrder == null) {
+                response.put("error", "Order not found");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            // Calculate the order number for this user
             int userOrderNumber = 1;
             List<Order> userOrders = orderRepository.findByUser(currentUser);
             if (!userOrders.isEmpty()) {
@@ -201,13 +223,13 @@ public class OrderApiController {
             currentOrder.setUserOrderNumber(userOrderNumber);
             
             // Validate stock and update product quantities
-            for (Product orderProduct : currentOrder.getProducts()) {
-                Product stockProduct = productService.getProductById(orderProduct.getId());
-                if (stockProduct == null || orderProduct.getAmount() > stockProduct.getStock()) {
+            for (ProductWebDTO orderProductDTO : currentOrderDTO.products()) {
+                Product stockProduct = productService.getProductById(orderProductDTO.id());
+                if (stockProduct == null || currentOrderDTO.quantities().get(orderProductDTO.id()) > stockProduct.getStock()) {
                     response.put("error", "Some products do not have enough stock");
                     return ResponseEntity.badRequest().body(response);
                 }
-                stockProduct.setStock(stockProduct.getStock() - orderProduct.getAmount());
+                stockProduct.setStock(stockProduct.getStock() - currentOrderDTO.quantities().get(orderProductDTO.id()));
                 entityManager.merge(stockProduct);
             }
             
@@ -222,7 +244,7 @@ public class OrderApiController {
             response.put("error", e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
-    }*/
+    }
 
     private OrderDTO getCurrentOrder() {
         UserWebDTO currentUser = userService.getUser();
@@ -230,14 +252,10 @@ public class OrderApiController {
             return null;
         }
         
-        // Find the user's current order
-        List<OrderDTO> userOrders = orderService.getOrdersByUser(currentUser);
-        if (userOrders.isEmpty()) {
-            // If there are no orders, create a new one
-            OrderDTO newOrder = orderService.createOrder(currentUser, currentUser.address());
-            return newOrder;
+        List<OrderDTO> userOrders = orderService.getOrdersByUserDTO(currentUser);
+        if (userOrders.isEmpty()) {          
+            return orderService.createOrderDTO(currentUser, currentUser.address());
         } else {
-            // Returns the user's last command
             return userOrders.get(userOrders.size() - 1);
         }
     }

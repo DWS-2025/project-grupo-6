@@ -132,13 +132,13 @@ public class ReviewService {
 
     public void deleteReview(Long productId, Long reviewId) {
         Product product = productWebMapper.toDomain(productService.getProductByIdWeb(productId));
-        UserWebDTO user = userService.getUser();
+        User user = userService.getUserEntity();
         
         if (product != null && user != null) {
             Review review = reviewRepository.findById(reviewId).orElse(null);
             if (review != null) {
                 // Allow admins to delete any review, but regular users can only delete their own
-                if (user.role() == UserRole.ADMIN || review.getUser().getId().equals(user.id())) {
+                if (user.getRole() == UserRole.ADMIN || review.getUser().getId().equals(user.getId())) {
                     // Remove review from product's review list
                     product.getReviews().remove(review);
                     

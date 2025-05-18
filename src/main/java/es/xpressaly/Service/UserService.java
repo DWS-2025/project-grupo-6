@@ -170,6 +170,10 @@ public class UserService {
             .collect(Collectors.toList());
     }
 
+    public List<User> getAllUsersEntity() {
+        return userRepository.findAll();
+    }
+
     // Method to get the current user
     public UserWebDTO getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

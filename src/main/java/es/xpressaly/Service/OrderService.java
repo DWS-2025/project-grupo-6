@@ -38,6 +38,21 @@ public class OrderService {
     @Autowired
     private ProductWebMapper productWebMapper;
 
+    public OrderDTO createOrderDTO(UserWebDTO user, String address) {
+        User userEntity = userWebMapper.toDomain(user);
+        Order order = new Order();
+        order.setUser(userEntity);
+        order.setAddress(address);
+        order.setTotal(0.0);
+        return orderWebMapper.toDTO(order);
+    }
+
+    public List<OrderDTO> getOrdersByUserDTO(UserWebDTO user) {
+        User userEntity = userWebMapper.toDomain(user);
+        List<Order> orders = orderRepository.findByUser(userEntity);
+        return orderWebMapper.toDTOs(orders);
+    }
+
     public Order createOrder(UserWebDTO user, String address) {
         User userEntity = userWebMapper.toDomain(user);
         Order order = new Order();

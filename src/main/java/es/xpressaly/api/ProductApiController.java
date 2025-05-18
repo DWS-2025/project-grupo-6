@@ -13,6 +13,7 @@ import es.xpressaly.Service.ReviewService;
 import es.xpressaly.dto.ProductDTO;
 import es.xpressaly.dto.ProductWebDTO;
 import es.xpressaly.dto.UserWebDTO;
+import es.xpressaly.dto.ReviewDTO;
 import es.xpressaly.mapper.ProductMapper;
 import es.xpressaly.Model.User;
 import es.xpressaly.Model.UserRole;
@@ -161,7 +162,7 @@ public class ProductApiController {
         }
     }
 
-    /*@PostMapping("/{productId}/reviews")
+    @PostMapping("/{productId}/reviews")
     public ResponseEntity<Map<String, Object>> addReview(
             @PathVariable Long productId,
             @RequestParam String comment,
@@ -179,23 +180,34 @@ public class ProductApiController {
         }
 
         try {
-            Product product = productService.getProductById(productId);
+            UserWebDTO currentUser = userService.getUser();
+            if (currentUser == null) {
+                response.put("error", "User not logged in");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            ProductWebDTO product = productService.getProductByIdWeb(productId);
             if (product == null) {
                 response.put("error", "Product not found");
                 return ResponseEntity.badRequest().body(response);
             }
             
-            Review review = new Review(null, comment, rating);
-            review.setProduct(product);
+            ReviewDTO reviewDTO = new ReviewDTO(
+                null,
+                comment,
+                rating,
+                currentUser,
+                product
+            );
             
-            reviewService.addReview(productId, review);
+            reviewService.addReview(productId, reviewDTO);
             response.put("success", "Review added successfully");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("error", e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
-    }*/
+    }
 
     @DeleteMapping("/{productId}")
     public ResponseEntity<Map<String, Object>> deleteProduct(@PathVariable Long productId) {

@@ -21,6 +21,8 @@ import es.xpressaly.mapper.ProductWebMapper;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.hibernate.Hibernate;
+import org.springframework.transaction.annotation.Transactional;
 
 @Controller
 public class ReviewManagementController {
@@ -41,6 +43,7 @@ public class ReviewManagementController {
     private ProductWebMapper productWebMapper;
 
     @GetMapping("/review-management")
+    @Transactional(readOnly = true)
     public String reviewManagement(Model model, HttpSession session) {
         UserWebDTO currentUser = userService.getUser();
         
@@ -52,7 +55,16 @@ public class ReviewManagementController {
             return "redirect:/products";
         }
         
-        List<UserWebDTO> users = userService.getAllUsersInitialized();
+        List<User> users = userService.getAllUsersEntity();
+        for (User user : users) {
+            Hibernate.initialize(user.getReviews());
+            if (user.getReviews() != null) {
+                user.getReviews().forEach(review -> {
+                    Hibernate.initialize(review.getProduct());
+                });
+            }
+        }
+        
         List<ProductWebDTO> allProducts = productService.getAllProductsWeb();
         
         List<ProductWebDTO> productsWithReviews = allProducts.stream()
