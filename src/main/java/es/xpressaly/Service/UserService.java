@@ -51,6 +51,26 @@ public class UserService {
     private OrderMapper orderMapper;
     //private User currentUser;
 
+    // Method to obtain the user entity by ID
+    public User getUserEntityById(Long userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user != null) {
+            // Inicializar las colecciones
+            if (user.getOrders() != null) {
+                user.getOrders().size(); // Forzar inicialización
+                user.getOrders().forEach(order -> {
+                    if (order.getProducts() != null) {
+                        order.getProducts().size(); // Forzar inicialización de productos
+                    }
+                });
+            }
+            if (user.getReviews() != null) {
+                user.getReviews().size(); // Forzar inicialización
+            }
+        }
+        return user;
+    }
+
     // Method to obtain the user by ID
     public UserWebDTO getUserById(Long userId) {
         User user = userRepository.findById(userId).orElse(null);

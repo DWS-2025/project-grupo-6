@@ -264,6 +264,7 @@ public class OrderController {
 
     // Confirm order
     @PostMapping("/confirm-order")
+    @Transactional
     public String confirmOrder(Model model, @RequestParam String address, HttpSession session) {
         try {
             UserWebDTO currentUser = userService.getUser();
@@ -283,47 +284,50 @@ public class OrderController {
                 return "redirect:/view-order";
             }
 
+            // Verificar stock antes de hacer cualquier cambio
             for (Product orderProduct : currentOrder.getProducts()) {
                 ProductWebDTO productWebDTO = productService.getProductByIdWeb(orderProduct.getId());
                 if (productWebDTO == null) {
                     model.addAttribute("error", "Some products do not have enough stock");
                     return "redirect:/view-order";
                 }
-                ProductWebDTO stockProduct = productWebDTO;
                 int quantity = getProductQuantity(currentOrder, orderProduct.getId());
-                if (quantity > stockProduct.stock()) {
+                if (quantity > productWebDTO.stock()) {
                     model.addAttribute("error", "Some products do not have enough stock");
                     return "redirect:/view-order";
                 }
             }
 
+            // Actualizar stock y guardar cambios
             for (Product product : currentOrder.getProducts()) {
                 ProductWebDTO productWebDTO = productService.getProductByIdWeb(product.getId());
-                ProductWebDTO stockProduct = productWebDTO;
                 int quantity = getProductQuantity(currentOrder, product.getId());
-                stockProduct = productService.setStock(stockProduct, stockProduct.stock() - quantity);
+                Product stockProduct = productService.getProductById(product.getId());
+                stockProduct.setStock(stockProduct.getStock() - quantity);
                 entityManager.merge(stockProduct);
             }
 
+            // Configurar y guardar el pedido
             currentOrder = orderService.setAddress(currentOrder, address);
-            
             List<Order> userOrders = orderService.getOrdersByUser(currentUser);
             int userOrderNumber = userOrders.size() + 1;
+            currentOrder = orderService.setUserOrderNumber(currentOrder, userOrderNumber);
             
-            currentOrder=orderService.setUserOrderNumber(currentOrder, userOrderNumber);
-            
-            currentUser = userService.addOrder(currentUser, currentOrder);
-
+            // Guardar el pedido confirmado
             Order confirmedOrder = currentOrder;
             orderService.save(confirmedOrder);
+
+            // Crear nuevo pedido vacío
             currentOrder = orderService.createOrder(currentUser, currentUser.address());
             setCurrentOrder(session, currentOrder);
+
             model.addAttribute("order", confirmedOrder);
             model.addAttribute("address", address);
             model.addAttribute("userOrderNumber", userOrderNumber);
             return "confirm_order";
         } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
+            e.printStackTrace(); // Para ver el error en los logs
+            model.addAttribute("error", "Error al confirmar el pedido: " + e.getMessage());
             return "redirect:/view-order";
         }
     }

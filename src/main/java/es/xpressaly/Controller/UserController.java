@@ -43,28 +43,28 @@ public class UserController {
                 return "redirect:/login";
             }
             
-            //User user = userService.getUser();
+            User user = userService.getUserEntityById(currentUser.id());
             model.addAttribute("name", currentUser.firstName());
             model.addAttribute("surname", currentUser.lastName());
             model.addAttribute("email", currentUser.email());
             model.addAttribute("address", currentUser.address());
             model.addAttribute("phone", currentUser.phoneNumber());
             model.addAttribute("age", currentUser.age());
-            model.addAttribute("orders", currentUser.orders());
+            model.addAttribute("orders", user.getOrders());
             model.addAttribute("password", currentUser.password());
             model.addAttribute("isAdmin", currentUser.role() == UserRole.ADMIN);
             model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
            
             // Get user's reviews and add product information
             List<Map<String, Object>> reviewsWithProducts = new ArrayList<>();
-            for (ReviewDTO review : currentUser.reviews()) {
+            for (Review review : user.getReviews()) {
                 Map<String, Object> reviewMap = new HashMap<>();
-                reviewMap.put("rating", review.rating());
-                reviewMap.put("comment", review.comment());
+                reviewMap.put("rating", review.getRating());
+                reviewMap.put("comment", review.getComment());
                 reviewMap.put("date", "Recently");
-                reviewMap.put("userName", review.user());
-                reviewMap.put("productName", review.product().name());
-                reviewMap.put("productId", review.product().id());
+                reviewMap.put("userName", review.getUser().getFirstName() + " " + review.getUser().getLastName());
+                reviewMap.put("productName", review.getProduct().getName());
+                reviewMap.put("productId", review.getProduct().getId());
                 reviewsWithProducts.add(reviewMap);
             }
             model.addAttribute("reviews", reviewsWithProducts);
