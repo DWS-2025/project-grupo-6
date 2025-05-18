@@ -2,6 +2,8 @@ package es.xpressaly.Model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import jakarta.persistence.*;
 
 @Entity
@@ -133,6 +135,14 @@ public class Order {
             OrderProduct newOp = new OrderProduct(this, product, quantity);
             orderProducts.add(newOp);
         }
+    }
+
+    public Map<Long, Integer> getQuantities() {
+        Map<Long, Integer> quantities = new HashMap<>();
+        for (OrderProduct op : orderProducts) {
+            quantities.put(op.getProduct().getId(), op.getQuantity());
+        }
+        return quantities;
     }
 }
 

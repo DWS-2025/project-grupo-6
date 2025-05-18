@@ -17,9 +17,11 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface ReviewMapper {
     
-    
+    @Mapping(target = "user", ignore = true)
     ReviewDTO toDTO(Review review);
 
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "product", ignore = true)
     Review toDomain(ReviewDTO dto);
 
     List<ReviewDTO> toDTOs(Collection<Review> reviews);
@@ -36,5 +38,8 @@ public interface ReviewMapper {
     @Mapping(target = "reviews", ignore = true)
     @Mapping(target = "imageData", ignore = true)
     @Mapping(target = "imagePath", ignore = true)
+    @Mapping(target = "rating", ignore = true)
+    @Mapping(target = "returnPolicyData", ignore = true)
+    @Mapping(target = "returnPolicyPath", ignore = true)
     Product toDomain(ProductDTO productDTO);
 }

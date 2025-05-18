@@ -59,15 +59,14 @@ public class ReviewService {
     
     public void addReview(Long productId, ReviewDTO reviewDTO) {
         Review review = reviewToDomain(reviewDTO);
-        validateReview(review);
+        //validateReview(review);
         Product product = productWebMapper.toDomain(productService.getProductByIdWeb(productId));
         if (product != null) {
-            // Asegurarse de que la lista de reviews esté inicializada
             if (product.getReviews() == null) {
                 product.setReviews(new ArrayList<>());
             }
             
-            // Verificar si el usuario ya tiene una review para este producto
+            //Verify if the user has already reviewed the product
             boolean userHasReview = product.getReviews().stream()
                 .anyMatch(r -> r.getUser().getId().equals(review.getUser().getId()));
             
@@ -75,12 +74,9 @@ public class ReviewService {
                 throw new IllegalArgumentException("Ya has dejado una review para este producto");
             }
             
-            // Establecer la relación bidireccional
-            review.setProduct(product);
-            
-            // Guardar la review primero
+            review.setProduct(product);       
+            product.addReview(review);
             reviewRepository.save(review);
-            
             // Obtener todas las reviews del producto incluyendo la nueva
             List<Review> allReviews = reviewRepository.findByProduct(product);
             
@@ -91,8 +87,6 @@ public class ReviewService {
             
             double averageRating = allReviews.isEmpty() ? 0.0 : totalRating / allReviews.size();
             product.setRating(averageRating);
-            product.addReview(review);
-            // Actualizar el producto con el nuevo rating
             productService.updateProductWeb(productWebMapper.toDTO(product));
         } else {
             throw new IllegalArgumentException("El producto especificado no existe");

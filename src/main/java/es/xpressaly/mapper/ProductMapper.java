@@ -21,6 +21,9 @@ public interface ProductMapper {
     @Mapping(target = "amount", ignore = true)
     @Mapping(target = "reviews", ignore = true)
     @Mapping(target = "imagePath", ignore = true)
+    @Mapping(target = "rating", ignore = true)
+    @Mapping(target = "returnPolicyData", ignore = true)
+    @Mapping(target = "returnPolicyPath", ignore = true)
     Product toDomain(ProductDTO productDTO);
 
     @Mapping(target = "product", ignore = true)

@@ -266,7 +266,7 @@ public class ProductController {
             System.out.println("Attempting to delete product with ID: " + productId);
             
             // Remove from current order if present
-            OrderDTO currentOrder = orderController.getCurrentOrder(session);
+            Order currentOrder = orderController.getCurrentOrder(session);
             ProductWebDTO productWebDTO = productService.getProductByIdWeb(productId);
             
             if (productWebDTO == null) {
@@ -276,7 +276,7 @@ public class ProductController {
             }
             
             if (currentOrder != null && productWebDTO != null) {
-                OrderDTO updatedOrder = orderService.removeProductFromOrder(currentOrder, productWebDTO);
+                Order updatedOrder = orderService.removeProductFromOrder(currentOrder, productWebDTO);
                 orderController.setCurrentOrder(session, updatedOrder);
             }
             
@@ -423,8 +423,8 @@ public class ProductController {
     @GetMapping("/get-cart-quantity")
     @ResponseBody
     public int getCartQuantity(@RequestParam Long productId, HttpSession session) {
-        OrderDTO currentOrder = orderController.getCurrentOrder(session);
-        if (currentOrder != null && currentOrder.products() != null) {
+        Order currentOrder = orderController.getCurrentOrder(session);
+        if (currentOrder != null && currentOrder.getProducts() != null) {
             return orderController.getProductQuantity(currentOrder, productId);
         }
         return 0;

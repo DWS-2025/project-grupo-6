@@ -352,9 +352,8 @@ public class UserService {
         return userWebMapper.toDTO(user);
     }
 
-    public UserWebDTO addOrder(UserWebDTO userWebDTO, OrderDTO orderDTO) {
+    public UserWebDTO addOrder(UserWebDTO userWebDTO, Order order) {
         User user = userWebMapper.toDomain(userWebDTO);
-        Order order = orderMapper.toDomain(orderDTO);
         user.addOrder(order);
         return userWebMapper.toDTO(user);
     }

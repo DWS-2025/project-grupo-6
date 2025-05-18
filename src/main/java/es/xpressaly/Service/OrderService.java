@@ -1,7 +1,6 @@
 package es.xpressaly.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.jaxb.SpringDataJaxb.OrderDto;
 import org.springframework.stereotype.Service;
 import es.xpressaly.Model.Order;
 import es.xpressaly.Model.Product;
@@ -39,26 +38,27 @@ public class OrderService {
     @Autowired
     private ProductWebMapper productWebMapper;
 
-    public OrderDTO createOrder(UserWebDTO user, String address) {
+    public Order createOrder(UserWebDTO user, String address) {
         User userEntity = userWebMapper.toDomain(user);
         Order order = new Order();
         order.setUser(userEntity);
         order.setAddress(address);
         order.setTotal(0.0);
-        return orderWebMapper.toDTO(order);
+        return order;
     }
 
     public Order getOrderById(Long id) {
         return orderRepository.findById(id).orElse(null);
     }
 
-    public List<Order> getOrdersByUser(User user) {
-        return orderRepository.findByUser(user);
+    public List<Order> getOrdersByUser(UserWebDTO user) {
+        User userEntity = userWebMapper.toDomain(user);
+        return orderRepository.findByUser(userEntity);
     }
 
-    public OrderDTO addProductToOrder(OrderDTO orderDTO, ProductWebDTO productWebDTO, int amount, HttpSession session) {
-        Order order = orderWebMapper.toDomain(orderDTO);
-        Product product = productWebMapper.toDomain(productWebDTO);
+    public Order addProductToOrder(ProductWebDTO productWebDTO, int amount, HttpSession session) {
+        Order order = (Order) session.getAttribute("currentOrder");
+        Product product = productRepository.findById(productWebDTO.id()).orElse(null);
 
         if (product == null) {
             throw new IllegalArgumentException("Product not found");
@@ -70,93 +70,51 @@ public class OrderService {
 
         order.setProductQuantity(product, amount);
         order.calculateTotal();
-        session.setAttribute("order", orderWebMapper.toDTO(order));
-        productRepository.save(product);
-        return orderWebMapper.toDTO(order);
-    }
-
-    public Order removeProductFromOrder(Long orderId, Long productId) {
-        Order order = getOrderById(orderId);
-        if (order == null) {
-            throw new IllegalArgumentException("Order not found");
-        }
-
-        Product product = order.findProductById(productId);
-        if (product == null) {
-            throw new IllegalArgumentException("Product not found in order");
-        }
-
-        product.setStock(product.getStock() + product.getAmount());
-        order.removeProduct(product);
-        order.calculateTotal();
-
+        session.setAttribute("currentOrder", order);
         productRepository.save(product);
         return order;
     }
 
-    public Order updateOrderStatus(Long orderId) {
-        Order order = getOrderById(orderId);
-        if (order == null) {
-            throw new IllegalArgumentException("Order not found");
-        }
-
-        return orderRepository.save(order);
-    }
-
-    public OrderDTO removeProductFromOrder(OrderDTO orderDTO, ProductWebDTO productWebDTO) {
-        Order order = orderWebMapper.toDomain(orderDTO);
+    public Order removeProductFromOrder(Order order, ProductWebDTO productWebDTO) {
         Product product = productWebMapper.toDomain(productWebDTO);
         order.removeProduct(product);
-        return orderWebMapper.toDTO(order);
+        return order;
     }
 
-    public OrderDTO clearOrder(OrderDTO orderDTO) {
-        Order order = orderWebMapper.toDomain(orderDTO);
+    public Order clearOrder(Order order) {
         while (order.getProducts().size() > 0) {
             order.removeProduct(order.getProducts().get(0));
         }
-        return orderWebMapper.toDTO(order);
+        return order;
     }
 
-    public ProductWebDTO findProductByIdWeb(Long id, OrderDTO orderDTO) {
-        Order order = orderWebMapper.toDomain(orderDTO);
+    public ProductWebDTO findProductByIdWeb(Long id, Order order) {
         Product product = order.findProductById(id);
         return productWebMapper.toDTO(product);
     }
 
-    public OrderDTO setAddress(OrderDTO orderDTO, String address) {
-        Order order = orderWebMapper.toDomain(orderDTO);
+    public Order setAddress(Order order, String address) {
         order.setAddress(address);
-        return orderWebMapper.toDTO(order);
+        return order;
     }
 
-    public List<OrderDTO> getOrdersByUser(UserWebDTO user) {
-        User userEntity = userWebMapper.toDomain(user);
-        Collection<Order> orders = orderRepository.findByUser(userEntity);
-        return orderWebMapper.toDTOs(orders);
-    }
-
-    public OrderDTO setUserOrderNumber(OrderDTO orderDTO, int userOrderNumber) {
-        Order order = orderWebMapper.toDomain(orderDTO);
+    public Order setUserOrderNumber(Order order, int userOrderNumber) {
         order.setUserOrderNumber(userOrderNumber);
-        return orderWebMapper.toDTO(order);
+        return order;
     }
 
-    public void save(OrderDTO orderDTO) {
-        Order order = orderWebMapper.toDomain(orderDTO);
+    public void save(Order order) {
         orderRepository.save(order);
     }
 
-    public OrderDTO setProductQuantity(OrderDTO orderDTO, ProductWebDTO productWebDTO, int amount) {
-        Order order = orderWebMapper.toDomain(orderDTO);
+    public Order setProductQuantity(Order order, ProductWebDTO productWebDTO, int amount) {
         Product product = productWebMapper.toDomain(productWebDTO);
         order.setProductQuantity(product, amount);
-        return orderWebMapper.toDTO(order);
+        return order;
     }
 
-    public OrderDTO calculateTotal(OrderDTO orderDTO) {
-        Order order = orderWebMapper.toDomain(orderDTO);
+    public Order calculateTotal(Order order) {
         order.calculateTotal();
-        return orderWebMapper.toDTO(order);
+        return order;
     }
 }
