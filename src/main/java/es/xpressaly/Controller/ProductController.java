@@ -2,6 +2,9 @@ package es.xpressaly.Controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,12 +14,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.core.io.ClassPathResource;
 
 import es.xpressaly.Model.Order;
 import es.xpressaly.Model.Product;
 import es.xpressaly.Model.Review;
 import es.xpressaly.Model.User;
 import es.xpressaly.Model.UserRole;
+import es.xpressaly.Repository.ProductRepository;
+import es.xpressaly.Repository.ReviewRepository;
+import es.xpressaly.Repository.UserRepository;
 import es.xpressaly.Service.OrderService;
 import es.xpressaly.Service.ProductService;
 import es.xpressaly.Service.ReviewService;
@@ -31,21 +41,23 @@ import es.xpressaly.mapper.ProductWebMapper;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
-//import java.nio.file.Files;
-//import java.nio.file.Path;
-//import java.nio.file.Paths;
-//import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
-// Temporarily removed JSoup imports until server can be restarted with the dependency
-// import org.jsoup.Jsoup;
-// import org.jsoup.safety.Safelist;
-
+import java.util.Optional;
 
 @Controller
 public class ProductController {
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private ProductService productService;
@@ -105,6 +117,7 @@ public class ProductController {
                              @RequestParam double price,
                              @RequestParam int stock,
                              @RequestParam MultipartFile mainImage,
+                             @RequestParam(required = false) MultipartFile returnPolicy,
                              Model model) throws IOException {
         UserWebDTO currentUser = userService.getUser();
         if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
@@ -142,6 +155,16 @@ public class ProductController {
             
             Product product = new Product(name, description, price, stock, relativeImagePath);
             product.setImageData(imageBytes);
+            
+            // Manejar el PDF de política de devoluciones si se proporciona
+            if (returnPolicy != null && !returnPolicy.isEmpty()) {
+                if (!returnPolicy.getContentType().equals("application/pdf")) {
+                    model.addAttribute("error", "The return policy must be a PDF file");
+                    return "add_product";
+                }
+                product.setReturnPolicyData(returnPolicy.getBytes());
+                product.setReturnPolicyPath("/uploads/politicaDevolucion.pdf");
+            }
             
             ProductWebDTO productWebDTO = toWebDTO(product);
             productService.addProduct(productWebDTO);
@@ -302,6 +325,8 @@ public class ProductController {
                 model.addAttribute("rating", productWebDTO.rating());
                 model.addAttribute("reviews", productWebDTO.reviews());
                 model.addAttribute("isLoggedIn", userService.getUser() != null);
+                
+                // Añadir información del documento de política de devoluciones
                 return "Product";
             }
             return "redirect:/products";
@@ -462,6 +487,7 @@ public class ProductController {
                                @RequestParam double price,
                                @RequestParam int stock,
                                @RequestParam(required = false) MultipartFile mainImage,
+                               @RequestParam(required = false) MultipartFile returnPolicy,
                                Model model) throws IOException {
         UserWebDTO currentUser = userService.getUser();
         if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
@@ -515,6 +541,17 @@ public class ProductController {
                 product.setImagePath(relativeImagePath);
                 product.setImageData(imageBytes);
             }
+
+            // Update return policy if provided
+            if (returnPolicy != null && !returnPolicy.isEmpty()) {
+                if (!returnPolicy.getContentType().equals("application/pdf")) {
+                    model.addAttribute("error", "The return policy must be a PDF file");
+                    model.addAttribute("product", existingProductWebDTO);
+                    return "edit-product";
+                }
+                product.setReturnPolicyData(returnPolicy.getBytes());
+                product.setReturnPolicyPath("/uploads/politicaDevolucion.pdf");
+            }
             
             ProductWebDTO updatedProductWebDTO = toWebDTO(product);
             productService.updateProductWeb(updatedProductWebDTO);
@@ -532,6 +569,26 @@ public class ProductController {
 
     private ProductWebDTO toWebDTO(Product product) {
         return productService.toWebDTO(product);
+    }
+
+    @GetMapping("/download-return-policy/{id}")
+    public ResponseEntity<byte[]> downloadReturnPolicy(@PathVariable Long id) throws IOException {
+        Optional<Product> productOpt = productRepository.findById(id);
+        if (productOpt.isPresent() && productOpt.get().getReturnPolicyData() != null) {
+            Product product = productOpt.get();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", product.getReturnPolicyPath());
+            return new ResponseEntity<>(product.getReturnPolicyData(), headers, HttpStatus.OK);
+        } else {
+            // Cargar el PDF por defecto desde resources
+            ClassPathResource defaultPdf = new ClassPathResource("uploads/returnPolicy.pdf");
+            byte[] defaultPdfBytes = defaultPdf.getInputStream().readAllBytes();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", "returnPolicy.pdf");
+            return new ResponseEntity<>(defaultPdfBytes, headers, HttpStatus.OK);
+        }
     }
 }
 

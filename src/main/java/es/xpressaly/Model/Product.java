@@ -36,6 +36,11 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews; // List of comments for each product
 
+    private String returnPolicyPath; // Path to Return Policy PDF
+    @Lob
+    @Column(name = "return_policy_data", columnDefinition = "MEDIUMBLOB")
+    private byte[] returnPolicyData; // PDF Data
+
     public Product() {
         // default constructor
         this.reviews = new ArrayList<>();  // Initialize reviews list in default constructor
@@ -81,6 +86,22 @@ public class Product {
     private int amount;
     public int getAmount(){return amount;}
     public void setAmount(int amount){this.amount=amount;}
+
+    public String getReturnPolicyPath() {
+        return returnPolicyPath;
+    }
+
+    public void setReturnPolicyPath(String returnPolicyPath) {
+        this.returnPolicyPath = returnPolicyPath;
+    }
+
+    public byte[] getReturnPolicyData() {
+        return returnPolicyData;
+    }
+
+    public void setReturnPolicyData(byte[] returnPolicyData) {
+        this.returnPolicyData = returnPolicyData;
+    }
 
     @Override
     public boolean equals(Object obj) {

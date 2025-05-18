@@ -11,6 +11,8 @@ public record ProductWebDTO(
     int stock,
     String imagePath,
     byte[] imageData,
+    String returnPolicyPath,
+    byte[] returnPolicyData,
     List<Review> reviews,
     double rating
 ) {} 

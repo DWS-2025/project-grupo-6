@@ -63,20 +63,26 @@ public interface OrderMapper {
         List<ProductWebDTO> products = new ArrayList<>();
         if (order != null && order.getProducts() != null) {
             for (Product product : order.getProducts()) {
-                ProductWebDTO productDTO = new ProductWebDTO(
-                    product.getId(),
-                    product.getName(),
-                    product.getDescription(),
-                    product.getPrice(),
-                    product.getStock(),
-                    product.getImagePath(),
-                    product.getImageData(),
-                    product.getReviews(),
-                    product.getRating()
-                );
+                ProductWebDTO productDTO = toProductWebDTO(product);
                 products.add(productDTO);
             }
         }
         return products;
+    }
+
+    private ProductWebDTO toProductWebDTO(Product product) {
+        return new ProductWebDTO(
+            product.getId(),
+            product.getName(),
+            product.getDescription(),
+            product.getPrice(),
+            product.getStock(),
+            product.getImagePath(),
+            product.getImageData(),
+            product.getReturnPolicyPath(),
+            product.getReturnPolicyData(),
+            product.getReviews(),
+            product.getRating()
+        );
     }
 }
