@@ -322,7 +322,7 @@ public class ProductController {
     public String getProductDetails(@RequestParam Long id, Model model) {
         try {
             Product product = productService.getProductById(id);
-            User user = userService.getUserEntityById(id);
+            User user = userService.getUserEntity();
             if (product != null) {
                 model.addAttribute("product", product);
                 model.addAttribute("rating", product.getRating());
