@@ -75,8 +75,19 @@ public class ProductService {
             .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public Product getProductById(Long id) {
-        return productRepository.findById(id).orElse(null);
+        Product product = productRepository.findById(id).orElse(null);
+        if (product != null) {
+            // Forzar la inicialización de las colecciones lazy
+            Hibernate.initialize(product.getReviews());
+            if (product.getReviews() != null) {
+                product.getReviews().forEach(review -> {
+                    Hibernate.initialize(review.getUser());
+                });
+            }
+        }
+        return product;
     }
 
     public ProductDTO getProductDTO(Long id) {
@@ -134,6 +145,10 @@ public class ProductService {
 
     public void updateProductWeb(ProductWebDTO productWebDTO) {
         Product product = productWebMapper.toDomain(productWebDTO);
+        validateProduct(product);
+        productRepository.save(product);
+    }
+    public void updateProduct(Product product) {
         validateProduct(product);
         productRepository.save(product);
     }

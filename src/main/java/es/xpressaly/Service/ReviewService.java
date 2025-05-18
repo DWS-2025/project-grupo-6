@@ -58,9 +58,15 @@ public class ReviewService {
     }
     
     public void addReview(Long productId, ReviewDTO reviewDTO) {
-        Review review = reviewToDomain(reviewDTO);
-        //validateReview(review);
-        Product product = productWebMapper.toDomain(productService.getProductByIdWeb(productId));
+        User user = userService.getUserEntityById(reviewDTO.user().id());
+        Product product = productService.getProductById(productId);
+        Review review = new Review();
+        review.setComment(reviewDTO.comment());
+        review.setRating(reviewDTO.rating());
+        review.setUser(user);
+        review.setProduct(product);
+        validateReview(review);
+        
         if (product != null) {
             if (product.getReviews() == null) {
                 product.setReviews(new ArrayList<>());
@@ -87,7 +93,7 @@ public class ReviewService {
             
             double averageRating = allReviews.isEmpty() ? 0.0 : totalRating / allReviews.size();
             product.setRating(averageRating);
-            productService.updateProductWeb(productWebMapper.toDTO(product));
+            productService.updateProduct(product);
         } else {
             throw new IllegalArgumentException("El producto especificado no existe");
         }

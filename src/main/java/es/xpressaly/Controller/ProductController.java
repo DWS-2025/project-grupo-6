@@ -18,6 +18,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.transaction.annotation.Transactional;
 
 import es.xpressaly.Model.Order;
 import es.xpressaly.Model.Product;
@@ -317,20 +318,21 @@ public class ProductController {
     }
 
     @GetMapping("/product-details")
+    @Transactional(readOnly = true)
     public String getProductDetails(@RequestParam Long id, Model model) {
         try {
-            ProductWebDTO productWebDTO = productService.getProductByIdWeb(id);
-            if (productWebDTO != null) {
-                model.addAttribute("product", productWebDTO);
-                model.addAttribute("rating", productWebDTO.rating());
-                model.addAttribute("reviews", productWebDTO.reviews());
-                model.addAttribute("isLoggedIn", userService.getUser() != null);
-                
-                // Añadir información del documento de política de devoluciones
+            Product product = productService.getProductById(id);
+            User user = userService.getUserEntityById(id);
+            if (product != null) {
+                model.addAttribute("product", product);
+                model.addAttribute("rating", product.getRating());
+                model.addAttribute("reviews", product.getReviews());
+                model.addAttribute("isLoggedIn", user != null);
                 return "Product";
             }
             return "redirect:/products";
         } catch (Exception e) {
+            e.printStackTrace();
             return "redirect:/products";
         }
     }

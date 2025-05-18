@@ -1,5 +1,6 @@
 package es.xpressaly.Controller;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,6 +19,7 @@ import es.xpressaly.dto.ProductWebDTO;
 import es.xpressaly.dto.UserWebDTO;
 import es.xpressaly.Model.Order;
 import es.xpressaly.Model.Product;
+import es.xpressaly.Model.User;
 
 import java.util.List;
 import java.util.Map;
@@ -43,17 +45,17 @@ public class OrderController {
     
     public Order getCurrentOrder(HttpSession session) {
         Order order = (Order) session.getAttribute(CURRENT_ORDER_SESSION_KEY);
-        UserWebDTO currentUser = userService.getUser();
+        User currentUser = userService.getUserEntity();
         
         // If there is no order in the session or the user is null, it returns null
-        if (order == null || currentUser == null || currentUser.id() == null) {
+        if (order == null || currentUser == null || currentUser.getId() == null) {
             return null;
         }
         
         // If the order exists but belongs to a different user, create a new one
-        if (order.getUser() == null || order.getUser().getId() == null || !order.getUser().getId().equals(currentUser.id())) {
-            String address = userService.getAddress(currentUser);
-            order = orderService.createOrder(currentUser, address);
+        if (order.getUser() == null || order.getUser().getId() == null || !order.getUser().getId().equals(currentUser.getId())) {
+            String address = currentUser.getAddress();
+            order = orderService.createOrder(userService.getUserWebDTO(currentUser), address);
             setCurrentOrder(session, order);
         }
         

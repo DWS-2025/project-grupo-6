@@ -18,6 +18,7 @@ import java.util.List;
 public interface UserWebMapper {
     
     @Mapping(target = "orders", ignore = true)
+    @Mapping(target = "reviews", ignore = true)
     UserWebDTO toDTO(User user);
     
     List<UserWebDTO> toDTOs(Collection<User> users);

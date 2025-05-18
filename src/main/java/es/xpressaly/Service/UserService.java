@@ -182,6 +182,17 @@ public class UserService {
         return userWebMapper.toDTO(user);
     }
 
+    public User getUserEntity() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+    
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email).orElse(null);
+        return user;
+    }
+    // Method to obtain the user DTO by ID
     public UserDTO getUserDTO(UserWebDTO userWebDTO) {
         User user = userWebMapper.toDomain(userWebDTO);
         return userMapper.toDTO(user);

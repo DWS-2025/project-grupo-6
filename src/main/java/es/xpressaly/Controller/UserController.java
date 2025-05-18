@@ -38,21 +38,25 @@ public class UserController {
     @GetMapping("/profile")
     public String showProfile(Model model, HttpSession session) {
         try {
-            UserWebDTO currentUser = userService.getUser();
+            User currentUser = userService.getUserEntity();
             if (currentUser == null) {
                 return "redirect:/login";
             }
             
-            User user = userService.getUserEntityById(currentUser.id());
-            model.addAttribute("name", currentUser.firstName());
-            model.addAttribute("surname", currentUser.lastName());
-            model.addAttribute("email", currentUser.email());
-            model.addAttribute("address", currentUser.address());
-            model.addAttribute("phone", currentUser.phoneNumber());
-            model.addAttribute("age", currentUser.age());
+            User user = userService.getUserEntityById(currentUser.getId());
+            if (user == null) {
+                return "redirect:/login";
+            }
+
+            model.addAttribute("name", currentUser.getFirstName());
+            model.addAttribute("surname", currentUser.getLastName());
+            model.addAttribute("email", currentUser.getEmail());
+            model.addAttribute("address", currentUser.getAddress());
+            model.addAttribute("phone", currentUser.getPhoneNumber());
+            model.addAttribute("age", currentUser.getAge());
             model.addAttribute("orders", user.getOrders());
-            model.addAttribute("password", currentUser.password());
-            model.addAttribute("isAdmin", currentUser.role() == UserRole.ADMIN);
+            model.addAttribute("password", currentUser.getPassword());
+            model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
             model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
            
             // Get user's reviews and add product information
@@ -177,21 +181,22 @@ public class UserController {
         model.addAttribute("age", user.age());
         model.addAttribute("password", user.password());
         
-        List<Map<String, Object>> reviewsWithProducts = new ArrayList<>();
-        for (ReviewDTO review : user.reviews()) {
-            // Verify if the review still exists in the database
-            if (reviewService.getReviewById(review.id()) != null) {
+        // Obtener la entidad User para acceder a las reviews
+        User userEntity = userService.getUserEntityById(user.id());
+        if (userEntity != null) {
+            List<Map<String, Object>> reviewsWithProducts = new ArrayList<>();
+            for (Review review : userEntity.getReviews()) {
                 Map<String, Object> reviewMap = new HashMap<>();
-                reviewMap.put("rating", review.rating());
-                reviewMap.put("comment", review.comment());
+                reviewMap.put("rating", review.getRating());
+                reviewMap.put("comment", review.getComment());
                 reviewMap.put("date", "Recently");
-                reviewMap.put("userName", review.user());
-                reviewMap.put("productName", review.product().name());
-                reviewMap.put("productId", review.product().id());
+                reviewMap.put("userName", review.getUser().getFirstName() + " " + review.getUser().getLastName());
+                reviewMap.put("productName", review.getProduct().getName());
+                reviewMap.put("productId", review.getProduct().getId());
                 reviewsWithProducts.add(reviewMap);
             }
+            model.addAttribute("reviews", reviewsWithProducts);
         }
-        model.addAttribute("reviews", reviewsWithProducts);
     }
 
     @GetMapping("/reviews")
