@@ -129,6 +129,10 @@ public class UserController {
                 return "profile";
             }
             
+            // Debug messages
+            System.out.println("Actualizando perfil para: " + email);
+            System.out.println("¿Contraseña proporcionada? " + (password != null && !password.isEmpty()));
+            
             // Password validation
             if (password != null && !password.isEmpty()) {
                 if (confirmPassword == null || !password.equals(confirmPassword)) {
@@ -137,26 +141,55 @@ public class UserController {
                     return "profile";
                 }
                 // Check password complexity
-                if (password.length() < 8) {
+                if (password.length() < 8 || !password.matches(".*[A-Z].*") || !password.matches(".*[a-z].*") || !password.matches(".*\\d.*")) {
                     model.addAttribute("error", "Password must be at least 8 characters long and contain uppercase, lowercase, and numbers");
                     addUserDataToModel(model, user);
                     return "profile";
                 }
+                
+                // Debuggear la contraseña
+                System.out.println("Contraseña válida: " + password.length() + " caracteres");
+                System.out.println("¿Tiene mayúsculas? " + password.matches(".*[A-Z].*"));
+                System.out.println("¿Tiene minúsculas? " + password.matches(".*[a-z].*"));
+                System.out.println("¿Tiene números? " + password.matches(".*\\d.*"));
             }
 
-            UserWebDTO updatedUser = new UserWebDTO(
-                user.id(),
-                firstName,
-                lastName,
-                email,
-                password != null && !password.isEmpty() ? password : user.password(),
-                address,
-                age,
-                phone,
-                user.reviews(),
-                user.orders(),
-                user.role()
-            );
+            // Crear usuario con datos actualizados
+            UserWebDTO updatedUser;
+            if (password != null && !password.isEmpty()) {
+                // Si se proporciona una nueva contraseña, codificarla
+                String hashedPassword = userService.encodePassword(password);
+                System.out.println("Contraseña hasheada: " + hashedPassword);
+                
+                updatedUser = new UserWebDTO(
+                    user.id(),
+                    firstName,
+                    lastName,
+                    email,
+                    hashedPassword,
+                    address,
+                    age,
+                    phone,
+                    user.reviews(),
+                    user.orders(),
+                    user.role()
+                );
+            } else {
+                // Si no se proporciona una nueva contraseña, mantener la actual
+                updatedUser = new UserWebDTO(
+                    user.id(),
+                    firstName,
+                    lastName,
+                    email,
+                    user.password(),
+                    address,
+                    age,
+                    phone,
+                    user.reviews(),
+                    user.orders(),
+                    user.role()
+                );
+            }
             
             // Save the updated user
             userService.updateUser(updatedUser);

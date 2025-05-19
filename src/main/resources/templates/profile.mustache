@@ -22,11 +22,10 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             padding: 30px;
             z-index: 1000;
-            width: 450px; /* Aumentado */
+            width: 450px;
             max-width: 90%;
         }
 
-        /* Fondo semi-transparente */
         #modalOverlay {
             display: none;
             position: fixed;
@@ -47,37 +46,97 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-bottom: 15px;
         }
 
         .password-container input {
             flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
         }
 
         .password-toggle-btn {
-            background-color: #294156 !important;
-            color: white !important;
-            border: none;
-            padding: 6px 12px;
-            cursor: pointer;
-            border-radius: 3px;
-            white-space: nowrap;
-        }
-        /* Botones modal */
-        #passwordModal button {
-            margin-top: 10px;
             background-color: #294156;
             color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
+            padding: 8px 12px;
             cursor: pointer;
+            border-radius: 4px;
+            white-space: nowrap;
+            font-size: 14px;
         }
 
-        #passwordModal .close-btn {
+        .password-requirements {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .requirement {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .requirement i {
+            margin-right: 8px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .requirement.valid {
+            color: #28a745;
+        }
+
+        .requirement.invalid {
+            color: #dc3545;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .save-password-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .save-password-btn:hover {
+            background-color: #218838;
+        }
+
+        .close-btn {
             background-color: #dc3545;
-            margin-left: 10px;
+            color: white;
         }
 
+        .close-btn:hover {
+            background-color: #c82333;
+        }
+
+        .modal-title {
+            color: #294156;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            font-weight: 500;
+        }
     </style>
 </head>
 
@@ -150,19 +209,57 @@
     <!-- Modal de cambio de contraseña -->
     <div id="modalOverlay"></div>
     <div id="passwordModal">
-        <h3>Change Password</h3>
+        <h3 class="modal-title">Change Password</h3>
         <form id="passwordChangeForm" onsubmit="return savePasswordAndClose()">
             <div class="form-group">
                 <label for="newPassword">New Password:</label>
-                <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password" required />
+                <div class="password-container">
+                    <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password" required />
+                    <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('newPassword')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label for="confirmPassword">Confirm Password:</label>
-                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm new password" required />
+                <div class="password-container">
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm new password" required />
+                    <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('confirmPassword')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
             </div>
-            <div class="form-group">
-                <button type="submit" class="save-password-btn">Save</button>
-                <button type="button" class="close-btn" onclick="closePasswordModal()">Cancel</button>
+            
+            <div class="password-requirements">
+                <div class="requirement" id="length-req">
+                    <i class="fas fa-circle"></i>
+                    <span>At least 8 characters</span>
+                </div>
+                <div class="requirement" id="uppercase-req">
+                    <i class="fas fa-circle"></i>
+                    <span>At least one uppercase letter</span>
+                </div>
+                <div class="requirement" id="lowercase-req">
+                    <i class="fas fa-circle"></i>
+                    <span>At least one lowercase letter</span>
+                </div>
+                <div class="requirement" id="number-req">
+                    <i class="fas fa-circle"></i>
+                    <span>At least one number</span>
+                </div>
+                <div class="requirement" id="match-req">
+                    <i class="fas fa-circle"></i>
+                    <span>Passwords match</span>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="modal-btn close-btn" onclick="closePasswordModal()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="submit" class="modal-btn save-password-btn" id="savePasswordBtn" disabled>
+                    <i class="fas fa-save"></i> Save
+                </button>
             </div>
         </form>
     </div>
@@ -234,32 +331,126 @@
     function closePasswordModal() {
         document.getElementById('passwordModal').classList.remove('active');
         document.getElementById('modalOverlay').classList.remove('active');
+        // Reset form
+        document.getElementById('passwordChangeForm').reset();
+        resetPasswordValidation();
     }
+
+    function togglePasswordVisibility(inputId) {
+        const input = document.getElementById(inputId);
+        const button = input.nextElementSibling;
+        const icon = button.querySelector('i');
+
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = "password";
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    function validatePassword() {
+        const password = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const saveButton = document.getElementById('savePasswordBtn');
+        
+        // Validar longitud
+        const lengthValid = password.length >= 8;
+        updateRequirement('length-req', lengthValid);
+        
+        // Validar mayúscula
+        const hasUpperCase = /[A-Z]/.test(password);
+        updateRequirement('uppercase-req', hasUpperCase);
+        
+        // Validar minúscula
+        const hasLowerCase = /[a-z]/.test(password);
+        updateRequirement('lowercase-req', hasLowerCase);
+        
+        // Validar número
+        const hasNumber = /\d/.test(password);
+        updateRequirement('number-req', hasNumber);
+        
+        // Validar coincidencia
+        const passwordsMatch = password === confirmPassword && password !== '';
+        updateRequirement('match-req', passwordsMatch);
+        
+        // Habilitar/deshabilitar botón de guardar
+        const allValid = lengthValid && hasUpperCase && hasLowerCase && hasNumber && passwordsMatch;
+        saveButton.disabled = !allValid;
+    }
+
+    function updateRequirement(id, isValid) {
+        const requirement = document.getElementById(id);
+        const icon = requirement.querySelector('i');
+        
+        if (isValid) {
+            requirement.classList.remove('invalid');
+            requirement.classList.add('valid');
+            icon.classList.remove('fa-circle');
+            icon.classList.add('fa-check-circle');
+        } else {
+            requirement.classList.remove('valid');
+            requirement.classList.add('invalid');
+            icon.classList.remove('fa-check-circle');
+            icon.classList.add('fa-circle');
+        }
+    }
+
+    function resetPasswordValidation() {
+        const requirements = document.querySelectorAll('.requirement');
+        requirements.forEach(req => {
+            req.classList.remove('valid', 'invalid');
+            const icon = req.querySelector('i');
+            icon.classList.remove('fa-check-circle');
+            icon.classList.add('fa-circle');
+        });
+        document.getElementById('savePasswordBtn').disabled = true;
+    }
+
+    // Añadir event listeners para validación en tiempo real
+    document.getElementById('newPassword').addEventListener('input', validatePassword);
+    document.getElementById('confirmPassword').addEventListener('input', validatePassword);
 
     function savePasswordAndClose() {
-        const pwd = document.getElementById('newPassword').value;
-        const confirmPwd = document.getElementById('confirmPassword').value;
+        const password = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
 
-        if (pwd !== confirmPwd) {
-            alert('Passwords do not match.');
+        if (password !== confirmPassword) {
+            showNotification('Las contraseñas no coinciden.', 'error');
             return false;
         }
 
-        if (pwd.length < 8 || !/\d/.test(pwd) || !/[a-zA-Z]/.test(pwd)) {
-            alert('Password must be at least 8 characters and include letters and numbers.');
-            return false;
+        // Crear un campo oculto en el formulario principal para la nueva contraseña
+        let hiddenPassword = document.getElementById('hiddenPassword');
+        if (!hiddenPassword) {
+            hiddenPassword = document.createElement('input');
+            hiddenPassword.type = 'hidden';
+            hiddenPassword.id = 'hiddenPassword';
+            hiddenPassword.name = 'password';
+            document.querySelector('form[action="/update-profile"]').appendChild(hiddenPassword);
         }
+        hiddenPassword.value = password;
 
-        // Guardar en el campo oculto del formulario principal
-        document.getElementById('hiddenPassword').value = pwd;
+        // Agregar el campo de confirmación
+        let hiddenConfirmPassword = document.getElementById('hiddenConfirmPassword');
+        if (!hiddenConfirmPassword) {
+            hiddenConfirmPassword = document.createElement('input');
+            hiddenConfirmPassword.type = 'hidden';
+            hiddenConfirmPassword.id = 'hiddenConfirmPassword';
+            hiddenConfirmPassword.name = 'confirmPassword';
+            document.querySelector('form[action="/update-profile"]').appendChild(hiddenConfirmPassword);
+        }
+        hiddenConfirmPassword.value = confirmPassword;
 
         closePasswordModal();
+        
+        // Enviar el formulario para actualizar la contraseña
+        document.querySelector('form[action="/update-profile"]').submit();
+        
         return false;
-    }
-
-    function handleSubmitProfileForm() {
-        // Validación adicional si fuera necesaria
-        return true;
     }
 </script>
 </body>

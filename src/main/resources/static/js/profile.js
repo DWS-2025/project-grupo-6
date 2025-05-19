@@ -95,9 +95,21 @@ document.querySelector('form').addEventListener('submit', function(e) {
     const phone = document.querySelector('input[name="phone"]').value;
     const age = document.querySelector('input[name="age"]').value;
     const address = document.querySelector('input[name="address"]').value;
-    const currentPassword = document.getElementById('currentPasswordInput').value;
-    const newPassword = document.getElementById('passwordInput').value;
-    const confirmPassword = document.getElementById('confirmPasswordInput').value;
+    
+    // Buscar el campo oculto de contraseña que puede haber sido agregado por el modal
+    const hiddenPassword = document.getElementById('hiddenPassword');
+    const hiddenConfirmPassword = document.getElementById('hiddenConfirmPassword');
+    
+    let password = '';
+    let confirmPassword = '';
+    
+    if (hiddenPassword && hiddenPassword.value) {
+        password = hiddenPassword.value;
+    }
+    
+    if (hiddenConfirmPassword && hiddenConfirmPassword.value) {
+        confirmPassword = hiddenConfirmPassword.value;
+    }
 
     // Validate required fields
     if (!firstName || !lastName || !email) {
@@ -131,19 +143,14 @@ document.querySelector('form').addEventListener('submit', function(e) {
     }
 
     // Password validation
-    if (newPassword && confirmPassword) {
-        if (newPassword.length < 8) {
-            showNotification('The password must be at least 8 characters.', 'error');
+    if (password) {
+        if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
+            showNotification('The password must be at least 8 characters long, contain uppercase, lowercase and numbers.', 'error');
             return;
         }
 
-        if (newPassword !== confirmPassword) {
+        if (password !== confirmPassword) {
             showNotification('The new passwords do not match. Please verify that they are the same.', 'error');
-            return;
-        }
-
-        if (newPassword === currentPassword) {
-            showNotification('The new password cannot be the same as the current password.', 'error');
             return;
         }
     }
@@ -156,8 +163,9 @@ document.querySelector('form').addEventListener('submit', function(e) {
     formData.append('phone', phone);
     formData.append('age', age);
     formData.append('address', address);
-    if (newPassword) {
-        formData.append('password', newPassword);
+    
+    if (password) {
+        formData.append('password', password);
         formData.append('confirmPassword', confirmPassword);
     }
 

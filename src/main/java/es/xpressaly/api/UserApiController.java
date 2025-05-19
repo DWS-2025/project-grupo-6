@@ -117,7 +117,7 @@ public class UserApiController {
             user = userService.setAge(user, age);
             
             if (password != null && !password.isEmpty() && password.equals(confirmPassword)) {
-                user = userService.setPassword(user, password);
+                user = userService.setPassword(user, userService.encodePassword(password));
             }
             
             userService.updateUser(user);

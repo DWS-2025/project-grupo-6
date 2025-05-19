@@ -116,9 +116,12 @@ public class UserService {
     }
 
     private boolean isValidPassword(String password) {
-        // At least 8 characters, containing at least one number and one letter
-        return password != null && password.length() >= 8 && 
-               password.matches(".*[0-9].*") && password.matches(".*[a-zA-Z].*");
+        // Al menos 8 caracteres, una mayúscula, una minúscula y un número
+        return password != null && 
+               password.length() >= 8 && 
+               password.matches(".*[0-9].*") && 
+               password.matches(".*[a-z].*") &&
+               password.matches(".*[A-Z].*");
     }
 
     private boolean isValidPhoneNumber(int phoneNumber) {
@@ -281,8 +284,11 @@ public class UserService {
         }
 
         User updatedUser = userWebMapper.toDomain(userWebDTO);
+        
+        // Comprobar si la contraseña ya está codificada o no
         if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
-            if (!passwordEncoder.matches(updatedUser.getPassword(), existingUser.getPassword())) {
+            if (!updatedUser.getPassword().startsWith("$2a$")) {
+                // La contraseña no está codificada, codificarla
                 updatedUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
             }
         } else {
@@ -290,6 +296,10 @@ public class UserService {
         }
 
         userRepository.save(updatedUser);
+        
+        // Debug para verificar la actualización
+        System.out.println("Usuario actualizado: " + updatedUser.getEmail());
+        System.out.println("Contraseña actualizada: " + (updatedUser.getPassword() != null ? "Sí" : "No"));
     }
 
     public UserWebDTO findByEmail(String email) {
@@ -341,7 +351,7 @@ public class UserService {
 
     public UserWebDTO setPassword(UserWebDTO userWebDTO, String password) {
         User user = userWebMapper.toDomain(userWebDTO);
-        user.setPassword(password);
+        user.setPassword(passwordEncoder.encode(password));
         return userWebMapper.toDTO(user);
     }
 
