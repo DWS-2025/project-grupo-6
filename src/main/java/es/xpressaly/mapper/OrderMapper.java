@@ -47,6 +47,7 @@ public interface OrderMapper {
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "reviews", ignore = true)
+    @Mapping(target = "currentOrder", ignore = true)
     User toDomain(UserWebDTO userWebDTO);
 
     default Map<Long, Integer> getProductQuantities(Order order) {

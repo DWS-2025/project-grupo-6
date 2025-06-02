@@ -59,7 +59,8 @@ public class AuthController {
             UserWebDTO user = userService.authenticateUser(email, password);
             if (user != null) {
                 Order newOrder=orderService.createOrder(user, userService.getAddress(user));
-                orderController.setCurrentOrder(session, newOrder);
+                User currentUser=userService.getUserEntity();
+                userService.setCurrentOrder(currentUser,newOrder);
                 session.setAttribute("userId", user.id());
                 session.setAttribute("userEmail", user.email());
                 session.setAttribute("userRole", user.role());

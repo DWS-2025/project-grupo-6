@@ -12,7 +12,6 @@ import es.xpressaly.Model.User;
 import es.xpressaly.Model.UserRole;
 import es.xpressaly.Model.Review;
 import es.xpressaly.Service.UserService;
-import jakarta.servlet.http.HttpSession;
 import es.xpressaly.Service.ReviewService;
 import es.xpressaly.dto.ReviewDTO;
 import es.xpressaly.dto.UserWebDTO;
@@ -36,7 +35,7 @@ public class UserController {
     
 
     @GetMapping("/profile")
-    public String showProfile(Model model, HttpSession session) {
+    public String showProfile(Model model) {
         try {
             User currentUser = userService.getUserEntity();
             if (currentUser == null) {
@@ -57,7 +56,7 @@ public class UserController {
             model.addAttribute("orders", user.getOrders());
             model.addAttribute("password", currentUser.getPassword());
             model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
-            model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
+            model.addAttribute("cartItemCount", orderController.getCartItemCount());
            
             // Get user's reviews and add product information
             List<Map<String, Object>> reviewsWithProducts = new ArrayList<>();
@@ -248,18 +247,18 @@ public class UserController {
     }
 
     @PostMapping("/delete-account")
-    public String deleteAccount(HttpSession session) {
+    public String deleteAccount() {
         UserWebDTO currentUser = userService.getUser();
         if (currentUser == null) {
             return "redirect:/login";
         }
 
-        userService.deleteOwnUser(session);
+        userService.deleteOwnUser();
         return "redirect:/login";
     }
     
     @GetMapping("/users-management")
-    public String showUsersManagement(Model model, HttpSession session) {
+    public String showUsersManagement(Model model) {
         try {
             UserWebDTO currentUser = userService.getUser();
             if (currentUser == null) {
@@ -275,7 +274,7 @@ public class UserController {
             model.addAttribute("users", users);
             model.addAttribute("isAdmin", currentUser.role() == UserRole.ADMIN);
             model.addAttribute("userIsAdmin", currentUser.role() == UserRole.ADMIN);
-            model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
+            model.addAttribute("cartItemCount", orderController.getCartItemCount());
             
             return "users-management";
         } catch (Exception e) {

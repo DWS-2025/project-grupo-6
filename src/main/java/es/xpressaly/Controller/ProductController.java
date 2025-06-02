@@ -39,7 +39,7 @@ import es.xpressaly.dto.ReviewDTO;
 import es.xpressaly.dto.UserWebDTO;
 import es.xpressaly.mapper.ProductMapper;
 import es.xpressaly.mapper.ProductWebMapper;
-import jakarta.servlet.http.HttpSession;
+
 
 import java.io.IOException;
 import java.util.List;
@@ -77,13 +77,13 @@ public class ProductController {
 
     // Show product list
     @GetMapping("/products")
-    public String showProducts(Model model, @RequestParam(required = false, defaultValue = "default") String sort, HttpSession session) {
+    public String showProducts(Model model, @RequestParam(required = false, defaultValue = "default") String sort) {
         try {
             UserWebDTO currentUser = userService.getUser();
             List<ProductWebDTO> products = productService.getAllProductsWeb();
             model.addAttribute("products", products);
             model.addAttribute("isAdmin", currentUser != null && currentUser.role() == UserRole.ADMIN);
-            model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
+            model.addAttribute("cartItemCount", orderController.getCartItemCount());
             return "Wellcome";
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
@@ -94,7 +94,7 @@ public class ProductController {
 
     // Show form to create a product - Admin only
     @GetMapping("/create-product")
-    public String createProductForm(Model model, HttpSession session) {
+    public String createProductForm(Model model) {
         UserWebDTO currentUser = userService.getUser();
         
         // More detailed verification of admin access
@@ -107,7 +107,7 @@ public class ProductController {
         }
         
         model.addAttribute("isAdmin", true);
-        model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
+        model.addAttribute("cartItemCount", orderController.getCartItemCount());
         return "add_product";
     }
 
@@ -254,8 +254,7 @@ public class ProductController {
 
     // Delete a product - Admin only
     @PostMapping("/delete-product")
-    public String deleteProduct(@RequestParam Long productId, 
-                               HttpSession session, 
+    public String deleteProduct(@RequestParam Long productId,                                 
                                Model model,
                                @RequestParam(required = false) Boolean ajax) throws IOException {
         UserWebDTO currentUser = userService.getUser();
@@ -267,7 +266,7 @@ public class ProductController {
             System.out.println("Attempting to delete product with ID: " + productId);
             
             // Remove from current order if present
-            Order currentOrder = orderController.getCurrentOrder(session);
+            Order currentOrder = orderController.getCurrentOrder();
             ProductWebDTO productWebDTO = productService.getProductByIdWeb(productId);
             
             if (productWebDTO == null) {
@@ -278,7 +277,7 @@ public class ProductController {
             
             if (currentOrder != null && productWebDTO != null) {
                 Order updatedOrder = orderService.removeProductFromOrder(currentOrder, productWebDTO);
-                orderController.setCurrentOrder(session, updatedOrder);
+                orderController.setCurrentOrder(updatedOrder);
             }
             
             // Delete the product
@@ -302,13 +301,13 @@ public class ProductController {
 
     // Search products endpoint that queries the database
     @GetMapping("/search-products")
-    public String searchProducts(@RequestParam String term, Model model, HttpSession session) {
+    public String searchProducts(@RequestParam String term, Model model) {
         try {
             List<ProductWebDTO> searchResults = productService.searchProductsWeb(term);
             UserWebDTO currentUser = userService.getUser();
             model.addAttribute("products", searchResults);
             model.addAttribute("isAdmin", currentUser != null && currentUser.role() == UserRole.ADMIN);
-            model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
+            model.addAttribute("cartItemCount", orderController.getCartItemCount());
             model.addAttribute("searchTerm", term);
             return "Wellcome";
         } catch (Exception e) {
@@ -424,8 +423,8 @@ public class ProductController {
 
     @GetMapping("/get-cart-quantity")
     @ResponseBody
-    public int getCartQuantity(@RequestParam Long productId, HttpSession session) {
-        Order currentOrder = orderController.getCurrentOrder(session);
+    public int getCartQuantity(@RequestParam Long productId) {
+        Order currentOrder = orderController.getCurrentOrder();
         if (currentOrder != null && currentOrder.getProducts() != null) {
             return orderController.getProductQuantity(currentOrder, productId);
         }
@@ -434,7 +433,7 @@ public class ProductController {
 
     // Product Management Page - Admin only
     @GetMapping("/product-management")
-    public String productManagement(Model model, HttpSession session) {
+    public String productManagement(Model model) {
         UserWebDTO currentUser = userService.getUser();
         
         // Verificación de acceso de administrador
@@ -451,13 +450,13 @@ public class ProductController {
         List<ProductDTO> products = productService.getAllProducts();
         model.addAttribute("products", products);
         model.addAttribute("isAdmin", true);
-        model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
+        model.addAttribute("cartItemCount", orderController.getCartItemCount());
         return "product-management";
     }
 
     // Show form to edit a product - Admin only
     @GetMapping("/edit-product/{id}")
-    public String editProductForm(@PathVariable Long id, Model model, HttpSession session) {
+    public String editProductForm(@PathVariable Long id, Model model) {
         UserWebDTO currentUser = userService.getUser();
         
         //Verification of admin access
@@ -477,7 +476,7 @@ public class ProductController {
         
         model.addAttribute("product", productWebDTO);
         model.addAttribute("isAdmin", true);
-        model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
+        model.addAttribute("cartItemCount", orderController.getCartItemCount());
         return "edit-product";
     }
 

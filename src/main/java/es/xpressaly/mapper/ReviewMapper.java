@@ -32,6 +32,7 @@ public interface ReviewMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "role", ignore = true)
     @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "currentOrder", ignore = true)
     User toDomain(UserDTO userDTO);
 
     @Mapping(target = "amount", ignore = true)

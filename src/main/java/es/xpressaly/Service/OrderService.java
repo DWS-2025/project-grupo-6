@@ -13,7 +13,6 @@ import es.xpressaly.dto.UserWebDTO;
 import es.xpressaly.mapper.OrderMapper;
 import es.xpressaly.mapper.ProductWebMapper;
 import es.xpressaly.mapper.UserWebMapper;
-import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 
 import java.util.Collection;
@@ -71,8 +70,15 @@ public class OrderService {
         return orderRepository.findByUser(userEntity);
     }
 
-    public Order addProductToOrder(ProductWebDTO productWebDTO, int amount, HttpSession session) {
-        Order order = (Order) session.getAttribute("currentOrder");
+    public Order addProductToOrder(ProductWebDTO productWebDTO, int amount, UserWebDTO currentUser, Order currentOrder) {
+        User user = userWebMapper.toDomain(currentUser);
+        
+        // Si el order es null, crear uno nuevo
+        if (currentOrder == null) {
+            currentOrder = createOrder(currentUser, user.getAddress());
+            user.setCurrentOrder(currentOrder);
+        }
+        
         Product product = productRepository.findById(productWebDTO.id()).orElse(null);
 
         if (product == null) {
@@ -83,11 +89,16 @@ public class OrderService {
             throw new IllegalArgumentException("Insufficient stock");
         }
 
-        order.setProductQuantity(product, amount);
-        order.calculateTotal();
-        session.setAttribute("currentOrder", order);
-        productRepository.save(product);
-        return order;
+        // Obtener la cantidad actual del producto
+        int currentQuantity = currentOrder.getProductQuantity(product);
+        // Actualizar la cantidad sumando la nueva cantidad
+        currentOrder.setProductQuantity(product, currentQuantity + amount);
+        currentOrder.calculateTotal();
+        
+        // Asegurar que el order se actualiza en el usuario
+        user.setCurrentOrder(currentOrder);
+        currentOrder.addProduct(product);
+        return currentOrder;
     }
 
     public Order removeProductFromOrder(Order order, ProductWebDTO productWebDTO) {

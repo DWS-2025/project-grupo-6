@@ -3,10 +3,9 @@ package es.xpressaly.Model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-
 import jakarta.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "users")
@@ -34,6 +33,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    @Transient
+    private Order currentOrder;
+    
     public User() {
         this.reviews = new ArrayList<>();
         this.orders = new ArrayList<>();
@@ -85,5 +87,13 @@ public class User {
     }
     public boolean isAdmin() {
         return this.role == UserRole.ADMIN;
+    }
+
+    public Order getCurrentOrder(){
+        return currentOrder;
+    }
+
+    public void setCurrentOrder(Order currentOrder){
+        this.currentOrder=currentOrder;
     }
 }

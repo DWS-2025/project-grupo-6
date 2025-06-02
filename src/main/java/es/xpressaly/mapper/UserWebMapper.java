@@ -24,6 +24,7 @@ public interface UserWebMapper {
     List<UserWebDTO> toDTOs(Collection<User> users);
     
     @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "currentOrder", ignore = true)
     User toDomain(UserWebDTO userWebDTO);
 
     @Mapping(target = "userOrderNumber", ignore = true)

@@ -7,7 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.core.Authentication;
-import jakarta.servlet.http.HttpSession;
+
 
 import es.xpressaly.Model.User;
 import es.xpressaly.Model.UserRole;
@@ -30,6 +30,8 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -49,7 +51,8 @@ public class UserService {
     private ReviewMapper reviewMapper;
     @Autowired
     private OrderMapper orderMapper;
-    //private User currentUser;
+
+    private static Map<Long, Order> userCurrentOrders = new HashMap<>();
 
     // Method to obtain the user entity by ID
     public User getUserEntityById(Long userId) {
@@ -67,6 +70,8 @@ public class UserService {
             if (user.getReviews() != null) {
                 user.getReviews().size(); // Forzar inicialización
             }
+            // Establecer el currentOrder desde el mapa estático
+            user.setCurrentOrder(userCurrentOrders.get(userId));
         }
         return user;
     }
@@ -307,11 +312,11 @@ public class UserService {
         return user != null ? userWebMapper.toDTO(user) : null;
     }
 
-    public void deleteOwnUser(HttpSession session) {
+    public void deleteOwnUser() {//invalidar sesion???
         UserWebDTO currentUser = getUser();
         if (currentUser != null) {
             userRepository.deleteById(currentUser.id());
-            session.invalidate();
+            
         }
     }
 
@@ -413,5 +418,19 @@ public class UserService {
     public String getAddress(UserWebDTO userWebDTO) {
         User user = userWebMapper.toDomain(userWebDTO);
         return user.getAddress();
+    }
+
+    public Order getCurrentOrder(User user) {
+        if (user == null || user.getId() == null) {
+            return null;
+        }
+        return userCurrentOrders.get(user.getId());
+    }
+
+    public void setCurrentOrder(User user, Order currentOrder) {
+        if (user != null && user.getId() != null) {
+            userCurrentOrders.put(user.getId(), currentOrder);
+            user.setCurrentOrder(currentOrder);
+        }
     }
 }

@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import es.xpressaly.Model.UserRole;
 import es.xpressaly.Service.OrderService;
@@ -40,34 +39,34 @@ public class OrderController {
     
     @PersistenceContext
     private EntityManager entityManager;
-
-    private static final String CURRENT_ORDER_SESSION_KEY = "currentOrder";
     
-    public Order getCurrentOrder(HttpSession session) {
-        Order order = (Order) session.getAttribute(CURRENT_ORDER_SESSION_KEY);
+    public Order getCurrentOrder() {
+        
         User currentUser = userService.getUserEntity();
+        Order order=userService.getCurrentOrder(currentUser);
         
         // If there is no order in the session or the user is null, it returns null
         if (order == null || currentUser == null || currentUser.getId() == null) {
             return null;
+
         }
         
         // If the order exists but belongs to a different user, create a new one
         if (order.getUser() == null || order.getUser().getId() == null || !order.getUser().getId().equals(currentUser.getId())) {
             String address = currentUser.getAddress();
             order = orderService.createOrder(userService.getUserWebDTO(currentUser), address);
-            setCurrentOrder(session, order);
+            userService.setCurrentOrder(currentUser, order);
         }
         
         return order;
     }
 
-    public void setCurrentOrder(HttpSession session, Order order) {
-        session.setAttribute(CURRENT_ORDER_SESSION_KEY, order);
+    public void setCurrentOrder(Order order) {
+        userService.setCurrentOrder(userService.getUserEntity(), order);
     }
 
-    public int getCartItemCount(HttpSession session) {
-        Order currentOrder = getCurrentOrder(session);
+    public int getCartItemCount() {      
+        Order currentOrder = getCurrentOrder();
         if (currentOrder == null || currentOrder.getProducts() == null) {
             return 0;
         }
@@ -75,9 +74,9 @@ public class OrderController {
     }
 
     @GetMapping("/view_order_products")
-    public String showProducts(Model model, HttpSession session) {
-        UserWebDTO currentUser = userService.getUser();
-        Order currentOrder = getCurrentOrder(session);
+    public String showProducts(Model model) {
+        UserWebDTO currentUser=userService.getUser();    
+        Order currentOrder = getCurrentOrder();
 
         if (currentOrder == null || !currentOrder.getUser().getId().equals(currentUser.id())) {
             currentOrder = orderService.createOrder(currentUser, currentUser.address());
@@ -86,14 +85,14 @@ public class OrderController {
         model.addAttribute("products", productService.getAllProductsWeb());
         model.addAttribute("order", currentOrder);
         model.addAttribute("isAdmin", currentUser.role() == UserRole.ADMIN);
-        model.addAttribute("cartItemCount", getCartItemCount(session));
+        model.addAttribute("cartItemCount", getCartItemCount());
         return "Wellcome";
     }
 
     // Add product to order
     @PostMapping("/add-to-order")
     @ResponseBody
-    public Map<String, Object> addToOrder(@RequestParam Long productId, HttpSession session) {
+    public Map<String, Object> addToOrder(@RequestParam Long productId) {
         Map<String, Object> response = new HashMap<>();
         try {
             ProductWebDTO productWebDTO = productService.getProductByIdWeb(productId);
@@ -104,7 +103,6 @@ public class OrderController {
                 return response;
             }
             
-            Order currentOrder = getCurrentOrder(session);
             if (productWebDTO == null) {
                 response.put("error", "Product not found");
                 return response;
@@ -115,9 +113,10 @@ public class OrderController {
                 return response;
             }
 
+            Order currentOrder = getCurrentOrder();
             if (currentOrder == null) {
                 currentOrder = orderService.createOrder(currentUser, currentUser.address());
-                setCurrentOrder(session, currentOrder);
+                setCurrentOrder(currentOrder);
             }
 
             int currentQuantity = getProductQuantity(currentOrder, productId);
@@ -126,13 +125,12 @@ public class OrderController {
                 return response;
             }
 
-            currentOrder = orderService.setProductQuantity(currentOrder, productWebDTO, currentQuantity + 1);
-            currentOrder = orderService.addProductToOrder(productWebDTO, currentQuantity + 1, session);
+            currentOrder = orderService.addProductToOrder(productWebDTO, 1, currentUser, currentOrder);
             currentOrder = orderService.calculateTotal(currentOrder);
-            setCurrentOrder(session, currentOrder);
+            setCurrentOrder(currentOrder);
             
             response.put("success", true);
-            response.put("cartSize", getCartItemCount(session));
+            response.put("cartSize", getCartItemCount());
             return response;
         } catch (Exception e) {
             response.put("error", e.getMessage());
@@ -142,7 +140,7 @@ public class OrderController {
 
     // View current order
     @GetMapping("/view-order")
-    public String viewOrder(Model model, HttpSession session) {
+    public String viewOrder(Model model) {
         UserWebDTO currentUser = userService.getUser();
         
         // Check if user is logged in, redirect to cart prompt if not
@@ -150,9 +148,9 @@ public class OrderController {
             return "redirect:/cart-prompt";
         }
         
-        Order currentOrder = getCurrentOrder(session);
+        Order currentOrder = getCurrentOrder();
         model.addAttribute("isAdmin", currentUser.role() == UserRole.ADMIN);
-        model.addAttribute("cartItemCount", getCartItemCount(session));
+        model.addAttribute("cartItemCount", getCartItemCount());
         
         if (currentOrder == null || currentOrder.getProducts() == null || currentOrder.getProducts().isEmpty()) {
             model.addAttribute("message", "Your cart is empty");
@@ -168,60 +166,60 @@ public class OrderController {
 
     // Remove a product from the order
     @PostMapping("/remove-from-order")
-    public String removeFromOrder(@RequestParam Long productId, Model model, HttpSession session) {
+    public String removeFromOrder(@RequestParam Long productId, Model model) {
         UserWebDTO currentUser = userService.getUser();
         
         if (currentUser == null) {
             return "redirect:/cart-prompt";
         }
         
-        Order currentOrder = getCurrentOrder(session);
+        Order currentOrder = getCurrentOrder();
         if (currentOrder != null) {
             ProductWebDTO productWebDTO = productService.getProductByIdWeb(productId);
             if (productWebDTO != null) {
                 currentOrder = orderService.removeProductFromOrder(currentOrder, productWebDTO);
-                setCurrentOrder(session, currentOrder);
+                setCurrentOrder(currentOrder);
             }
         }
-        setCurrentOrder(session, currentOrder);
+        setCurrentOrder(currentOrder);
         model.addAttribute("order", currentOrder);
-        model.addAttribute("cartItemCount", getCartItemCount(session));
+        model.addAttribute("cartItemCount", getCartItemCount());
         return "redirect:/view-order";
     }
 
     //Delete order
     @GetMapping("/delete-order")
-    public String deleteOrder(Model model, HttpSession session) {
+    public String deleteOrder(Model model) {
         UserWebDTO currentUser = userService.getUser();
         if (currentUser == null) {
             return "redirect:/cart-prompt";
         }
 
-        Order currentOrder = getCurrentOrder(session);
+        Order currentOrder = getCurrentOrder();
         if (currentOrder == null || currentOrder.getProducts().isEmpty()) {
             model.addAttribute("message", "No active order to delete");
             return "redirect:/products";
         }
 
         currentOrder = orderService.clearOrder(currentOrder);
-        setCurrentOrder(session, currentOrder);
+        setCurrentOrder(currentOrder);
         model.addAttribute("products", productService.getAllProductsWeb());
         model.addAttribute("order", currentOrder);
         model.addAttribute("isAdmin", currentUser.role() == UserRole.ADMIN);
-        model.addAttribute("cartItemCount", getCartItemCount(session));
+        model.addAttribute("cartItemCount", getCartItemCount());
         return "Wellcome";
     }
     
     //Update products' amount
     @PostMapping("/update-amount")
-    public String updateAmount(Model model, @RequestParam int amount, @RequestParam Long productId, HttpSession session) {
+    public String updateAmount(Model model, @RequestParam int amount, @RequestParam Long productId) {
         UserWebDTO currentUser = userService.getUser();
         
         if (currentUser == null) {
             return "redirect:/cart-prompt";
         }
         
-        Order currentOrder = getCurrentOrder(session);
+        Order currentOrder = getCurrentOrder();
         if (currentOrder == null) {
             model.addAttribute("error", "No active order");
             return "redirect:/products";
@@ -240,15 +238,7 @@ public class OrderController {
             return "redirect:/products";
         }
 
-        ProductWebDTO productInStock = productWebDTO;
-        ProductWebDTO productInOrder = orderService.findProductByIdWeb(productId, currentOrder);
-        if (productInOrder == null) {
-            model.addAttribute("error", "Product is not in the current order");
-            return "redirect:/view-order";
-        }
-
-        if (amount > productInStock.stock()) {
-            setCurrentOrder(session, currentOrder);
+        if (amount > productWebDTO.stock()) {
             model.addAttribute("errorMessage", "We're sorry, we do not have enough stock at the moment, try later");
             model.addAttribute("order", currentOrder);
             model.addAttribute("total", currentOrder.getTotal());
@@ -256,18 +246,23 @@ public class OrderController {
             return "my_Order";
         }
 
-        currentOrder = orderService.setProductQuantity(currentOrder, productInOrder, amount);
+        currentOrder = orderService.setProductQuantity(currentOrder, productWebDTO, amount);
         currentOrder = orderService.calculateTotal(currentOrder);
-        setCurrentOrder(session, currentOrder);
+        setCurrentOrder(currentOrder);
+        
         model.addAttribute("order", currentOrder);
+        model.addAttribute("products", currentOrder.getProducts());
+        model.addAttribute("quantities", currentOrder.getQuantities());
         model.addAttribute("total", currentOrder.getTotal());
+        model.addAttribute("isAdmin", currentUser.role() == UserRole.ADMIN);
+        model.addAttribute("cartItemCount", getCartItemCount());
         return "my_Order";
     }
 
     // Confirm order
     @PostMapping("/confirm-order")
     @Transactional
-    public String confirmOrder(Model model, @RequestParam String address, HttpSession session) {
+    public String confirmOrder(Model model, @RequestParam String address) {
         try {
             UserWebDTO currentUser = userService.getUser();
             
@@ -275,7 +270,7 @@ public class OrderController {
                 return "redirect:/cart-prompt";
             }
             
-            Order currentOrder = getCurrentOrder(session);
+            Order currentOrder = getCurrentOrder();
             if (currentOrder == null || currentOrder.getProducts().isEmpty()) {
                 model.addAttribute("error", "No products in the order");
                 return "redirect:/view-order";
@@ -321,7 +316,7 @@ public class OrderController {
 
             // Crear nuevo pedido vacío
             currentOrder = orderService.createOrder(currentUser, currentUser.address());
-            setCurrentOrder(session, currentOrder);
+            setCurrentOrder(currentOrder);
 
             model.addAttribute("order", confirmedOrder);
             model.addAttribute("address", address);
@@ -341,4 +336,5 @@ public class OrderController {
         return order.getQuantities().getOrDefault(productId, 0);
     }
 }
+
 

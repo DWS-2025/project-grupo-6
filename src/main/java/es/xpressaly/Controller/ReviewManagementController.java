@@ -18,7 +18,6 @@ import es.xpressaly.dto.ProductWebDTO;
 import es.xpressaly.dto.UserWebDTO;
 import es.xpressaly.mapper.ProductWebMapper;
 
-import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.hibernate.Hibernate;
@@ -44,7 +43,7 @@ public class ReviewManagementController {
 
     @GetMapping("/review-management")
     @Transactional(readOnly = true)
-    public String reviewManagement(Model model, HttpSession session) {
+    public String reviewManagement(Model model) {
         UserWebDTO currentUser = userService.getUser();
         
         if (currentUser == null) {
@@ -73,8 +72,8 @@ public class ReviewManagementController {
         
         model.addAttribute("users", users);
         model.addAttribute("products", productsWithReviews);
-        model.addAttribute("isAdmin", true);
-        model.addAttribute("cartItemCount", orderController.getCartItemCount(session));
+        model.addAttribute("isAdmin", currentUser.role() == UserRole.ADMIN);
+        model.addAttribute("cartItemCount", orderController.getCartItemCount());
         
         return "review-management";
     }

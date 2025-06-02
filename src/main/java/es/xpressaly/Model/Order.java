@@ -50,7 +50,9 @@ public class Order {
         for (OrderProduct op : orderProducts) {
             Product p = op.getProduct();
             p.setAmount(op.getQuantity());
-            products.add(p);
+            if (!products.contains(p)) {
+                products.add(p);
+            }
         }
         return products;
     }
@@ -68,7 +70,7 @@ public class Order {
     public void addProduct(Product product) {
         OrderProduct existingOrderProduct = findOrderProduct(product);
         if (existingOrderProduct != null) {
-            existingOrderProduct.setQuantity(existingOrderProduct.getQuantity() + 1);
+            // No hacemos nada aquí, la cantidad ya se actualizó con setProductQuantity
         } else {
             OrderProduct orderProduct = new OrderProduct(this, product, 1);
             orderProducts.add(orderProduct);
@@ -134,6 +136,7 @@ public class Order {
         } else if (quantity > 0) {
             OrderProduct newOp = new OrderProduct(this, product, quantity);
             orderProducts.add(newOp);
+            product.setAmount(quantity);
         }
     }
 

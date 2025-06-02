@@ -19,6 +19,7 @@ public interface UserMapper {
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "role", ignore = true)
+    @Mapping(target = "currentOrder", ignore = true)
     User toDomain(UserDTO userDTO);
 
     List<UserDTO> toDTOs(Collection<User> users);
