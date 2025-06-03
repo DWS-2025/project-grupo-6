@@ -41,24 +41,25 @@ public class ProductService {
             .collect(Collectors.toList());
     }
     
-    public Page<ProductDTO> getProductsByPage(int page, int size, String sort) {
+    public Page<ProductDTO> getProductsByPage(Pageable pageable, String sort) {
         try {
-            Pageable pageable = createPageable(page, size, sort);
+            System.out.println("Fetching products with pageable: " + pageable);
             Page<Product> productPage = productRepository.findAll(pageable);
+            System.out.println("Found " + productPage.getTotalElements() + " products");
             
             if (productPage == null || productPage.isEmpty()) {
+                System.out.println("No products found");
                 return Page.empty(pageable);
             }
             
             return productPage.map(productMapper::toDTO);
         } catch (Exception e) {
             e.printStackTrace();
-            return Page.empty(PageRequest.of(page - 1, size));
+            return Page.empty(pageable);
         }
     }
 
-    public Page<ProductDTO> getProductsByPageAndPrice(int page, int size, String sort, double minPrice, double maxPrice) {
-        Pageable pageable = createPageable(page, size, sort);
+    public Page<ProductDTO> getProductsByPageAndPrice(Pageable pageable, String sort, double minPrice, double maxPrice) {
         return productRepository.findByPriceBetween(minPrice, maxPrice, pageable)
             .map(productMapper::toDTO);
     }
@@ -231,42 +232,34 @@ public class ProductService {
             .collect(Collectors.toList());
     }
 
-    public Page<ProductWebDTO> getProductsByPageWeb(int page, int size, String sort) {
+    public Page<ProductWebDTO> getProductsByPageWeb(Pageable pageable, String sort) {
         try {
-            Pageable pageable = createPageable(page, size, sort);
             Page<Product> productPage = productRepository.findAll(pageable);
             
-            if (productPage == null) {
-                throw new RuntimeException("No se pudieron cargar los productos");
-            }
-            
-            if (productPage.isEmpty()) {
+            if (productPage == null || productPage.isEmpty()) {
                 return Page.empty(pageable);
             }
             
             return productPage.map(productWebMapper::toDTO);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Error al cargar los productos: " + e.getMessage());
+            return Page.empty(pageable);
         }
     }
 
-    public Page<ProductWebDTO> getProductsByPageAndPriceWeb(int page, int size, String sort, double minPrice, double maxPrice) {
-        Pageable pageable = createPageable(page, size, sort);
+    public Page<ProductWebDTO> getProductsByPageAndPriceWeb(Pageable pageable, String sort, double minPrice, double maxPrice) {
         return productRepository.findByPriceBetween(minPrice, maxPrice, pageable)
             .map(productWebMapper::toDTO);
     }
 
-    public List<ProductWebDTO> searchProductsWeb(String term) {
-        return productRepository.findByNameContainingIgnoreCase(term).stream()
-            .map(productWebMapper::toDTO)
-            .collect(Collectors.toList());
+    public Page<ProductWebDTO> searchProductsByPageableWeb(String search, Pageable pageable) {
+        return productRepository.findByNameContaining(search, pageable)
+            .map(productWebMapper::toDTO);
     }
 
-    public List<ProductWebDTO> searchProductsByPriceWeb(String term, double minPrice, double maxPrice) {
-        return productRepository.findByNameContainingIgnoreCaseAndPriceBetween(term, minPrice, maxPrice).stream()
-            .map(productWebMapper::toDTO)
-            .collect(Collectors.toList());
+    public Page<ProductWebDTO> searchProductsByPriceAndPageableWeb(String search, double minPrice, double maxPrice, Pageable pageable) {
+        return productRepository.findByNameContainingAndPriceBetween(search, minPrice, maxPrice, pageable)
+            .map(productWebMapper::toDTO);
     }
 
     public ProductWebDTO getProductWithReviewsWeb(Long id) {
@@ -301,5 +294,19 @@ public class ProductService {
         Product product = productWebMapper.toDomain(productWebDTO);
         product.setStock(stock);
         return productWebMapper.toDTO(product);
+    }
+
+    public Page<ProductDTO> searchProductsByPriceAndPageable(String search, double minPrice, double maxPrice, Pageable pageable) {
+        return productRepository.findByNameContainingAndPriceBetween(search, minPrice, maxPrice, pageable)
+            .map(productMapper::toDTO);
+    }
+
+    public Page<ProductDTO> searchProductsByPageable(String search, Pageable pageable) {
+        return productRepository.findByNameContaining(search, pageable)
+            .map(productMapper::toDTO);
+    }
+
+    public List<Product> getAllProductsNormal() {
+        return productRepository.findAll();
     }
 }

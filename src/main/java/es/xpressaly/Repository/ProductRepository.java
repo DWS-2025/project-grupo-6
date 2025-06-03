@@ -46,4 +46,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     
     @Query("SELECT MAX(p.price) FROM Product p")
     double findMaxPrice();
+
+    Page<Product> findByNameContainingAndPriceBetween(String name, double minPrice, double maxPrice, Pageable pageable);
+    Page<Product> findByNameContaining(String name, Pageable pageable);
 }

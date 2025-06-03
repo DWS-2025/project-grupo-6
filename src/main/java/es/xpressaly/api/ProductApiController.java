@@ -5,6 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import es.xpressaly.Model.Product;
 import es.xpressaly.Model.Review;
@@ -48,7 +51,7 @@ public class ProductApiController {
     }
 
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getProducts(
+    public ResponseEntity<Page<ProductDTO>> getProducts(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(required = false) String search,
@@ -56,54 +59,51 @@ public class ProductApiController {
             @RequestParam(required = false, defaultValue = "0") double minPrice,
             @RequestParam(required = false) Double maxPrice) {
         try {
-            Map<String, Object> response = new HashMap<>();
+            // Crear el objeto Pageable
+            Pageable pageable = PageRequest.of(page - 1, size, getSortDirection(sort));
             
+            // Obtener el precio máximo dinámico
             double dynamicMaxPrice = productService.getMaxPriceForFilter();
             double effectiveMaxPrice = maxPrice != null ? maxPrice : dynamicMaxPrice;
             
-            response.put("maxPriceForFilter", dynamicMaxPrice);
-            
+            // Obtener la página de productos según los filtros
+            Page<ProductDTO> productPage;
             if (search != null && !search.isEmpty()) {
-                List<ProductDTO> products;
-                
                 if (minPrice > 0 || maxPrice != null) {
-                    products = productService.searchProductsByPrice(search, minPrice, effectiveMaxPrice);
+                    productPage = productService.searchProductsByPriceAndPageable(search, minPrice, effectiveMaxPrice, pageable);
                 } else {
-                    products = productService.searchProducts(search);
+                    productPage = productService.searchProductsByPageable(search, pageable);
                 }
-                
-                List<Map<String, Object>> productList = products.stream()
-                    .map(this::convertToMap)
-                    .collect(Collectors.toList());
-                
-                response.put("products", productList);
-                response.put("totalPages", 1);
-                response.put("currentPage", 1);
-                response.put("hasMore", false);
             } else {
-                Page<ProductDTO> productPage;
-                
                 if (minPrice > 0 || maxPrice != null) {
-                    productPage = productService.getProductsByPageAndPrice(page, size, sort, minPrice, effectiveMaxPrice);
+                    productPage = productService.getProductsByPageAndPrice(pageable, sort, minPrice, effectiveMaxPrice);
                 } else {
-                    productPage = productService.getProductsByPage(page, size, sort);
+                    productPage = productService.getProductsByPage(pageable, sort);
                 }
-                
-                List<Map<String, Object>> productList = productPage.getContent().stream()
-                    .map(this::convertToMap)
-                    .collect(Collectors.toList());
-                
-                response.put("products", productList);
-                response.put("totalPages", productPage.getTotalPages());
-                response.put("currentPage", productPage.getNumber() + 1);
-                response.put("hasMore", productPage.getNumber() + 1 < productPage.getTotalPages());
             }
             
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(productPage);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    // Método auxiliar para obtener la dirección de ordenamiento
+    private Sort getSortDirection(String sort) {
+        if (sort == null || sort.equals("default")) {
+            return Sort.by(Sort.Direction.DESC, "id");
+        }
+        
+        String[] parts = sort.split("_");
+        if (parts.length != 2) {
+            return Sort.by(Sort.Direction.DESC, "id");
+        }
+        
+        String field = parts[0];
+        String direction = parts[1].toUpperCase();
+        
+        return Sort.by(Sort.Direction.valueOf(direction), field);
     }
     
     private Map<String, Object> convertToMap(ProductDTO productDTO) {
@@ -273,7 +273,8 @@ public class ProductApiController {
                 size = 20;
             }
             
-            Page<ProductWebDTO> productPage = productService.getProductsByPageWeb(page, size, "default");
+            Pageable pageable = PageRequest.of(page - 1, size);
+            Page<ProductWebDTO> productPage = productService.getProductsByPageWeb(pageable, "default");
             
             if (productPage == null) {
                 response.put("error", "No se pudieron cargar los productos");
@@ -318,5 +319,19 @@ public class ProductApiController {
     
     private Product toDomain(ProductDTO productDTO) {
         return productService.toDomain(productDTO);
+    }
+
+    @GetMapping("/debug")
+    public ResponseEntity<Map<String, Object>> debugProducts() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<Product> allProducts = productService.getAllProductsNormal();
+            response.put("totalProducts", allProducts.size());
+            response.put("products", allProducts);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 }

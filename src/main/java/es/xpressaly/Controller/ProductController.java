@@ -2,6 +2,9 @@ package es.xpressaly.Controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -78,20 +81,68 @@ public class ProductController {
 
     // Show product list
     @GetMapping("/products")
-    public String showProducts(Model model, @RequestParam(required = false, defaultValue = "default") String sort) {
+    public String getProducts(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false, defaultValue = "default") String sort,
+            @RequestParam(required = false, defaultValue = "0") double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            Model model) {
         try {
-            UserWebDTO currentUser = userService.getUser();
-            List<ProductWebDTO> products = productService.getAllProductsWeb();
-            model.addAttribute("products", products);
-            model.addAttribute("isAdmin", currentUser != null && currentUser.role() == UserRole.ADMIN);
-            model.addAttribute("cartItemCount", orderController.getCartItemCount());
+            // Crear el objeto Pageable
+            Pageable pageable = PageRequest.of(page - 1, size, getSortDirection(sort));
+            
+            // Obtener el precio máximo dinámico
+            double dynamicMaxPrice = productService.getMaxPriceForFilter();
+            double effectiveMaxPrice = maxPrice != null ? maxPrice : dynamicMaxPrice;
+            
+            // Obtener la página de productos según los filtros
+            Page<ProductWebDTO> productPage;
+            if (search != null && !search.isEmpty()) {
+                if (minPrice > 0 || maxPrice != null) {
+                    productPage = productService.searchProductsByPriceAndPageableWeb(search, minPrice, effectiveMaxPrice, pageable);
+                } else {
+                    productPage = productService.searchProductsByPageableWeb(search, pageable);
+                }
+            } else {
+                if (minPrice > 0 || maxPrice != null) {
+                    productPage = productService.getProductsByPageAndPriceWeb(pageable, sort, minPrice, effectiveMaxPrice);
+                } else {
+                    productPage = productService.getProductsByPageWeb(pageable, sort);
+                }
+            }
+            
+            // Añadir los productos y metadatos al modelo
+            model.addAttribute("products", productPage.getContent());
+            model.addAttribute("totalPages", productPage.getTotalPages());
+            model.addAttribute("currentPage", productPage.getNumber() + 1);
+            model.addAttribute("hasMore", productPage.getNumber() + 1 < productPage.getTotalPages());
+            model.addAttribute("maxPrice", dynamicMaxPrice);
+            
             return "Wellcome";
         } catch (Exception e) {
-            model.addAttribute("errorMessage", e.getMessage());
+            e.printStackTrace();
+            model.addAttribute("error", "Error al cargar los productos: " + e.getMessage());
             return "error";
         }
     }
     
+    private Sort getSortDirection(String sort) {
+        if (sort == null || sort.equals("default")) {
+            return Sort.by(Sort.Direction.DESC, "id");
+        }
+        
+        String[] parts = sort.split("_");
+        if (parts.length != 2) {
+            return Sort.by(Sort.Direction.DESC, "id");
+        }
+        
+        String field = parts[0];
+        String direction = parts[1].toUpperCase();
+        
+        return Sort.by(Sort.Direction.valueOf(direction), field);
+    }
 
     // Show form to create a product - Admin only
     @GetMapping("/create-product")
@@ -304,9 +355,10 @@ public class ProductController {
     @GetMapping("/search-products")
     public String searchProducts(@RequestParam String term, Model model) {
         try {
-            List<ProductWebDTO> searchResults = productService.searchProductsWeb(term);
+            Pageable pageable = PageRequest.of(0, 5);
+            Page<ProductWebDTO> searchResults = productService.searchProductsByPageableWeb(term, pageable);
             UserWebDTO currentUser = userService.getUser();
-            model.addAttribute("products", searchResults);
+            model.addAttribute("products", searchResults.getContent());
             model.addAttribute("isAdmin", currentUser != null && currentUser.role() == UserRole.ADMIN);
             model.addAttribute("cartItemCount", orderController.getCartItemCount());
             model.addAttribute("searchTerm", term);
