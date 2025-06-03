@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/dark-mode.css">
     <link rel="stylesheet" href="/css/quill-editor.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Quill.js Theme -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 </head>
@@ -76,10 +78,12 @@
                             {{{comment}}}
                         </div>
                         {{#canDeleteReview}}
-                        <form action="/delete-review" method="post" class="review-actions">
+                        <form action="/delete-review" method="post" class="review-actions delete-review-form">
                             <input type="hidden" name="reviewId" value="{{id}}">
-                            <input type="hidden" name="productId" value="{{../product.id}}">
-                            <button type="submit" class="btn btn-danger delete-btn">Delete Review</button>
+                            <input type="hidden" name="productId" value="{{productId}}">
+                            <button type="button" class="btn btn-danger delete-btn" onclick="showDeleteConfirmation(this)">
+                                <i class="fas fa-trash-alt"></i> Delete Review
+                            </button>
                         </form>
                         {{/canDeleteReview}}
                     </div>
@@ -147,6 +151,28 @@
         <span id="toastMessage">Success message goes here</span>
     </div>
     
+    <!-- Custom Delete Confirmation Modal -->
+    <div id="deleteConfirmModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Confirmar Eliminación</h3>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar esta reseña?</p>
+                <p class="modal-warning">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-danger" onclick="confirmDelete()">
+                    <i class="fas fa-trash-alt"></i> Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+    
     {{> common/footer}}
     
     <!-- Quill.js Library and DOMPurify for sanitization -->
@@ -154,5 +180,97 @@
     <script src="https://cdn.jsdelivr.net/npm/dompurify@2.3.8/dist/purify.min.js"></script>
     <script src="/js/quill-editor.js"></script>
     <script src="/js/addToCart.js"></script>
+    
+    <script>
+        let currentFormToSubmit = null;
+        
+        function showDeleteConfirmation(button) {
+            currentFormToSubmit = button.closest('form');
+            const modal = document.getElementById('deleteConfirmModal');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteConfirmModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            currentFormToSubmit = null;
+        }
+        
+        function confirmDelete() {
+            if (currentFormToSubmit) {
+                currentFormToSubmit.submit();
+            }
+            closeDeleteModal();
+        }
+        
+        // Close modal when clicking on overlay
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('deleteConfirmModal');
+            if (e.target === modal) {
+                closeDeleteModal();
+            }
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('deleteConfirmModal');
+                if (modal.classList.contains('active')) {
+                    closeDeleteModal();
+                }
+            }
+        });
+        
+        // Handle URL parameters for error and success messages
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const error = urlParams.get('error');
+            const success = urlParams.get('success');
+            
+            if (error) {
+                showToast(decodeURIComponent(error), 'error');
+                // Remove error parameter from URL without reloading
+                const newUrl = window.location.pathname + '?id=' + urlParams.get('id');
+                window.history.replaceState({}, document.title, newUrl);
+            }
+            
+            if (success === 'deleted') {
+                showToast('Reseña eliminada correctamente', 'success');
+                // Remove success parameter from URL without reloading
+                const newUrl = window.location.pathname + '?id=' + urlParams.get('id');
+                window.history.replaceState({}, document.title, newUrl);
+            }
+        });
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const icon = toast.querySelector('i');
+            
+            // Update message
+            toastMessage.textContent = message;
+            
+            // Update icon and styling based on type
+            if (type === 'error') {
+                icon.className = 'fas fa-exclamation-triangle';
+                toast.style.backgroundColor = '#e74c3c';
+                toast.style.borderLeft = '4px solid #c0392b';
+            } else {
+                icon.className = 'fas fa-check-circle';
+                toast.style.backgroundColor = '#27ae60';
+                toast.style.borderLeft = '4px solid #2ecc71';
+            }
+            
+            // Show toast
+            toast.classList.add('show');
+            
+            // Hide toast after 4 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+    </script>
 </body>
 </html>

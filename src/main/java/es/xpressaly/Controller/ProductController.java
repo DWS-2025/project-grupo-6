@@ -47,6 +47,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.util.Optional;
+import java.util.ArrayList;
 
 @Controller
 public class ProductController {
@@ -325,7 +326,29 @@ public class ProductController {
             if (product != null) {
                 model.addAttribute("product", product);
                 model.addAttribute("rating", product.getRating());
-                model.addAttribute("reviews", product.getReviews());
+                
+                // Add permission logic for review deletion
+                List<Map<String, Object>> reviewsWithPermissions = new ArrayList<>();
+                for (Review review : product.getReviews()) {
+                    Map<String, Object> reviewMap = new HashMap<>();
+                    reviewMap.put("id", review.getId());
+                    reviewMap.put("comment", review.getComment());
+                    reviewMap.put("rating", review.getRating());
+                    reviewMap.put("productId", product.getId());
+                    
+                    // Add user data explicitly for template access
+                    Map<String, Object> userData = new HashMap<>();
+                    userData.put("firstName", review.getUser().getFirstName());
+                    userData.put("lastName", review.getUser().getLastName());
+                    reviewMap.put("user", userData);
+                    
+                    // Show delete button for all reviews (validation happens on backend)
+                    reviewMap.put("canDeleteReview", user != null); // Only show if logged in
+                    
+                    reviewsWithPermissions.add(reviewMap);
+                }
+                
+                model.addAttribute("reviews", reviewsWithPermissions);
                 model.addAttribute("isLoggedIn", user != null);
                 return "Product";
             }

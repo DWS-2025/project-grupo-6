@@ -22,6 +22,9 @@ import es.xpressaly.mapper.ProductWebMapper;
 import es.xpressaly.mapper.ReviewMapper;
 import es.xpressaly.mapper.UserWebMapper;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
 @Service
 @Transactional
 public class ReviewService {
@@ -40,6 +43,9 @@ public class ReviewService {
 
     @Autowired
     private ProductWebMapper productWebMapper;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public ReviewService(ProductService productService, UserService userService, ReviewRepository reviewRepository) {
         this.productService = productService;
@@ -131,29 +137,51 @@ public class ReviewService {
     }
 
     public void deleteReview(Long productId, Long reviewId) {
-        Product product = productWebMapper.toDomain(productService.getProductByIdWeb(productId));
         User user = userService.getUserEntity();
         
-        if (product != null && user != null) {
-            Review review = reviewRepository.findById(reviewId).orElse(null);
-            if (review != null) {
-                // Allow admins to delete any review, but regular users can only delete their own
-                if (user.getRole() == UserRole.ADMIN || review.getUser().getId().equals(user.getId())) {
-                    // Remove review from product's review list
-                    product.getReviews().remove(review);
-                    
-                    // Remove review from review author's list
-                    User reviewAuthor = review.getUser();
-                    if (reviewAuthor != null) {
-                        reviewAuthor.getReviews().remove(review);
-                    }
-                    
-                    // Delete the review from database
-                    reviewRepository.deleteById(reviewId);
-                } else {
-                    throw new IllegalArgumentException("You can only delete your own reviews");
-                }
+        if (user == null) {
+            throw new IllegalArgumentException("User not logged in");
+        }
+        
+        Review review = reviewRepository.findById(reviewId).orElse(null);
+        if (review == null) {
+            throw new IllegalArgumentException("Review not found");
+        }
+        
+        // Check if the review belongs to the specified product
+        if (!review.getProduct().getId().equals(productId)) {
+            throw new IllegalArgumentException("Review does not belong to the specified product");
+        }
+        
+        // Allow admins to delete any review, but regular users can only delete their own
+        if (user.getRole() != UserRole.ADMIN && !review.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("No puedes eliminar esta reseña. Solo puedes eliminar tus propias reseñas o necesitas ser administrador.");
+        }
+        
+        // Delete the review from database first
+        reviewRepository.deleteById(reviewId);
+        
+        // Force flush to ensure deletion is committed to database immediately
+        entityManager.flush();
+        entityManager.clear(); // Clear persistence context to force fresh query
+        
+        // Recalculate product rating after deletion
+        Product product = productService.getProductById(productId);
+        if (product != null) {
+            List<Review> remainingReviews = reviewRepository.findByProduct(product);
+            
+            if (remainingReviews.isEmpty()) {
+                product.setRating(0.0); // No reviews left
+            } else {
+                double totalRating = remainingReviews.stream()
+                    .mapToDouble(Review::getRating)
+                    .sum();
+                double averageRating = totalRating / remainingReviews.size();
+                product.setRating(averageRating);
             }
+            
+            // Save the updated product rating
+            productService.updateProduct(product);
         }
     }
     
