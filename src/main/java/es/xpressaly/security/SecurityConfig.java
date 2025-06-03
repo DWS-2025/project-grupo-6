@@ -65,14 +65,31 @@ public class SecurityConfig {
 		
 		http
 			.authorizeHttpRequests(authorize -> authorize
-                    // PRIVATE ENDPOINTS
-					.requestMatchers(HttpMethod.GET, "/api/users/").hasRole("USER")
-                    .requestMatchers(HttpMethod.POST,"/api/products/").hasRole("USER")
-                    .requestMatchers(HttpMethod.PUT,"/api/products/**").hasRole("USER")
-                    .requestMatchers(HttpMethod.DELETE,"/api/products/**").hasRole("ADMIN")
-					.requestMatchers(HttpMethod.DELETE,"/api/users/**").hasRole("ADMIN")
-					// PUBLIC ENDPOINTS
-					.anyRequest().permitAll()
+					
+					//---------------------------------------------------------------------
+
+					// TODO ESTO SE TIENE QUE REVISAR PARA QUE SEA CORRECTO 
+
+					//---------------------------------------------------------------------
+
+					// PUBLIC API ENDPOINTS
+					.requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+					.requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+					
+					// USER API ENDPOINTS (authenticated users)
+					.requestMatchers(HttpMethod.GET, "/api/users/").hasAnyRole("USER", "ADMIN")
+					.requestMatchers(HttpMethod.POST, "/api/reviews/**").hasAnyRole("USER", "ADMIN")
+					.requestMatchers(HttpMethod.PUT, "/api/reviews/**").hasAnyRole("USER", "ADMIN")
+					
+					// ADMIN ONLY API ENDPOINTS
+					.requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
+					.requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
+					.requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
+					.requestMatchers(HttpMethod.DELETE, "/api/reviews/**").hasAnyRole("USER", "ADMIN") // Backend handles specific permissions
+					.requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")
+					
+					// Default: require authentication for any other API endpoint
+					.anyRequest().authenticated()
 			);
 		
         // Disable Form login Authentication
@@ -104,26 +121,46 @@ public class SecurityConfig {
 
 		http
 				.authorizeHttpRequests(authorize -> authorize
-						// PUBLIC PAGES
-						.requestMatchers("/").permitAll()
-						.requestMatchers("/images/**").permitAll()
-						.requestMatchers("/css/**").permitAll()
-						.requestMatchers("/js/**").permitAll()
-						.requestMatchers("/products/**").permitAll()
+						// STATIC RESOURCES - Always public
+						.requestMatchers("/", "/login", "/register", "/loginerror").permitAll()
+						.requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
+						.requestMatchers("/image/**").permitAll() // Product images endpoint
 						.requestMatchers("/error").permitAll()
-						.requestMatchers("/product-details/**").permitAll()
-						.requestMatchers("/cart-prompt").permitAll()
-						// PRIVATE PAGES
-						.requestMatchers("/profile").hasAnyRole("USER","ADMIN")
-						.requestMatchers("/create-product").hasRole("ADMIN")
-						.requestMatchers("/add-product").hasRole("ADMIN")
-						.requestMatchers("/edit-profile").hasAnyRole("USER","ADMIN")
-						.requestMatchers("/edit-profile/**").hasAnyRole("USER","ADMIN")
-						.requestMatchers("/delete-product/**").hasRole("ADMIN")
-						.requestMatchers("/users-management").hasRole("ADMIN")
+						
+						// PUBLIC PRODUCT PAGES - Reading only
+						.requestMatchers(HttpMethod.GET, "/products").permitAll()
+						.requestMatchers(HttpMethod.GET, "/search-products").permitAll()
+						.requestMatchers(HttpMethod.GET, "/search-products-json").permitAll()
+						.requestMatchers(HttpMethod.GET, "/product-details").permitAll()
+						.requestMatchers(HttpMethod.GET, "/download-return-policy/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/get-cart-quantity").permitAll()
+						
+						// CART AND ORDER ENDPOINTS - User authenticated
+						.requestMatchers("/add-to-order", "/remove-from-order", "/order", "/cart-prompt").hasAnyRole("USER", "ADMIN")
+						
+						// REVIEW ENDPOINTS - User authenticated
+						.requestMatchers(HttpMethod.POST, "/add-review").hasAnyRole("USER", "ADMIN")
+						.requestMatchers(HttpMethod.POST, "/delete-review").hasAnyRole("USER", "ADMIN") // Backend handles specific permissions
+						
+						// USER PROFILE ENDPOINTS
+						.requestMatchers("/profile", "/edit-profile", "/edit-profile/**").hasAnyRole("USER", "ADMIN")
+						
+						// ADMIN ONLY ENDPOINTS - Product management
+						.requestMatchers("/create-product", "/add-product").hasRole("ADMIN")
+						.requestMatchers("/edit-product/**", "/update-product").hasRole("ADMIN")
+						.requestMatchers("/delete-product", "/delete-product/**").hasRole("ADMIN")
 						.requestMatchers("/product-management").hasRole("ADMIN")
-						.requestMatchers("/review-management").hasRole("ADMIN")
-						.anyRequest().permitAll()
+						
+						// ADMIN ONLY ENDPOINTS - User management
+						.requestMatchers("/users-management", "/users-management/**").hasRole("ADMIN")
+						.requestMatchers("/delete-user/**").hasRole("ADMIN")
+						
+						// ADMIN ONLY ENDPOINTS - System management
+						.requestMatchers("/review-management", "/review-management/**").hasRole("ADMIN")
+						.requestMatchers("/admin/**").hasRole("ADMIN")
+						
+						// Default: require authentication for any other web endpoint
+						.anyRequest().authenticated()
 				)
 				.formLogin(formLogin -> formLogin
 						.loginPage("/login")
