@@ -91,6 +91,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Detector for exiting edit mode when clicking outside the editor
     document.addEventListener('click', function(e) {
+        // Exclude admin dropdown elements from this click handler
+        if (e.target.closest('.admin-menu-container') || 
+            e.target.closest('.admin-menu-dropdown') ||
+            e.target.id === 'adminMenuBtn' ||
+            e.target.id === 'adminMenuDropdown') {
+            return; // Don't interfere with admin dropdown clicks
+        }
+        
         if (editorState.editingMode && !quill.root.contains(e.target) && e.target !== unlockButton) {
             editorState.disableEditMode();
         }

@@ -90,6 +90,9 @@ public class ProductController {
             @RequestParam(required = false) Double maxPrice,
             Model model) {
         try {
+            // Obtener el usuario actual para verificar permisos de administrador
+            UserWebDTO currentUser = userService.getUser();
+            
             // Crear el objeto Pageable
             Pageable pageable = PageRequest.of(page - 1, size, getSortDirection(sort));
             
@@ -119,6 +122,10 @@ public class ProductController {
             model.addAttribute("currentPage", productPage.getNumber() + 1);
             model.addAttribute("hasMore", productPage.getNumber() + 1 < productPage.getTotalPages());
             model.addAttribute("maxPrice", dynamicMaxPrice);
+            
+            // Agregar atributos necesarios para el header (isAdmin y cartItemCount)
+            model.addAttribute("isAdmin", currentUser != null && currentUser.role() == UserRole.ADMIN);
+            model.addAttribute("cartItemCount", orderController.getCartItemCount());
             
             return "Wellcome";
         } catch (Exception e) {
@@ -358,10 +365,12 @@ public class ProductController {
             Pageable pageable = PageRequest.of(0, 5);
             Page<ProductWebDTO> searchResults = productService.searchProductsByPageableWeb(term, pageable);
             UserWebDTO currentUser = userService.getUser();
+            
             model.addAttribute("products", searchResults.getContent());
             model.addAttribute("isAdmin", currentUser != null && currentUser.role() == UserRole.ADMIN);
             model.addAttribute("cartItemCount", orderController.getCartItemCount());
             model.addAttribute("searchTerm", term);
+            
             return "Wellcome";
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
@@ -375,6 +384,8 @@ public class ProductController {
         try {
             Product product = productService.getProductById(id);
             User user = userService.getUserEntity();
+            UserWebDTO currentUser = userService.getUser();
+            
             if (product != null) {
                 model.addAttribute("product", product);
                 model.addAttribute("rating", product.getRating());
@@ -402,6 +413,11 @@ public class ProductController {
                 
                 model.addAttribute("reviews", reviewsWithPermissions);
                 model.addAttribute("isLoggedIn", user != null);
+                
+                // Agregar atributos necesarios para el header (isAdmin y cartItemCount)
+                model.addAttribute("isAdmin", currentUser != null && currentUser.role() == UserRole.ADMIN);
+                model.addAttribute("cartItemCount", orderController.getCartItemCount());
+                
                 return "Product";
             }
             return "redirect:/products";
