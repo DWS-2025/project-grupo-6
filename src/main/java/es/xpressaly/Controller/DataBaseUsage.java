@@ -265,107 +265,232 @@ public class DataBaseUsage implements CommandLineRunner {
         // Create reviews for various products from all users
         createReviewsForUsers(adminUser, mariaUser, lucasUser, allProducts);
         
+        // Update product ratings after adding all reviews
+        calculateAndUpdateProductRatings(allProducts);
+        
         // Create orders for each user
         createOrdersForUsers(adminUser, mariaUser, lucasUser, allProducts);
     }
     
     /**
      * Creates sample reviews for products from all three users
+     * Distribution: Some products with no reviews, some with 1-2 reviews, and popular ones with 3 reviews
      */
     private void createReviewsForUsers(User adminUser, User mariaUser, User lucasUser, List<Product> products) {
         Review review;
         
-        // Reviews from Juan Pérez (Admin)
+        // === PRODUCTOS POPULARES (3 reseñas cada uno) ===
+        
+        // Wireless mouse (products.get(0)) - Popular tech product
         review = new Review(adminUser, "Excellent wireless mouse, very comfortable and responsive. Great battery life!", 5);
-        review.setProduct(products.get(0)); // Wireless mouse
+        review.setProduct(products.get(0));
         reviewRepository.save(review);
         
-        review = new Review(adminUser, "Good keyboard for the price. Silent typing works as advertised.", 4);
-        review.setProduct(products.get(1)); // Keyboard
+        review = new Review(mariaUser, "Good mouse but the scroll wheel is a bit sensitive. Overall satisfied with the purchase.", 4);
+        review.setProduct(products.get(0));
         reviewRepository.save(review);
         
-        review = new Review(adminUser, "Smart bulb works perfectly with voice assistants. Easy setup and great color options.", 5);
-        review.setProduct(products.get(10)); // Smart Bulb
+        review = new Review(lucasUser, "Perfect for gaming and work. The ergonomic design really makes a difference during long sessions.", 5);
+        review.setProduct(products.get(0));
         reviewRepository.save(review);
         
-        review = new Review(adminUser, "The security camera has good image quality, but the app could be better.", 4);
-        review.setProduct(products.get(23)); // Security Camera
-        reviewRepository.save(review);
-        
-        // Reviews from Maria García
+        // Smartwatch Fitness Pro (products.get(4)) - Popular fitness product
         review = new Review(mariaUser, "This smartwatch is amazing! Tracks everything I need for my fitness routine.", 5);
-        review.setProduct(products.get(4)); // Smartwatch Fitness Pro
+        review.setProduct(products.get(4));
         reviewRepository.save(review);
         
-        review = new Review(mariaUser, "Coffee maker works great every morning. Easy to use and clean.", 5);
-        review.setProduct(products.get(15)); // Coffee Maker
+        review = new Review(lucasUser, "Great for tracking workouts and the heart rate monitor is very accurate. Highly recommend!", 5);
+        review.setProduct(products.get(4));
         reviewRepository.save(review);
         
-        review = new Review(mariaUser, "The air purifier has made a noticeable difference in our home's air quality.", 4);
-        review.setProduct(products.get(9)); // Air Purifier
+        review = new Review(adminUser, "Solid fitness tracker with good battery life. The app could be better but overall satisfied.", 4);
+        review.setProduct(products.get(4));
         reviewRepository.save(review);
         
-        review = new Review(mariaUser, "Electric kettle heats water quickly and automatically shuts off. Very convenient!", 5);
-        review.setProduct(products.get(7)); // Electric Kettle
-        reviewRepository.save(review);
-        
-        review = new Review(mariaUser, "Hair dryer is powerful and dries my hair quickly without damage.", 4);
-        review.setProduct(products.get(31)); // Hair Dryer
-        reviewRepository.save(review);
-        
-        review = new Review(mariaUser, "Essential oil diffuser creates a lovely atmosphere. Love the color changing lights!", 5);
-        review.setProduct(products.get(40)); // Essential Oil Diffuser
-        reviewRepository.save(review);
-        
-        // Reviews from Lucas López
-        review = new Review(lucasUser, "The phone has great features for the price. Camera quality is impressive!", 4);
-        review.setProduct(products.get(2)); // Phone
-        reviewRepository.save(review);
-        
-        review = new Review(lucasUser, "Gaming headset is comfortable for long sessions. Great sound quality!", 5);
-        review.setProduct(products.get(18)); // Gaming Headset
-        reviewRepository.save(review);
-        
+        // Wireless Earbuds (products.get(13)) - Popular audio product
         review = new Review(lucasUser, "Wireless earbuds have excellent noise cancellation. Battery lasts all day.", 5);
-        review.setProduct(products.get(13)); // Wireless Earbuds
+        review.setProduct(products.get(13));
         reviewRepository.save(review);
         
-        review = new Review(lucasUser, "Power bank charges my devices multiple times. Very reliable for travel.", 4);
-        review.setProduct(products.get(27)); // Power Bank
+        review = new Review(mariaUser, "Great for workouts! They stay in place and the sound quality is amazing.", 5);
+        review.setProduct(products.get(13));
         reviewRepository.save(review);
         
-        review = new Review(lucasUser, "External hard drive is fast and reliable. Great for backing up files.", 4);
-        review.setProduct(products.get(17)); // External Hard Drive
+        review = new Review(adminUser, "Impressed with the audio quality and the charging case is very convenient. Worth the price.", 5);
+        review.setProduct(products.get(13));
         reviewRepository.save(review);
         
+        // Coffee Maker (products.get(15)) - Popular kitchen appliance
+        review = new Review(mariaUser, "Coffee maker works great every morning. Easy to use and clean.", 5);
+        review.setProduct(products.get(15));
+        reviewRepository.save(review);
+        
+        review = new Review(adminUser, "Brews excellent coffee with perfect temperature. The programmable feature is very handy.", 5);
+        review.setProduct(products.get(15));
+        reviewRepository.save(review);
+        
+        review = new Review(lucasUser, "Great coffee maker! The auto shut-off and brew strength control are perfect features.", 4);
+        review.setProduct(products.get(15));
+        reviewRepository.save(review);
+        
+        // === PRODUCTOS CON 2 RESEÑAS ===
+        
+        // Keyboard (products.get(1))
+        review = new Review(adminUser, "Good keyboard for the price. Silent typing works as advertised.", 4);
+        review.setProduct(products.get(1));
+        reviewRepository.save(review);
+        
+        review = new Review(lucasUser, "Keys feel great and it's really quiet. Perfect for late night coding sessions!", 5);
+        review.setProduct(products.get(1));
+        reviewRepository.save(review);
+        
+        // Phone (products.get(2))
+        review = new Review(lucasUser, "The phone has great features for the price. Camera quality is impressive!", 4);
+        review.setProduct(products.get(2));
+        reviewRepository.save(review);
+        
+        review = new Review(mariaUser, "Battery life is amazing! Can easily last a full day with heavy usage. Love the camera.", 5);
+        review.setProduct(products.get(2));
+        reviewRepository.save(review);
+        
+        // Electric Kettle (products.get(7))
+        review = new Review(mariaUser, "Electric kettle heats water quickly and automatically shuts off. Very convenient!", 5);
+        review.setProduct(products.get(7));
+        reviewRepository.save(review);
+        
+        review = new Review(adminUser, "Fast heating and good capacity. The automatic shut-off is a great safety feature.", 5);
+        review.setProduct(products.get(7));
+        reviewRepository.save(review);
+        
+        // Gaming Headset (products.get(18))
+        review = new Review(lucasUser, "Gaming headset is comfortable for long sessions. Great sound quality!", 5);
+        review.setProduct(products.get(18));
+        reviewRepository.save(review);
+        
+        review = new Review(adminUser, "Excellent surround sound and the microphone is very clear. RGB lighting is a nice touch.", 5);
+        review.setProduct(products.get(18));
+        reviewRepository.save(review);
+        
+        // Bluetooth Speaker (products.get(16))
         review = new Review(lucasUser, "Bluetooth speaker has amazing sound quality and is truly waterproof!", 5);
-        review.setProduct(products.get(16)); // Bluetooth Speaker
+        review.setProduct(products.get(16));
         reviewRepository.save(review);
         
+        review = new Review(mariaUser, "Perfect for pool parties! Sound is clear and loud, and I love the portability.", 5);
+        review.setProduct(products.get(16));
+        reviewRepository.save(review);
+        
+        // Digital Camera (products.get(14))
         review = new Review(lucasUser, "Digital camera takes professional-quality photos. Love the zoom feature!", 5);
-        review.setProduct(products.get(14)); // Digital Camera
+        review.setProduct(products.get(14));
         reviewRepository.save(review);
         
-        // Some additional mixed reviews
-        review = new Review(mariaUser, "Robot vacuum works well but sometimes gets stuck under furniture.", 3);
-        review.setProduct(products.get(8)); // Robot Vacuum Cleaner
+        review = new Review(mariaUser, "Perfect for capturing family moments. The image stabilization works really well.", 5);
+        review.setProduct(products.get(14));
         reviewRepository.save(review);
         
-        review = new Review(lucasUser, "Electric scooter is fun to ride, but battery life could be better.", 3);
-        review.setProduct(products.get(5)); // Electric Scooter
+        // Smart Bulb (products.get(10))
+        review = new Review(adminUser, "Smart bulb works perfectly with voice assistants. Easy setup and great color options.", 5);
+        review.setProduct(products.get(10));
         reviewRepository.save(review);
         
+        review = new Review(mariaUser, "Love being able to control the lights from my phone! The color changing is so much fun.", 5);
+        review.setProduct(products.get(10));
+        reviewRepository.save(review);
+        
+        // === PRODUCTOS CON 1 RESEÑA ===
+        
+        // Television (products.get(3))
         review = new Review(adminUser, "Television picture quality is good for the price range.", 4);
-        review.setProduct(products.get(3)); // Television
+        review.setProduct(products.get(3));
         reviewRepository.save(review);
         
+        // Electric Scooter (products.get(5)) - Mixed review
+        review = new Review(lucasUser, "Electric scooter is fun to ride, but battery life could be better.", 3);
+        review.setProduct(products.get(5));
+        reviewRepository.save(review);
+        
+        // Fitness Tracker Band (products.get(6))
         review = new Review(mariaUser, "Fitness tracker band is accurate and comfortable to wear all day.", 4);
-        review.setProduct(products.get(6)); // Fitness Tracker Band
+        review.setProduct(products.get(6));
         reviewRepository.save(review);
         
-        review = new Review(lucasUser, "Wireless charger works perfectly with my phone. No more tangled cables!", 4);
-        review.setProduct(products.get(20)); // Wireless Charger
+        // Robot Vacuum Cleaner (products.get(8)) - Mixed review
+        review = new Review(mariaUser, "Robot vacuum works well but sometimes gets stuck under furniture.", 3);
+        review.setProduct(products.get(8));
         reviewRepository.save(review);
+        
+        // Air Purifier (products.get(9))
+        review = new Review(mariaUser, "The air purifier has made a noticeable difference in our home's air quality.", 4);
+        review.setProduct(products.get(9));
+        reviewRepository.save(review);
+        
+        // Electric Toothbrush (products.get(11))
+        review = new Review(mariaUser, "Much better than my old manual toothbrush. Teeth feel cleaner and the timer is helpful.", 5);
+        review.setProduct(products.get(11));
+        reviewRepository.save(review);
+        
+        // Electric Blanket (products.get(12))
+        review = new Review(mariaUser, "So cozy and warm! Perfect for cold winter nights. The different heat settings are great.", 5);
+        review.setProduct(products.get(12));
+        reviewRepository.save(review);
+        
+        // External Hard Drive (products.get(17))
+        review = new Review(lucasUser, "External hard drive is fast and reliable. Great for backing up files.", 4);
+        review.setProduct(products.get(17));
+        reviewRepository.save(review);
+        
+        // Wireless Charger (products.get(20))
+        review = new Review(lucasUser, "Wireless charger works perfectly with my phone. No more tangled cables!", 4);
+        review.setProduct(products.get(20));
+        reviewRepository.save(review);
+        
+        // Security Camera (products.get(23))
+        review = new Review(adminUser, "The security camera has good image quality, but the app could be better.", 4);
+        review.setProduct(products.get(23));
+        reviewRepository.save(review);
+        
+        // Portable Projector (products.get(25))
+        review = new Review(lucasUser, "Amazing for movie nights! Picture quality is surprisingly good for the size.", 5);
+        review.setProduct(products.get(25));
+        reviewRepository.save(review);
+        
+        // Power Bank (products.get(28))
+        review = new Review(lucasUser, "Power bank charges my devices multiple times. Very reliable for travel.", 4);
+        review.setProduct(products.get(28));
+        reviewRepository.save(review);
+        
+        // Smart Doorbell (products.get(29))
+        review = new Review(adminUser, "Excellent smart doorbell! Clear video quality and motion detection works perfectly.", 5);
+        review.setProduct(products.get(29));
+        reviewRepository.save(review);
+        
+        // Hair Dryer (products.get(31))
+        review = new Review(mariaUser, "Hair dryer is powerful and dries my hair quickly without damage.", 4);
+        review.setProduct(products.get(31));
+        reviewRepository.save(review);
+        
+        // USB Hub (products.get(32)) - Lower rating
+        review = new Review(lucasUser, "Works as expected but the LED indicators are too bright at night.", 3);
+        review.setProduct(products.get(32));
+        reviewRepository.save(review);
+        
+        // Essential Oil Diffuser (products.get(40))
+        review = new Review(mariaUser, "Essential oil diffuser creates a lovely atmosphere. Love the color changing lights!", 5);
+        review.setProduct(products.get(40));
+        reviewRepository.save(review);
+        
+        // Rice Cooker (products.get(44))
+        review = new Review(mariaUser, "Perfect rice every time! The keep warm function is amazing for busy schedules.", 5);
+        review.setProduct(products.get(44));
+        reviewRepository.save(review);
+        
+        // Note: Many products (like Tablet Stand, Desk Lamp, Digital Alarm Clock, Electric Fan, 
+        // Laptop Cooling Pad, Smart Scale, Microwave Oven, Water Bottle, Wireless Keyboard, 
+        // Digital Food Scale, Blender, Indoor Plant Pot, Bike Light Set, Cordless Drill, 
+        // Fitness Resistance Bands, Hand Mixer, Wireless Mouse Pad, Smart Wi-Fi Plug, 
+        // Selfie Ring Light, Slow Cooker, Smart Plant Monitor) 
+        // will have NO REVIEWS, making the distribution more realistic
     }
     
     /**
@@ -459,6 +584,27 @@ public class DataBaseUsage implements CommandLineRunner {
      */
     private void addProductToOrder(Order order, Product product, int quantity) {
         order.setProductQuantity(product, quantity);
+    }
+    
+    /**
+     * Updates the average rating for all products based on their reviews
+     */
+    private void calculateAndUpdateProductRatings(List<Product> products) {
+        for (Product product : products) {
+            List<Review> productReviews = reviewRepository.findByProduct(product);
+            
+            if (productReviews.isEmpty()) {
+                product.setRating(0.0);
+            } else {
+                double totalRating = productReviews.stream()
+                    .mapToDouble(Review::getRating)
+                    .sum();
+                double averageRating = totalRating / productReviews.size();
+                product.setRating(averageRating);
+            }
+            
+            productRepository.save(product);
+        }
     }
     
     /**
