@@ -11,6 +11,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import es.xpressaly.Model.Product;
 import es.xpressaly.Model.User;
 import es.xpressaly.Model.UserRole;
+import es.xpressaly.Model.Review;
+import es.xpressaly.Model.Order;
+import es.xpressaly.Model.OrderProduct;
 import es.xpressaly.Repository.OrderRepository;
 import es.xpressaly.Repository.ProductRepository;
 import es.xpressaly.Repository.ReviewRepository;
@@ -20,6 +23,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Random;
 
 
 @Controller
@@ -38,18 +43,21 @@ public class DataBaseUsage implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        //Save some customers
+        // Save some customers
         User user;
         user=new User("Juan", "Pérez", "juan.perez@email.com", passwordEncoder.encode("Password123"), "Calle Ficticia 123", 213412398, 25);
         user.setRole(UserRole.ADMIN);
-        userRepository.save(user);
+        User adminUser = userRepository.save(user);
+        
         user=new User("Maria", "García", "maria.garcia@email.com", passwordEncoder.encode("Test4567"), "Avenida Principal 456", 567814785, 30);
         user.setRole(UserRole.USER);
-        userRepository.save(user);
+        User mariaUser = userRepository.save(user);
+        
         user=new User("Lucas", "López", "lucas.lopez@email.com", passwordEncoder.encode("Hola1234"), "Calle Real 666", 678542132, 20);
         user.setRole(UserRole.USER);
-        userRepository.save(user);
-        //Save initial products
+        User lucasUser = userRepository.save(user);
+        
+        // Save initial products
             Product product;
             product = new Product("Wireless mouse", "2.4G Wireless Bluetooth Mouse Ergonomic 800/1200/1600DPI 6 Silent Buttons for MacBook Tablet Laptops Computer PC", 50, 25, "/Images/Wireless mouse.jpg");
             loadImageForProduct(product, "Wireless mouse.jpg");
@@ -250,6 +258,207 @@ public class DataBaseUsage implements CommandLineRunner {
             product = new Product("Smart Plant Monitor", "Bluetooth plant monitor that tracks soil moisture, light exposure, temperature and provides care recommendations via app.", 35, 30, "/Images/Smart Plant Monitor.jpg");
             loadImageForProduct(product, "Smart Plant Monitor.jpg");
             productRepository.save(product);
+        
+        // Get all saved products for creating reviews and orders
+        List<Product> allProducts = productRepository.findAll();
+        
+        // Create reviews for various products from all users
+        createReviewsForUsers(adminUser, mariaUser, lucasUser, allProducts);
+        
+        // Create orders for each user
+        createOrdersForUsers(adminUser, mariaUser, lucasUser, allProducts);
+    }
+    
+    /**
+     * Creates sample reviews for products from all three users
+     */
+    private void createReviewsForUsers(User adminUser, User mariaUser, User lucasUser, List<Product> products) {
+        Review review;
+        
+        // Reviews from Juan Pérez (Admin)
+        review = new Review(adminUser, "Excellent wireless mouse, very comfortable and responsive. Great battery life!", 5);
+        review.setProduct(products.get(0)); // Wireless mouse
+        reviewRepository.save(review);
+        
+        review = new Review(adminUser, "Good keyboard for the price. Silent typing works as advertised.", 4);
+        review.setProduct(products.get(1)); // Keyboard
+        reviewRepository.save(review);
+        
+        review = new Review(adminUser, "Smart bulb works perfectly with voice assistants. Easy setup and great color options.", 5);
+        review.setProduct(products.get(10)); // Smart Bulb
+        reviewRepository.save(review);
+        
+        review = new Review(adminUser, "The security camera has good image quality, but the app could be better.", 4);
+        review.setProduct(products.get(23)); // Security Camera
+        reviewRepository.save(review);
+        
+        // Reviews from Maria García
+        review = new Review(mariaUser, "This smartwatch is amazing! Tracks everything I need for my fitness routine.", 5);
+        review.setProduct(products.get(4)); // Smartwatch Fitness Pro
+        reviewRepository.save(review);
+        
+        review = new Review(mariaUser, "Coffee maker works great every morning. Easy to use and clean.", 5);
+        review.setProduct(products.get(15)); // Coffee Maker
+        reviewRepository.save(review);
+        
+        review = new Review(mariaUser, "The air purifier has made a noticeable difference in our home's air quality.", 4);
+        review.setProduct(products.get(9)); // Air Purifier
+        reviewRepository.save(review);
+        
+        review = new Review(mariaUser, "Electric kettle heats water quickly and automatically shuts off. Very convenient!", 5);
+        review.setProduct(products.get(7)); // Electric Kettle
+        reviewRepository.save(review);
+        
+        review = new Review(mariaUser, "Hair dryer is powerful and dries my hair quickly without damage.", 4);
+        review.setProduct(products.get(31)); // Hair Dryer
+        reviewRepository.save(review);
+        
+        review = new Review(mariaUser, "Essential oil diffuser creates a lovely atmosphere. Love the color changing lights!", 5);
+        review.setProduct(products.get(40)); // Essential Oil Diffuser
+        reviewRepository.save(review);
+        
+        // Reviews from Lucas López
+        review = new Review(lucasUser, "The phone has great features for the price. Camera quality is impressive!", 4);
+        review.setProduct(products.get(2)); // Phone
+        reviewRepository.save(review);
+        
+        review = new Review(lucasUser, "Gaming headset is comfortable for long sessions. Great sound quality!", 5);
+        review.setProduct(products.get(18)); // Gaming Headset
+        reviewRepository.save(review);
+        
+        review = new Review(lucasUser, "Wireless earbuds have excellent noise cancellation. Battery lasts all day.", 5);
+        review.setProduct(products.get(13)); // Wireless Earbuds
+        reviewRepository.save(review);
+        
+        review = new Review(lucasUser, "Power bank charges my devices multiple times. Very reliable for travel.", 4);
+        review.setProduct(products.get(27)); // Power Bank
+        reviewRepository.save(review);
+        
+        review = new Review(lucasUser, "External hard drive is fast and reliable. Great for backing up files.", 4);
+        review.setProduct(products.get(17)); // External Hard Drive
+        reviewRepository.save(review);
+        
+        review = new Review(lucasUser, "Bluetooth speaker has amazing sound quality and is truly waterproof!", 5);
+        review.setProduct(products.get(16)); // Bluetooth Speaker
+        reviewRepository.save(review);
+        
+        review = new Review(lucasUser, "Digital camera takes professional-quality photos. Love the zoom feature!", 5);
+        review.setProduct(products.get(14)); // Digital Camera
+        reviewRepository.save(review);
+        
+        // Some additional mixed reviews
+        review = new Review(mariaUser, "Robot vacuum works well but sometimes gets stuck under furniture.", 3);
+        review.setProduct(products.get(8)); // Robot Vacuum Cleaner
+        reviewRepository.save(review);
+        
+        review = new Review(lucasUser, "Electric scooter is fun to ride, but battery life could be better.", 3);
+        review.setProduct(products.get(5)); // Electric Scooter
+        reviewRepository.save(review);
+        
+        review = new Review(adminUser, "Television picture quality is good for the price range.", 4);
+        review.setProduct(products.get(3)); // Television
+        reviewRepository.save(review);
+        
+        review = new Review(mariaUser, "Fitness tracker band is accurate and comfortable to wear all day.", 4);
+        review.setProduct(products.get(6)); // Fitness Tracker Band
+        reviewRepository.save(review);
+        
+        review = new Review(lucasUser, "Wireless charger works perfectly with my phone. No more tangled cables!", 4);
+        review.setProduct(products.get(20)); // Wireless Charger
+        reviewRepository.save(review);
+    }
+    
+    /**
+     * Creates sample orders for all three users
+     */
+    private void createOrdersForUsers(User adminUser, User mariaUser, User lucasUser, List<Product> products) {
+        Random random = new Random();
+        
+        // Order 1 for Juan Pérez (Admin) - Office setup
+        Order order1 = new Order(adminUser, adminUser.getAddress());
+        order1.setUserOrderNumber(1);
+        addProductToOrder(order1, products.get(0), 1); // Wireless mouse
+        addProductToOrder(order1, products.get(1), 1); // Keyboard
+        addProductToOrder(order1, products.get(23), 1); // Security Camera
+        addProductToOrder(order1, products.get(22), 1); // Desk Lamp
+        order1.calculateTotal();
+        orderRepository.save(order1);
+        
+        // Order 2 for Juan Pérez (Admin) - Smart home
+        Order order2 = new Order(adminUser, adminUser.getAddress());
+        order2.setUserOrderNumber(2);
+        addProductToOrder(order2, products.get(10), 3); // Smart Bulb (3 units)
+        addProductToOrder(order2, products.get(42), 2); // Smart Wi-Fi Plug (2 units)
+        addProductToOrder(order2, products.get(29), 1); // Smart Doorbell
+        order2.calculateTotal();
+        orderRepository.save(order2);
+        
+        // Order 1 for Maria García - Fitness and wellness
+        Order order3 = new Order(mariaUser, mariaUser.getAddress());
+        order3.setUserOrderNumber(1);
+        addProductToOrder(order3, products.get(4), 1); // Smartwatch Fitness Pro
+        addProductToOrder(order3, products.get(6), 1); // Fitness Tracker Band
+        addProductToOrder(order3, products.get(38), 1); // Fitness Resistance Bands
+        addProductToOrder(order3, products.get(33), 1); // Water Bottle
+        order3.calculateTotal();
+        orderRepository.save(order3);
+        
+        // Order 2 for Maria García - Kitchen appliances
+        Order order4 = new Order(mariaUser, mariaUser.getAddress());
+        order4.setUserOrderNumber(2);
+        addProductToOrder(order4, products.get(15), 1); // Coffee Maker
+        addProductToOrder(order4, products.get(7), 1); // Electric Kettle
+        addProductToOrder(order4, products.get(35), 1); // Blender
+        addProductToOrder(order4, products.get(44), 1); // Rice Cooker
+        order4.calculateTotal();
+        orderRepository.save(order4);
+        
+        // Order 3 for Maria García - Home comfort
+        Order order5 = new Order(mariaUser, mariaUser.getAddress());
+        order5.setUserOrderNumber(3);
+        addProductToOrder(order5, products.get(9), 1); // Air Purifier
+        addProductToOrder(order5, products.get(40), 1); // Essential Oil Diffuser
+        addProductToOrder(order5, products.get(36), 1); // Indoor Plant Pot
+        addProductToOrder(order5, products.get(46), 1); // Smart Plant Monitor
+        order5.calculateTotal();
+        orderRepository.save(order5);
+        
+        // Order 1 for Lucas López - Tech enthusiast
+        Order order6 = new Order(lucasUser, lucasUser.getAddress());
+        order6.setUserOrderNumber(1);
+        addProductToOrder(order6, products.get(2), 1); // Phone
+        addProductToOrder(order6, products.get(13), 1); // Wireless Earbuds
+        addProductToOrder(order6, products.get(18), 1); // Gaming Headset
+        addProductToOrder(order6, products.get(27), 1); // Power Bank
+        order6.calculateTotal();
+        orderRepository.save(order6);
+        
+        // Order 2 for Lucas López - Photography and entertainment
+        Order order7 = new Order(lucasUser, lucasUser.getAddress());
+        order7.setUserOrderNumber(2);
+        addProductToOrder(order7, products.get(14), 1); // Digital Camera
+        addProductToOrder(order7, products.get(25), 1); // Portable Projector
+        addProductToOrder(order7, products.get(43), 1); // Selfie Ring Light
+        addProductToOrder(order7, products.get(19), 1); // Tablet Stand
+        order7.calculateTotal();
+        orderRepository.save(order7);
+        
+        // Order 3 for Lucas López - Storage and connectivity
+        Order order8 = new Order(lucasUser, lucasUser.getAddress());
+        order8.setUserOrderNumber(3);
+        addProductToOrder(order8, products.get(17), 1); // External Hard Drive
+        addProductToOrder(order8, products.get(32), 1); // USB Hub
+        addProductToOrder(order8, products.get(20), 2); // Wireless Charger (2 units)
+        addProductToOrder(order8, products.get(28), 1); // Car Phone Mount
+        order8.calculateTotal();
+        orderRepository.save(order8);
+    }
+    
+    /**
+     * Helper method to add a product to an order
+     */
+    private void addProductToOrder(Order order, Product product, int quantity) {
+        order.setProductQuantity(product, quantity);
     }
     
     /**
