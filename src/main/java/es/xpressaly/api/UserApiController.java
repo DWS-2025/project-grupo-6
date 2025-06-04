@@ -11,12 +11,16 @@ import es.xpressaly.Service.UserService;
 import es.xpressaly.Service.ReviewService;
 import es.xpressaly.dto.UserDTO;
 import es.xpressaly.dto.UserWebDTO;
+import es.xpressaly.security.jwt.UserLoginService;
 import es.xpressaly.dto.ReviewDTO;
 
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/users")
@@ -25,7 +29,13 @@ public class UserApiController {
     private UserService userService;
 
     @Autowired
-    private ReviewService reviewService;
+    private ReviewService reviewService;    
+
+    @GetMapping("/")
+    public ResponseEntity<List<UserDTO>> getUsers() {
+        return ResponseEntity.ok(userService.getUsers());
+    }
+    
 
     @GetMapping("/profile")
     public ResponseEntity<Map<String, Object>> getProfile() {
@@ -64,7 +74,7 @@ public class UserApiController {
         }
     }
 
-    @PutMapping("api/profile")
+    @PutMapping("/profile")
     public ResponseEntity<Map<String, Object>> updateProfile(
             @RequestParam String firstName,
             @RequestParam String lastName,

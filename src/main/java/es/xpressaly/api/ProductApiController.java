@@ -209,7 +209,7 @@ public class ProductApiController {
         }
     }
 
-    @DeleteMapping("/{productId}")
+    @DeleteMapping("/{productId}")//works perfectly
     public ResponseEntity<Map<String, Object>> deleteProduct(@PathVariable Long productId) {
         Map<String, Object> response = new HashMap<>();
         try {
@@ -222,23 +222,16 @@ public class ProductApiController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> getProductDetails(@PathVariable Long id) {
-        Map<String, Object> response = new HashMap<>();
+    @GetMapping("/{id}")//works perfectly
+    public ResponseEntity<ProductDTO> getProductDetails(@PathVariable Long id) {
         try {
-            ProductWebDTO productWebDTO = productService.getProductWithReviewsWeb(id);
-            if (productWebDTO == null) {
-                response.put("error", "Product not found");
-                return ResponseEntity.badRequest().body(response);
+            ProductDTO productDTO = productService.getProductWithReviews(id);
+            if (productDTO == null) {
+                return ResponseEntity.badRequest().build();
             }
-
-            response.put("product", productWebDTO);
-            response.put("reviews", productWebDTO.reviews());
-            response.put("rating", productWebDTO.rating());
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(productDTO);
         } catch (Exception e) {
-            response.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.badRequest().build();
         }
     }
 

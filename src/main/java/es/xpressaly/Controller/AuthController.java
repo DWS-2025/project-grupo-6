@@ -43,7 +43,7 @@ public class AuthController {
     @PostMapping("/login")
     public String login(@RequestParam String email, 
                        @RequestParam String password,
-                       HttpSession session,
+                       
                        Model model) {
         try {
             // Validate input
@@ -61,9 +61,6 @@ public class AuthController {
                 Order newOrder=orderService.createOrder(user, userService.getAddress(user));
                 User currentUser=userService.getUserEntity();
                 userService.setCurrentOrder(currentUser,newOrder);
-                session.setAttribute("userId", user.id());
-                session.setAttribute("userEmail", user.email());
-                session.setAttribute("userRole", user.role());
                 return "redirect:/products";
             }
             model.addAttribute("error", "Invalid email or password");

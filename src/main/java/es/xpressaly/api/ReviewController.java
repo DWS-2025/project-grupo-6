@@ -1,9 +1,10 @@
-package es.xpressaly.Controller;
+package es.xpressaly.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import es.xpressaly.Model.Review;
 import es.xpressaly.Service.ReviewService;
+import es.xpressaly.dto.ReviewApiDTO;
 import es.xpressaly.dto.ReviewDTO;
 import es.xpressaly.mapper.ReviewMapper;
 

@@ -433,4 +433,10 @@ public class UserService {
             user.setCurrentOrder(currentOrder);
         }
     }
+
+    public List<UserDTO> getUsers() {
+        return userRepository.findAll().stream()
+            .map(userMapper::toDTO)
+            .collect(Collectors.toList());
+    }
 }

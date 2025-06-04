@@ -75,6 +75,7 @@ public class SecurityConfig {
 					// PUBLIC API ENDPOINTS
 					.requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
 					.requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+					.requestMatchers( "/api/auth/**").permitAll()
 					
 					// USER API ENDPOINTS (authenticated users)
 					.requestMatchers(HttpMethod.GET, "/api/users/").hasAnyRole("USER", "ADMIN")
@@ -123,12 +124,11 @@ public class SecurityConfig {
 				.authorizeHttpRequests(authorize -> authorize
 						// STATIC RESOURCES - Always public
 						.requestMatchers("/", "/login", "/register", "/loginerror").permitAll()
-						.requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
-						.requestMatchers("/image/**").permitAll() // Product images endpoint
+						.requestMatchers("/css/**", "/js/**", "/Images/**", "/images/**", "/uploads/**", "/image/**").permitAll()
 						.requestMatchers("/error").permitAll()
 						
 						// PUBLIC PRODUCT PAGES - Reading only
-						.requestMatchers(HttpMethod.GET, "/products").permitAll()
+						.requestMatchers(HttpMethod.GET, "/products", "/products/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/search-products").permitAll()
 						.requestMatchers(HttpMethod.GET, "/search-products-json").permitAll()
 						.requestMatchers(HttpMethod.GET, "/product-details").permitAll()
