@@ -195,3 +195,39 @@ document.querySelector('form').addEventListener('submit', function(e) {
         showNotification('Error updating profile: ' + error.message, 'error');
     });
 });
+
+// Código para eliminar órdenes
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll('.delete-order-button').forEach(button => {
+        button.addEventListener('click', function () {
+            const orderCard = this.closest('.order-card');
+            const orderId = orderCard.getAttribute('data-order-id');
+            
+            fetch(`/delete-order/${orderId}`, { 
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    orderCard.remove();
+                    // Si no hay más órdenes, mostrar el mensaje de "No orders yet"
+                    if (document.querySelectorAll('.order-card').length === 0) {
+                        const noOrdersMessage = document.createElement('p');
+                        noOrdersMessage.className = 'no-reviews';
+                        noOrdersMessage.innerHTML = '<i class="fas fa-info-circle"></i> No orders yet.';
+                        document.querySelector('.options-menu').appendChild(noOrdersMessage);
+                    }
+                } else {
+                    showNotification('Error al eliminar la orden. Por favor, inténtalo de nuevo.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error al eliminar la orden. Por favor, inténtalo de nuevo.', 'error');
+            });
+        });
+    });
+});

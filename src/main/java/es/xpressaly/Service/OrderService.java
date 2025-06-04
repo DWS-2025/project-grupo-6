@@ -143,4 +143,12 @@ public class OrderService {
         order.calculateTotal();
         return order;
     }
+
+    public void delete(Order orderToDelete) {
+        orderRepository.delete(orderToDelete);
+    }
+
+    public Order findById(Long orderId) {
+        return orderRepository.findById(orderId).orElse(null);
+    }
 }

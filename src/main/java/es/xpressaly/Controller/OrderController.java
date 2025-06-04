@@ -2,6 +2,8 @@ package es.xpressaly.Controller;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -187,7 +189,7 @@ public class OrderController {
         return "redirect:/view-order";
     }
 
-    //Delete order
+    //Delete cart order
     @GetMapping("/delete-order")
     public String deleteOrder(Model model) {
         UserWebDTO currentUser = userService.getUser();
@@ -209,7 +211,43 @@ public class OrderController {
         model.addAttribute("cartItemCount", getCartItemCount());
         return "Wellcome";
     }
-    
+    @DeleteMapping("/delete-order/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Boolean>> deleteOrder(@PathVariable("id") Long orderId) {
+        Map<String, Boolean> response = new HashMap<>();
+        UserWebDTO currentUser = userService.getUser();
+
+        if (currentUser == null) {
+            response.put("success", false);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        List<Order> orders = orderService.getOrdersByUser(currentUser);
+        Order orderToDelete = null;
+        
+        for (Order order : orders) {
+            if(order.getId().equals(orderId)){
+                orderToDelete = order;
+                break;
+            }    
+        }    
+        
+        if (orderToDelete == null || !orderToDelete.getUser().getId().equals(currentUser.id())) {
+            response.put("success", false);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        try {
+            orderService.delete(orderToDelete);
+            orders.remove(orderToDelete);
+            response.put("success", true);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
     //Update products' amount
     @PostMapping("/update-amount")
     public String updateAmount(Model model, @RequestParam int amount, @RequestParam Long productId) {
