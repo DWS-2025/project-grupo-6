@@ -3,18 +3,19 @@
 }
 
 /* Product card styles */
-.grid {
+.products-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
     padding: 1rem;
+    width: 100%;
 }
 
-/* Make images perfectly square */
+/* Make images with proper aspect ratio */
 .product-image-container {
     position: relative;
     width: 100%;
-    padding-bottom: 100%; /* Creates a 1:1 aspect ratio */
+    padding-bottom: 75%; /* Creates a 4:3 aspect ratio */
     overflow: hidden;
     border-radius: 0.5rem;
     background-color: rgba(203, 211, 230, 0.2);
@@ -27,12 +28,13 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s ease, filter 0.3s ease;
+    object-position: center;
+    transition: transform 0.3s ease, filter 0.3s ease;
     filter: brightness(0.98);
 }
 
 .product-image-container:hover img {
-    transform: scale(1.05);
+    transform: scale(1.03);
     filter: brightness(1.03);
 }
 

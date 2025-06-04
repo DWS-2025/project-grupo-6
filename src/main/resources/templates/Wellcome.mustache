@@ -183,16 +183,16 @@
             <!-- Right Main Content Area -->
             <div class="w-4/5">
                 <!-- Products Grid -->
-                <div class="grid grid-cols-5 gap-4 min-h-[400px]" id="productsGrid">
+                <div class="products-grid" id="productsGrid">
                     <!-- Products will be loaded dynamically using JavaScript -->
                 </div>
 
                 <div class="text-center mt-6 mb-4">
-                    <button id="loadMoreBtn" class="button px-4 py-2 text-sm rounded-lg bg-[#294156] text-white hover:bg-[#567C8D] transition-all duration-300 flex items-center mx-auto shadow-md hover:shadow-lg transform hover:-translate-y-1" onclick="loadMoreProducts()">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <button id="loadMoreBtn" class="button px-4 py-2 text-sm rounded-lg bg-[#294156] text-white hover:bg-[#567C8D] transition-all duration-300 flex items-center justify-center mx-auto shadow-md hover:shadow-lg transform hover:-translate-y-1" onclick="loadMoreProducts()">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="vertical-align: middle;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
-                        Load More
+                        <span class="leading-none" style="vertical-align: middle;">Load More</span>
                     </button>
                 </div>
             </div>

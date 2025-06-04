@@ -1,5 +1,5 @@
 let currentProductPage = 1;
-const productsPerPage = 5;
+const productsPerPage = 10;
 let minPrice = 0;
 let maxPrice = 1000;
 let currentSortValue = 'default';
@@ -110,7 +110,7 @@ function loadMoreProducts(resetPagination = false) {
     }
     
     loadMoreBtn.disabled = true;
-    loadMoreBtn.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Loading...';
+    loadMoreBtn.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="vertical-align: middle;"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="leading-none" style="vertical-align: middle;">Loading...</span>';
     
     // Construir la URL con todos los parámetros
     let url = `/api/products?page=${currentProductPage}&size=${productsPerPage}`;
@@ -165,7 +165,7 @@ function loadMoreProducts(resetPagination = false) {
                 
                 currentProductPage++;
                 loadMoreBtn.disabled = false;
-                loadMoreBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>Load More';
+                loadMoreBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="vertical-align: middle;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg><span class="leading-none" style="vertical-align: middle;">Load More</span>';
                 loadMoreBtn.style.display = data.last ? 'none' : 'block';
             } else {
                 // Actualizar estado visual para sin resultados
@@ -188,7 +188,7 @@ function loadMoreProducts(resetPagination = false) {
             hideLoadingGrid();
             searchContainer.classList.remove('search-loading');
             loadMoreBtn.disabled = false;
-            loadMoreBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.69-2.942L13.81 4.658c-.122-.195-.312-.309-.51-.309s-.388.114-.51.309L5.99 13.058C5.178 14.333 6.14 16 7.68 16z"/></svg>Try Again';
+            loadMoreBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="vertical-align: middle;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.69-2.942L13.81 4.658c-.122-.195-.312-.309-.51-.309s-.388.114-.51.309L5.99 13.058C5.178 14.333 6.14 16 7.68 16z"/></svg><span class="leading-none" style="vertical-align: middle;">Try Again</span>';
             
             if (currentProductPage === 1) {
                 showErrorMessage();
@@ -350,19 +350,21 @@ function createProductCard(product) {
         <div class="product-info">
             <h3 class="product-name cursor-pointer hover:text-[#567C8D] transition-colors" onclick="window.location.href='/product-details?id=${product.id}'">${product.name}</h3>
             <p class="product-description">${product.description}</p>
-            <p class="text-[#567C8D]/70 text-xs font-light">Stock: ${product.stock}</p>
-            <div class="product-buttons">
+            <div class="flex justify-between items-center mt-auto">
                 <span class="text-lg font-semibold text-[#294156]">$${product.price}</span>
-                <form action="/add-to-order" method="post" class="add-to-cart-form">
-                    <input type="hidden" name="productId" value="${product.id}">
-                    <button type="submit" class="button w-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        Add to Cart
-                    </button>
-                </form>
+                <span class="text-sm text-[#567C8D]/70">Stock: ${product.stock}</span>
             </div>
+        </div>
+        <div class="product-buttons">
+            <form action="/add-to-order" method="post" class="add-to-cart-form">
+                <input type="hidden" name="productId" value="${product.id}">
+                <button type="submit" class="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    Add to Cart
+                </button>
+            </form>
         </div>
     `;
     

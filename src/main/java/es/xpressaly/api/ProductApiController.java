@@ -53,7 +53,7 @@ public class ProductApiController {
     @GetMapping
     public ResponseEntity<Page<ProductDTO>> getProducts(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String search,
             @RequestParam(required = false, defaultValue = "default") String sort,
             @RequestParam(required = false, defaultValue = "0") double minPrice,

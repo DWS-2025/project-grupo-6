@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const deleteForm = document.getElementById('deleteProductForm');
     const productsGrid = document.getElementById('productsGrid');
     const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const productCountElement = document.getElementById('productCount');
     
     // Pagination variables
     let currentPage = 1;
@@ -49,44 +50,34 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         });
         
-        // Auto-cerrar después de 4 segundos
+        // Auto cerrar después de 5 segundos
         setTimeout(() => {
-            if (document.body.contains(notification)) {
+            if (notification.parentElement) {
                 notification.classList.remove('show');
                 setTimeout(() => {
-                    if (document.body.contains(notification)) {
-                        notification.remove();
-                    }
+                    notification.remove();
                 }, 300);
             }
-        }, 4000);
+        }, 5000);
     }
     
-    // Configurar los enlaces de productos
+    // Función para actualizar contador de productos
+    function updateProductCount(count) {
+        if (productCountElement) {
+            productCountElement.textContent = count > 0 ? `${count} products` : '';
+        }
+    }
+    
+    // Función para configurar enlaces de productos (ya no es necesaria con el nuevo diseño)
     function setupProductLinks() {
-        const productLinks = document.querySelectorAll('.product-link, .product-name-link');
-        
-        productLinks.forEach(link => {
-            link.addEventListener('click', function(e) {
-                // Solo para efectos visuales - añadir una pequeña animación al hacer clic
-                e.currentTarget.classList.add('clicked');
-                
-                // Extraer el nombre del producto desde el atributo title
-                const title = e.currentTarget.getAttribute('title');
-                const productName = title ? title.replace('View ', '') : 'product';
-                
-                // Mostrar notificación (opcional, podemos quitar esto si no lo deseas)
-                setTimeout(() => {
-                    showNotification(`Viewing details of "${productName}"`, 'info');
-                }, 300);
-            });
-        });
+        // Esta función ya no es necesaria con el nuevo diseño
+        // Los enlaces se manejan directamente en el template
     }
     
     // Función para cargar productos con animaciones mejoradas
     function loadProducts(page) {
         // Mostrar un efecto de carga en el botón
-        loadMoreBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Loading Products';
+        loadMoreBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Loading...</span>';
         loadMoreBtn.classList.add('loading');
         loadMoreBtn.disabled = true;
         
@@ -102,12 +93,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentPage = data.currentPage;
                 hasMore = data.hasMore;
                 
+                // Actualizar el contador de productos
+                updateProductCount(data.totalElements);
+                
                 // Actualizar el botón de cargar más
                 loadMoreBtn.disabled = false;
                 if (!hasMore) {
                     loadMoreBtn.style.display = 'none';
                 } else {
-                    loadMoreBtn.innerHTML = '<i class="fas fa-plus-circle mr-2"></i> Load More Products';
+                    loadMoreBtn.innerHTML = '<i class="fas fa-chevron-down"></i><span>Load More</span>';
                     loadMoreBtn.classList.remove('loading');
                 }
                 
@@ -115,75 +109,67 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (page === 1 && data.products.length === 0) {
                     productsGrid.innerHTML = `
                         <div class="empty-state">
-                            <i class="fas fa-box-open"></i>
-                            <p>No products available</p>
-                            <a href="/create-product" class="add-product-btn mt-6">
-                                <i class="fas fa-plus"></i> Add First Product
+                            <div class="empty-icon">
+                                <i class="fas fa-box-open"></i>
+                            </div>
+                            <h3 class="empty-title">No products yet</h3>
+                            <p class="empty-description">Start building your catalog by adding your first product</p>
+                            <a href="/create-product" class="primary-btn">
+                                <i class="fas fa-plus"></i>
+                                <span>Add First Product</span>
                             </a>
                         </div>
                     `;
                     return;
                 }
                 
-                // Crear elementos para cada producto con clases para animaciones
-                const productElements = data.products.map(product => {
-                    return `
-                        <div class="product-item">  
-                            <div class="product-image">
-                                <a href="/product-details?id=${product.id}" class="product-link" title="View ${product.name}">
-                                    <img src="/image/${product.id}" alt="${product.name}" class="product-thumbnail">
-                                </a>
+                // Si es la primera página, limpiar el grid
+                if (page === 1) {
+                    productsGrid.innerHTML = '';
+                }
+                
+                // Agregar productos al grid
+                const startIndex = productsGrid.children.length;
+                data.products.forEach((product, index) => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'product-card';
+                    productCard.innerHTML = `
+                        <div class="product-image-wrapper">
+                            <img src="/image/${product.id}" alt="${product.name}" class="product-image" loading="lazy">
+                            <div class="product-overlay">
+                                <div class="product-actions">
+                                    <button class="action-btn edit-btn" onclick="window.location.href='/edit-product/${product.id}'" title="Edit Product">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn" 
+                                            data-id="${product.id}" 
+                                            data-name="${product.name}" 
+                                            title="Delete Product">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="product-header">
-                                <a href="/product-details?id=${product.id}" class="product-name-link" title="View ${product.name}">
-                                    <h3 class="product-name">${product.name}</h3>
-                                </a>
-                            </div>
-                            
-                            <div class="product-actions">
-                                <a href="/edit-product/${product.id}" class="edit-action" title="Edit Product">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button type="button" class="delete-action" 
-                                        data-id="${product.id}" 
-                                        data-name="${product.name}" title="Delete Product">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
+                        </div>
+                        
+                        <div class="product-info">
+                            <h3 class="product-name">${product.name}</h3>
+                            <div class="product-meta">
+                                <span class="product-id">ID: ${product.id}</span>
                             </div>
                         </div>
                     `;
-                }).join('');
-                
-                // Si es la primera página, reemplazar el contenido
-                if (page === 1) {
-                    productsGrid.innerHTML = productElements;
-                } else {
-                    // Para páginas adicionales, añadir al final
-                    // Primero, eliminamos las animaciones de los productos existentes
-                    const existingProducts = document.querySelectorAll('.product-item');
-                    existingProducts.forEach(product => {
-                        product.style.opacity = '1';
-                        product.style.transform = 'translateY(0)';
-                    });
                     
-                    // Crear un fragmento para añadir los nuevos productos
-                    const fragment = document.createDocumentFragment();
-                    const tempContainer = document.createElement('div');
-                    tempContainer.innerHTML = productElements;
+                    // Aplicar delay de animación
+                    const animationDelay = Math.min(0.05 * (startIndex + index), 0.5);
+                    productCard.style.animationDelay = `${animationDelay}s`;
                     
-                    // Añadir cada nuevo elemento al fragmento
-                    while (tempContainer.firstChild) {
-                        fragment.appendChild(tempContainer.firstChild);
-                    }
-                    
-                    // Añadir todos los nuevos productos al grid
-                    productsGrid.appendChild(fragment);
-                }
+                    productsGrid.appendChild(productCard);
+                });
                 
-                // Configurar animaciones para todos los productos
-                const allProducts = document.querySelectorAll('.product-item');
-                const startIndex = page === 1 ? 0 : allProducts.length - data.products.length;
+                // Actualizar referencias a todos los productos
+                const allProducts = Array.from(productsGrid.children);
                 
+                // Aplicar delays de animación escalonados solo a los nuevos productos
                 allProducts.forEach((product, index) => {
                     // Solo aplicar animación a los productos recién cargados
                     if (index >= startIndex) {
@@ -197,8 +183,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Adjuntar event listeners a los botones de eliminar
                 setupDeleteButtons();
                 
-                // Configurar enlaces de productos
-                setupProductLinks();
+                // Configurar enlaces de productos (ya no necesario)
+                // setupProductLinks();
                 
                 // Animación suave al scroll a nuevos elementos si se están cargando más
                 if (page > 1) {
@@ -212,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error loading products:', error);
-                loadMoreBtn.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i> Try Again';
+                loadMoreBtn.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Try Again</span>';
                 loadMoreBtn.classList.remove('loading');
                 loadMoreBtn.disabled = false;
                 
@@ -222,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Configurar botones de eliminar
     function setupDeleteButtons() {
-        const deleteButtons = document.querySelectorAll('.delete-action');
+        const deleteButtons = document.querySelectorAll('.delete-btn');
         
         deleteButtons.forEach(button => {
             // Eliminar listeners anteriores para evitar duplicados
@@ -252,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadMoreBtn.addEventListener('click', function() {
         if (hasMore && !this.disabled) {
             // Mostrar efecto de carga
-            this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Loading Products';
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Loading...</span>';
             this.disabled = true;
             
             // Añadir pequeña pausa para mejor experiencia visual

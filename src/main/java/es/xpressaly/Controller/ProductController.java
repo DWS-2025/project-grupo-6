@@ -83,7 +83,7 @@ public class ProductController {
     @GetMapping("/products")
     public String getProducts(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String search,
             @RequestParam(required = false, defaultValue = "default") String sort,
             @RequestParam(required = false, defaultValue = "0") double minPrice,
@@ -449,55 +449,43 @@ public class ProductController {
     public Map<String, Object> searchProductsJson(
             @RequestParam String term,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false, defaultValue = "0") double minPrice,
             @RequestParam(required = false) Double maxPrice) {
-        Map<String, Object> response = new HashMap<>();
+        
         try {
-            // We calculate the maximum effective price
+            Pageable pageable = PageRequest.of(page - 1, size);
+            
             double dynamicMaxPrice = productService.getMaxPriceForFilter();
             double effectiveMaxPrice = maxPrice != null ? maxPrice : dynamicMaxPrice;
             
-            // We get the results with price filter
-            List<ProductDTO> searchResults;
+            Page<ProductDTO> productPage;
             if (minPrice > 0 || maxPrice != null) {
-                searchResults = productService.searchProductsByPrice(term, minPrice, effectiveMaxPrice);
+                productPage = productService.searchProductsByPriceAndPageable(term, minPrice, effectiveMaxPrice, pageable);
             } else {
-                searchResults = productService.searchProducts(term);
+                productPage = productService.searchProductsByPageable(term, pageable);
             }
             
-            // Calculate pagination manually
-            int total = searchResults.size();
-            int start = (page - 1) * size;
-            int end = Math.min(start + size, total);
-            
-            // Create sublist for current page
-            List<ProductDTO> pageContent = start < end 
-                ? searchResults.subList(start, end) 
-                : List.of();
-            
-            // Convert products to maps without image data
-            List<Map<String, Object>> productList = pageContent.stream()
+            Map<String, Object> response = new HashMap<>();
+            List<Map<String, Object>> products = productPage.getContent().stream()
                 .map(this::convertToMap)
                 .collect(Collectors.toList());
-            
-            // Pagination information
-            response.put("products", productList);
-            response.put("totalItems", total);
-            response.put("totalPages", (int) Math.ceil((double) total / size));
+                
+            response.put("products", products);
+            response.put("hasMore", productPage.hasNext());
+            response.put("totalElements", productPage.getTotalElements());
             response.put("currentPage", page);
-            response.put("hasMore", end < total);
-            response.put("maxPriceForFilter", dynamicMaxPrice);
+            response.put("totalPages", productPage.getTotalPages());
             
             return response;
         } catch (Exception e) {
             e.printStackTrace();
-            response.put("error", e.getMessage());
-            return response;
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Error processing search: " + e.getMessage());
+            return errorResponse;
         }
     }
-    
-    // Method to convert a product to a map, excluding binary image data
+
     private Map<String, Object> convertToMap(ProductDTO productDTO) {
         Map<String, Object> productMap = new HashMap<>();
         productMap.put("id", productDTO.id());
