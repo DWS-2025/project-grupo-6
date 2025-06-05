@@ -457,4 +457,8 @@ public class UserService {
             .map(userMapper::toDTO)
             .collect(Collectors.toList());
     }
+
+    public User getUserByFirstName(String userName) {
+       return userRepository.findByFirstName(userName).orElse(null);
+    }
 }

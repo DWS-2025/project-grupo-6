@@ -1,6 +1,9 @@
 package es.xpressaly.api;
 
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import es.xpressaly.Model.Review;
 import es.xpressaly.Service.ReviewService;
@@ -8,6 +11,7 @@ import es.xpressaly.dto.ReviewApiDTO;
 import es.xpressaly.dto.ReviewDTO;
 import es.xpressaly.mapper.ReviewMapper;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,32 +23,34 @@ public class ReviewController {
     @Autowired
     private ReviewService reviewService;
 
-    @GetMapping
-    public Collection<ReviewDTO> getAllReviews() {
-        return reviewService.getAllReviews();          
+    @GetMapping("/all")
+    public Collection<ReviewApiDTO> getAllReviews() {
+        return reviewService.getAllAPIReviews();          
     }
 
     @GetMapping("/{id}")
-    public ReviewDTO getReviewById(@PathVariable Long id) {
-        return reviewService.getReviewById(id);
+    public ReviewApiDTO getReviewById(@PathVariable Long id) {
+        return reviewService.getReviewAPIById(id);
     }
 
     @PostMapping
-    public ReviewDTO createReview(@RequestBody ReviewDTO reviewDTO) {
-        return reviewService.saveReview(reviewDTO);
+    public ResponseEntity<?> createReview(@RequestBody ReviewApiDTO reviewApiDTO) {
+        try {
+            ReviewApiDTO createdReview = reviewService.saveAPIReview(reviewApiDTO);
+            return ResponseEntity.ok(createdReview);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(
+                Map.of(
+                    "error", e.getMessage(),
+                    "timestamp", LocalDateTime.now()
+                )
+            );
+        }
     }
 
-    @PutMapping("/{id}")
-    public ReviewDTO updateReview(@PathVariable Long id, @RequestBody ReviewDTO reviewDTO) {
-        ReviewDTO existingReview = reviewService.getReviewById(id);
-        reviewService.setComment(reviewDTO.comment(), existingReview);
-        reviewService.setRating(reviewDTO.rating(), existingReview);
-        reviewService.saveReview(existingReview);
-        return existingReview;
-    }
-
-    @DeleteMapping("/{productId}/reviews/{reviewId}")
-    public void deleteReview(@PathVariable Long productId, @PathVariable Long reviewId) {
-        reviewService.deleteReview(productId, reviewId);
+    @DeleteMapping("/{reviewId}")
+    @PreAuthorize("hasRole('ADMIN') or @reviewSecurityService.isReviewOwner(#reviewId, authentication.name)")
+    public ReviewApiDTO deleteReview(@PathVariable Long reviewId) {
+        return reviewService.deleteAPIReview(reviewId);
     }
 }

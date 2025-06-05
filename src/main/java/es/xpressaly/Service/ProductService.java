@@ -325,4 +325,8 @@ public class ProductService {
     public List<Product> getAllProductsNormal() {
         return productRepository.findAll();
     }
+
+    public Product getProductByName(String productName) {
+        return productRepository.findByName(productName).orElse(null);
+    }
 }

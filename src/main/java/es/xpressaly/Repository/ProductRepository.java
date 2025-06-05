@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 import es.xpressaly.Model.Product;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
@@ -49,4 +50,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Page<Product> findByNameContainingAndPriceBetween(String name, double minPrice, double maxPrice, Pageable pageable);
     Page<Product> findByNameContaining(String name, Pageable pageable);
+    Optional<Product> findByName(String productName);
 }

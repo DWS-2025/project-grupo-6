@@ -4,8 +4,8 @@ public record ReviewApiDTO (
     Long id,
     String comment,
     int rating,
-    UserDTO user,
-    ProductDTO product
+    String userName,  
+    String productName 
 ){
     
 }

@@ -16,9 +16,11 @@ import es.xpressaly.Model.User;
 import es.xpressaly.Model.UserRole;
 import es.xpressaly.Repository.ReviewRepository;
 import es.xpressaly.dto.ProductWebDTO;
+import es.xpressaly.dto.ReviewApiDTO;
 import es.xpressaly.dto.ReviewDTO;
 import es.xpressaly.dto.UserWebDTO;
 import es.xpressaly.mapper.ProductWebMapper;
+import es.xpressaly.mapper.ReviewAPIMapper;
 import es.xpressaly.mapper.ReviewMapper;
 import es.xpressaly.mapper.UserWebMapper;
 
@@ -40,6 +42,9 @@ public class ReviewService {
 
     @Autowired
     private ReviewMapper reviewMapper;
+
+    @Autowired
+    private ReviewAPIMapper reviewApiMapper;
 
     @Autowired
     private ProductWebMapper productWebMapper;
@@ -66,6 +71,10 @@ public class ReviewService {
 
     public Collection<ReviewDTO> getAllReviews() {
         return reviewToDTOs(reviewRepository.findAll());
+    }
+
+    public Collection<ReviewApiDTO> getAllAPIReviews() {
+        return reviewApiMapper.toDTOs(reviewRepository.findAll());
     }
     
     public ReviewDTO saveReview(ReviewDTO reviewDTO) {
@@ -219,4 +228,52 @@ public class ReviewService {
         review.setRating(rating);
         return reviewToDTO(review);
     }
+
+    public ReviewApiDTO getReviewAPIById(Long id) {
+        return reviewApiMapper.toDTO(reviewRepository.findById(id).orElse(null));
+    }
+
+    public ReviewApiDTO saveAPIReview(ReviewApiDTO reviewApiDTO) {
+        Review review = reviewApiMapper.toDomain(reviewApiDTO);
+        
+        // Verificar usuario
+        User user = userService.getUserByFirstName(reviewApiDTO.userName());
+        if (user == null) {
+            throw new IllegalArgumentException("User not found");
+        }
+        review.setUser(user);
+        
+        // Verificar producto
+        Product product = productService.getProductByName(reviewApiDTO.productName());
+        if (product == null) {
+            throw new IllegalArgumentException("Product not found");
+        }
+        review.setProduct(product);
+        
+        validateReview(review);
+        
+        // Verificar si el usuario ya tiene una review para este producto
+        boolean userHasReview = product.getReviews().stream()
+            .anyMatch(r -> r.getUser().getId().equals(user.getId()));
+        
+        if (userHasReview) {
+            throw new IllegalArgumentException("You have already submitted a review for this product");
+        }
+        
+        // Si no tiene review previa, proceder
+        product.addReview(review);
+        review = reviewRepository.save(review);
+        
+        return reviewApiMapper.toDTO(review);
+    }
+
+    public ReviewApiDTO deleteAPIReview(Long reviewId) {
+        Review review = reviewRepository.findById(reviewId).orElse(null);
+        if(review== null) {
+            throw new IllegalArgumentException("Review not found");
+        }
+        reviewRepository.delete(review);
+        return reviewApiMapper.toDTO(review);
+    }
+
 }
