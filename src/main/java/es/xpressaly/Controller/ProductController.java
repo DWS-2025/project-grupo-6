@@ -263,19 +263,9 @@ public class ProductController {
             // Log for debugging
             System.out.println("Received HTML comment: " + comment);
             
-            // Temporary solution: simple string replacement to filter potentially dangerous tags
-            // This is NOT a complete security solution, just a temporary workaround
-            String sanitizedComment = comment;
-            // Filter potentially dangerous tags - THIS IS NOT A COMPLETE SECURITY SOLUTION
-            sanitizedComment = sanitizedComment.replaceAll("(?i)<script.*?>.*?</script.*?>", "")
-                .replaceAll("(?i)on\\w+\\s*=\\s*(['\"]).*?\\1", "")
-                .replaceAll("(?i)<iframe.*?>.*?</iframe.*?>", "")
-                .replaceAll("(?i)<frame.*?>.*?</frame.*?>", "")
-                .replaceAll("(?i)<form.*?>.*?</form.*?>", "")
-                .replaceAll("(?i)javascript:", "");
-            
+
             // Extract plain text to verify the actual length
-            String plainText = sanitizedComment.replaceAll("<[^>]*>", "").trim();
+            String plainText = comment.replaceAll("<[^>]*>", "").trim();
             System.out.println("Extracted plain text: " + plainText);
             System.out.println("Text length: " + plainText.length());
             
@@ -294,7 +284,7 @@ public class ProductController {
             // Crear ReviewDTO en lugar de Review
             ReviewDTO reviewDTO = new ReviewDTO(
                 null, // id será generado por la base de datos
-                sanitizedComment,
+                comment,
                 rating,
                 user,
                 productWebDTO

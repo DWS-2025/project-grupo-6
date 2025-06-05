@@ -51,8 +51,25 @@ public class UserService {
     private ReviewMapper reviewMapper;
     @Autowired
     private OrderMapper orderMapper;
+    @Autowired
+    private SanitizationService sanitizationService;
+
 
     private static Map<Long, Order> userCurrentOrders = new HashMap<>();
+
+    //Funcion de sanitizacion
+    private void sanitizeUser(User user) {
+        if (user.getFirstName() != null) {
+            user.setFirstName(sanitizationService.sanitize(user.getFirstName()));
+        }
+        if (user.getLastName() != null) {
+            user.setLastName(sanitizationService.sanitize(user.getLastName()));
+        }
+        if (user.getAddress() != null) {
+            user.setAddress(sanitizationService.sanitize(user.getAddress()));
+        }
+    }
+
 
     // Method to obtain the user entity by ID
     public User getUserEntityById(Long userId) {
@@ -168,6 +185,7 @@ public class UserService {
 
         User newUser = new User(firstName, lastName, email, passwordEncoder.encode(password), address, phoneNumber, age);
         newUser.setRole(UserRole.USER); // Set default role
+        sanitizeUser(newUser); //Sanitizacion --------------------------------------------------
         return userWebMapper.toDTO(userRepository.save(newUser));
     }
 
@@ -299,7 +317,7 @@ public class UserService {
         } else {
             updatedUser.setPassword(existingUser.getPassword());
         }
-
+        sanitizeUser(updatedUser); //Sanitizacion ---------------------------------
         userRepository.save(updatedUser);
         
         // Debug para verificar la actualización

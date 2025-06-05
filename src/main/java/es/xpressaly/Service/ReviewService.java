@@ -47,11 +47,22 @@ public class ReviewService {
     @PersistenceContext
     private EntityManager entityManager;
 
+    @Autowired
+    private SanitizationService sanitizationService;
+
+
     public ReviewService(ProductService productService, UserService userService, ReviewRepository reviewRepository) {
         this.productService = productService;
         this.userService = userService;
         this.reviewRepository = reviewRepository;
     }
+    //funcion para la sanitizacion
+    private void sanitizeReview(Review review) {
+        if (review.getComment() != null) {
+            review.setComment(sanitizationService.sanitize(review.getComment()));
+        }
+    }
+
 
     public Collection<ReviewDTO> getAllReviews() {
         return reviewToDTOs(reviewRepository.findAll());
@@ -59,6 +70,7 @@ public class ReviewService {
     
     public ReviewDTO saveReview(ReviewDTO reviewDTO) {
         Review review = reviewToDomain(reviewDTO);
+        sanitizeReview(review); //Sanitizacion
         validateReview(review);
         return reviewToDTO(reviewRepository.save(review));
     }
@@ -71,6 +83,7 @@ public class ReviewService {
         review.setRating(reviewDTO.rating());
         review.setUser(user);
         review.setProduct(product);
+        sanitizeReview(review); //Sanitizacion
         validateReview(review);
         
         if (product != null) {

@@ -37,11 +37,15 @@ public class OrderService {
     @Autowired
     private ProductWebMapper productWebMapper;
 
+    @Autowired
+    private SanitizationService sanitizationService;
+
+    //Sanitizado
     public OrderDTO createOrderDTO(UserWebDTO user, String address) {
         User userEntity = userWebMapper.toDomain(user);
         Order order = new Order();
         order.setUser(userEntity);
-        order.setAddress(address);
+        order.setAddress(sanitizationService.sanitize(address));
         order.setTotal(0.0);
         return orderWebMapper.toDTO(order);
     }
@@ -51,12 +55,12 @@ public class OrderService {
         List<Order> orders = orderRepository.findByUser(userEntity);
         return orderWebMapper.toDTOs(orders);
     }
-
+    //Sanitizado
     public Order createOrder(UserWebDTO user, String address) {
         User userEntity = userWebMapper.toDomain(user);
         Order order = new Order();
         order.setUser(userEntity);
-        order.setAddress(address);
+        order.setAddress(sanitizationService.sanitize(address));
         order.setTotal(0.0);
         return order;
     }
@@ -119,8 +123,9 @@ public class OrderService {
         return productWebMapper.toDTO(product);
     }
 
+    //Sanitizado
     public Order setAddress(Order order, String address) {
-        order.setAddress(address);
+        order.setAddress(sanitizationService.sanitize(address));
         return order;
     }
 

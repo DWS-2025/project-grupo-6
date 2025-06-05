@@ -35,12 +35,26 @@ public class ProductService {
     @Autowired
     private ProductWebMapper productWebMapper;
 
+    @Autowired
+    private SanitizationService sanitizationService;
+
     public List<ProductDTO> getAllProducts() {
         return productRepository.findAll().stream()
             .map(productMapper::toDTO)
             .collect(Collectors.toList());
     }
-    
+
+    private void sanitizeProduct(Product product) {
+        if (product.getName() != null)
+            product.setName(sanitizationService.sanitize(product.getName()));
+        if (product.getDescription() != null)
+            product.setDescription(sanitizationService.sanitize(product.getDescription()));
+        if (product.getImagePath() != null)
+            product.setImagePath(sanitizationService.sanitize(product.getImagePath()));
+    }
+
+
+
     public Page<ProductDTO> getProductsByPage(Pageable pageable, String sort) {
         try {
             System.out.println("Fetching products with pageable: " + pageable);
@@ -109,6 +123,7 @@ public class ProductService {
 
     public void addProduct(ProductWebDTO productWebDTO) {
         Product product = productWebMapper.toDomain(productWebDTO);
+        sanitizeProduct(product); //sanitizado con la funcion de mas arriba
         validateProduct(product);
         productRepository.save(product);
     }
@@ -146,6 +161,7 @@ public class ProductService {
 
     public void updateProductWeb(ProductWebDTO productWebDTO) {
         Product product = productWebMapper.toDomain(productWebDTO);
+        sanitizeProduct(product); //sanitizado con la funcion de mas arriba
         validateProduct(product);
         productRepository.save(product);
     }
