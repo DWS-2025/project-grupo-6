@@ -22,6 +22,7 @@ public class User {
     private String address;
     private int age;
     private int phoneNumber;
+    private String pdfPath;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Review> reviews;
@@ -40,6 +41,7 @@ public class User {
         this.reviews = new ArrayList<>();
         this.orders = new ArrayList<>();
         this.role = UserRole.USER; // Default role is USER
+        this.pdfPath = null;
     }
 
     public User(String firstName, String lastName, String email, String password, String address, int phoneNumber, int age) {
@@ -53,7 +55,22 @@ public class User {
         this.reviews = new ArrayList<>();
         this.orders = new ArrayList<>();
         this.role = UserRole.USER; // Default role is USER
+        this.pdfPath = null;
     } 
+    
+    public User(String firstName, String lastName, String email, String password, String address, int phoneNumber, int age, String pdfPath) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.age = age;
+        this.reviews = new ArrayList<>();
+        this.orders = new ArrayList<>();
+        this.role = UserRole.USER; // Default role is USER
+        this.pdfPath = pdfPath;
+    }
     
     public List<Order> getOrders() { return orders; }
     public void setOrders(List<Order> orders) { this.orders = orders; }
@@ -95,5 +112,13 @@ public class User {
 
     public void setCurrentOrder(Order currentOrder){
         this.currentOrder=currentOrder;
+    }
+
+    public String getPdfPath() {
+        return pdfPath;
+    }
+
+    public void setPdfPath(String pdfPath) {
+        this.pdfPath = pdfPath;
     }
 }

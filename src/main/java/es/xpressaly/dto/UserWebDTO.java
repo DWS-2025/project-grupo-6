@@ -17,5 +17,6 @@ public record UserWebDTO(
     int phoneNumber,
     List<ReviewDTO> reviews,
     List<OrderDTO> orders,
-    UserRole role
+    UserRole role,
+    String pdfPath
 ) {} 

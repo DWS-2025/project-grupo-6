@@ -7,15 +7,24 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import es.xpressaly.Model.User;
 import es.xpressaly.Model.UserRole;
 import es.xpressaly.Model.Review;
 import es.xpressaly.Service.UserService;
 import es.xpressaly.Service.ReviewService;
+import es.xpressaly.Service.PdfStorageService;
 import es.xpressaly.dto.ReviewDTO;
 import es.xpressaly.dto.UserWebDTO;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -32,7 +41,8 @@ public class UserController {
     @Autowired
     private ReviewService reviewService;
 
-    
+    @Autowired
+    private PdfStorageService pdfStorageService;
 
     @GetMapping("/profile")
     public String showProfile(Model model) {
@@ -57,6 +67,7 @@ public class UserController {
             model.addAttribute("password", currentUser.getPassword());
             model.addAttribute("isAdmin", currentUser.getRole() == UserRole.ADMIN);
             model.addAttribute("cartItemCount", orderController.getCartItemCount());
+            model.addAttribute("pdfPath", user.getPdfPath());
            
             // Get user's reviews and add product information
             List<Map<String, Object>> reviewsWithProducts = new ArrayList<>();
@@ -171,7 +182,8 @@ public class UserController {
                     phone,
                     user.reviews(),
                     user.orders(),
-                    user.role()
+                    user.role(),
+                    user.pdfPath()
                 );
             } else {
                 // Si no se proporciona una nueva contraseña, mantener la actual
@@ -186,7 +198,8 @@ public class UserController {
                     phone,
                     user.reviews(),
                     user.orders(),
-                    user.role()
+                    user.role(),
+                    user.pdfPath()
                 );
             }
             
@@ -204,6 +217,64 @@ public class UserController {
         }
     }
 
+    @PostMapping("/upload-pdf")
+    public String uploadPdf(@RequestParam("pdfFile") MultipartFile file, Model model) {
+        try {
+            User currentUser = userService.getUserEntity();
+            if (currentUser == null) {
+                return "redirect:/login";
+            }
+
+            if (file.isEmpty()) {
+                model.addAttribute("error", "Please select a file to upload.");
+                return "redirect:/profile";
+            }
+
+            String fileName = pdfStorageService.storeFile(file);
+            currentUser.setPdfPath(fileName);
+            userService.saveUser(currentUser); // Assuming saveUser method exists or update logic
+
+            model.addAttribute("success", "PDF uploaded successfully!");
+            return "redirect:/profile";
+
+        } catch (IOException ex) {
+            model.addAttribute("error", "Failed to upload PDF: " + ex.getMessage());
+            return "redirect:/profile";
+        } catch (Exception ex) {
+            model.addAttribute("error", "An unexpected error occurred: " + ex.getMessage());
+            return "redirect:/profile";
+        }
+    }
+
+    @GetMapping("/view-pdf")
+    public ResponseEntity<Resource> viewPdf(HttpServletRequest request) {
+        try {
+            User currentUser = userService.getUserEntity();
+            if (currentUser == null || currentUser.getPdfPath() == null || currentUser.getPdfPath().isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // Extract filename from the stored path (e.g., /uploads/pdfs/unique_file.pdf)
+            String storedFileName = currentUser.getPdfPath().substring(currentUser.getPdfPath().lastIndexOf("/") + 1);
+
+            Resource resource = new org.springframework.core.io.UrlResource(pdfStorageService.loadFileAsResource(storedFileName).toUri());
+
+            String contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
+
+        } catch (Exception ex) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     private void addUserDataToModel(Model model, UserWebDTO user) {
         model.addAttribute("name", user.firstName());
         model.addAttribute("surname", user.lastName());
@@ -212,6 +283,7 @@ public class UserController {
         model.addAttribute("phone", user.phoneNumber());
         model.addAttribute("age", user.age());
         model.addAttribute("password", user.password());
+        model.addAttribute("pdfPath", user.pdfPath());
         
         // Obtener la entidad User para acceder a las reviews
         User userEntity = userService.getUserEntityById(user.id());

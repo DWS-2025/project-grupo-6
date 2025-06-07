@@ -137,6 +137,169 @@
             font-size: 1.5em;
             font-weight: 500;
         }
+
+        /* NEW STYLES FOR PDF SECTION AND BUTTONS */
+        .pdf-section {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Softer shadow */
+            margin-top: 40px;
+            margin-bottom: 40px; /* Separation from next section */
+            text-align: center;
+        }
+
+        .pdf-section h2 {
+            color: #294156;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+
+        .pdf-section .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .pdf-section label {
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .pdf-section input[type="file"] {
+            padding: 10px;
+            border: 1px solid #e0e0e0; /* Lighter border */
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            color: #294156;
+            font-size: 1em; /* Ensure consistent font size */
+        }
+
+        .pdf-section .upload-pdf-btn,
+        .pdf-section .view-pdf-btn {
+            background-color: #294156; /* Consistent with primary theme color */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.05em; /* Slightly smaller for minimalist */
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .pdf-section .upload-pdf-btn:hover,
+        .pdf-section .view-pdf-btn:hover {
+            background-color: #567C8D; /* Hover color consistent with theme */
+            transform: translateY(-2px); /* Subtle lift effect */
+        }
+
+        .pdf-section .view-pdf-btn {
+            margin-top: 20px;
+            background-color: #567C8D; /* Different shade for view */
+        }
+
+        .pdf-section .view-pdf-btn:hover {
+            background-color: #294156;
+        }
+
+        .pdf-section .view-pdf-btn .sign,
+        .pdf-section .view-pdf-btn .text {
+            display: contents;
+        }
+
+        /* NEW STYLES FOR DELETE ORDER BUTTON */
+        .delete-order-btn {
+            background: linear-gradient(90deg, #dc3545 60%, #ff6f61 100%);
+            color: #fff;
+            padding: 12px 26px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.08em;
+            font-weight: 600;
+            box-shadow: 0 2px 12px rgba(220,53,69,0.10);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+            transition: background 0.3s, box-shadow 0.2s, transform 0.15s;
+            outline: none;
+            position: relative;
+        }
+        .delete-order-btn i {
+            font-size: 1.2em;
+        }
+        .delete-order-btn:hover {
+            background: linear-gradient(90deg, #ff6f61 60%, #dc3545 100%);
+            box-shadow: 0 6px 18px rgba(220,53,69,0.18);
+            transform: translateY(-2px) scale(1.04);
+            animation: shake 0.18s 1;
+        }
+        .delete-order-btn:active {
+            transform: scale(0.97);
+            box-shadow: 0 1px 4px rgba(220,53,69,0.10);
+        }
+        @keyframes shake {
+            0% { transform: translateY(-2px) scale(1.04) translateX(0); }
+            25% { transform: translateY(-2px) scale(1.04) translateX(-2px); }
+            50% { transform: translateY(-2px) scale(1.04) translateX(2px); }
+            75% { transform: translateY(-2px) scale(1.04) translateX(-2px); }
+            100% { transform: translateY(-2px) scale(1.04) translateX(0); }
+        }
+
+        /* Custom file input styles */
+        .custom-file-input {
+            display: none;
+        }
+        .custom-file-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #f5f6fa;
+            color: #294156;
+            border: 1.5px solid #CBD3E6;
+            border-radius: 8px;
+            padding: 10px 22px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, border 0.2s;
+            font-weight: 500;
+        }
+        .custom-file-label:hover {
+            background-color: #e6ecf3;
+            color: #567C8D;
+            border-color: #567C8D;
+        }
+        .file-name {
+            margin-left: 10px;
+            color: #567C8D;
+            font-size: 0.98em;
+            font-style: italic;
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+        .pdf-section .upload-pdf-btn {
+            margin-top: 18px;
+            background: linear-gradient(90deg, #294156 60%, #567C8D 100%);
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.07);
+            border: none;
+            font-weight: 600;
+        }
+        .pdf-section .upload-pdf-btn:active {
+            transform: scale(0.97);
+        }
     </style>
 </head>
 
@@ -204,6 +367,34 @@
                 <i class="fas fa-save"></i> Update Profile
             </button>
         </form>
+    </div>
+
+    <div class="pdf-section">
+        <h2>Upload PDF Document</h2>
+        <form action="/upload-pdf" method="post" enctype="multipart/form-data" id="pdfUploadForm">
+            <div class="form-group">
+                <label for="pdfFile" class="custom-file-label">
+                    <i class="fas fa-file-upload"></i> Select PDF
+                    <input type="file" id="pdfFile" name="pdfFile" accept="application/pdf" class="custom-file-input" onchange="updateFileName()" />
+                </label>
+                <span class="file-name" id="selectedFileName">No file selected</span>
+            </div>
+            <button type="submit" class="upload-pdf-btn">
+                <i class="fas fa-upload"></i> Upload PDF
+            </button>
+        </form>
+
+        {{#pdfPath}}
+        <div class="form-group" style="margin-top: 20px;">
+            <label>View your uploaded PDF:</label>
+            <a href="/view-pdf" target="_blank" class="view-pdf-btn">
+                <div class="sign">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <div class="text">View PDF</div>
+            </a>
+        </div>
+        {{/pdfPath}}
     </div>
 
     <!-- Modal de cambio de contraseña -->
@@ -278,7 +469,7 @@
                         <p>-{{name}} x {{amount}}: ${{price}}</p>
                     {{/products}}
                     <p class="total"><strong>Total: ${{total}}</strong></p>
-                    <button class="delete-order-button">Delete Order</button>
+                    <button class="delete-order-button"><i class="fas fa-trash-alt"></i> Delete Order</button>
                 </div>
             {{/orders}}
             {{^orders}}
@@ -452,6 +643,16 @@
         document.querySelector('form[action="/update-profile"]').submit();
         
         return false;
+    }
+
+    function updateFileName() {
+        const input = document.getElementById('pdfFile');
+        const fileNameSpan = document.getElementById('selectedFileName');
+        if (input.files && input.files.length > 0) {
+            fileNameSpan.textContent = input.files[0].name;
+        } else {
+            fileNameSpan.textContent = 'No file selected';
+        }
     }
 </script>
 </body>

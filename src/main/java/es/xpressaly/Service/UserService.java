@@ -461,4 +461,8 @@ public class UserService {
     public User getUserByFirstName(String userName) {
        return userRepository.findByFirstName(userName).orElse(null);
     }
+
+    public User saveUser(User user) {
+        return userRepository.save(user);
+    }
 }
