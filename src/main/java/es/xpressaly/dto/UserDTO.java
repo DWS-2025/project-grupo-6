@@ -10,7 +10,9 @@ public record UserDTO(
     int phoneNumber,
     int age,
     boolean admin,
-    List<OrderDTO> orders,
-    List<ReviewDTO> reviews
+    List<Long> orders, // Assuming orders are represented by their IDs
+    List<Long> reviews // Assuming reviews are represented by their IDs
+    //List<OrderDTO> orders,
+    //List<ReviewDTO> reviews
 ) {
 }

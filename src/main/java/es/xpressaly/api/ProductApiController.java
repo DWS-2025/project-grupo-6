@@ -122,39 +122,56 @@ public class ProductApiController {
         return productMap;
     }
 
-    @PostMapping
-    public ResponseEntity<ProductWebDTO> addProduct(@RequestBody ProductWebDTO productWebDTO) {
+    @PostMapping("/")
+    public ResponseEntity<ProductWebDTO> addProduct(@RequestParam String name,
+                                                    @RequestParam String description,
+                                                    @RequestParam double price,
+                                                    @RequestParam int stock,
+                                                    @RequestParam MultipartFile imageData) {
         try {
             // Validaciones
-            if (productWebDTO.name() == null || productWebDTO.name().trim().isEmpty()) {
+            if (name == null || name.trim().isEmpty()) {
                 return ResponseEntity.badRequest().build();
             }
-            if (productWebDTO.description() == null || productWebDTO.description().trim().isEmpty()) {
+            if (description == null || description.trim().isEmpty()) {
                 return ResponseEntity.badRequest().build();
             }
-            if (productWebDTO.price() <= 0) {
+            if (price <= 0) {
                 return ResponseEntity.badRequest().build();
             }
-            if (productWebDTO.stock() < 0) {
+            if (stock < 0) {
                 return ResponseEntity.badRequest().build();
             }
-            if (productWebDTO.imagePath() == null || productWebDTO.imagePath().trim().isEmpty()) {
+            String imagePath = "/Images/" + name + ".jpg";
+            if (imagePath == null || imagePath.trim().isEmpty()) {
                 return ResponseEntity.badRequest().build();
             }
-            if (productWebDTO.imageData() == null || productWebDTO.imageData().length == 0) {
+            if (imageData == null || imageData.isEmpty()) {
                 return ResponseEntity.badRequest().build();
             }
 
             // Verificar que la imagen sea válida
             try {
-                BufferedImage image = ImageIO.read(new java.io.ByteArrayInputStream(productWebDTO.imageData()));
+                BufferedImage image = ImageIO.read(new java.io.ByteArrayInputStream(imageData.getBytes()));
                 if (image == null) {
                     return ResponseEntity.badRequest().build();
                 }
             } catch (IOException e) {
                 return ResponseEntity.badRequest().build();
             }
-
+            ProductWebDTO productWebDTO= new ProductWebDTO(
+                null, // ID se asignará automáticamente
+                name,
+                description,
+                price,
+                stock,
+                imagePath,
+                imageData.getBytes(), // Convertir MultipartFile a byte[]
+                null, // returnPolicyPath no se usa en este endpoint
+                null, // returnPolicyData no se usa en este endpoint
+                null, // reviews no se usa en este endpoint
+                0.0 // rating inicial
+            );
             productService.addProduct(productWebDTO);
             return ResponseEntity.ok(productWebDTO);
         } catch (Exception e) {
@@ -162,63 +179,78 @@ public class ProductApiController {
         }
     }
 
-    @PostMapping("/{productId}/reviews")
-    public ResponseEntity<Map<String, Object>> addReview(
+    @PutMapping("/{productId}")
+    public ResponseEntity<ProductWebDTO> updateProduct(
             @PathVariable Long productId,
-            @RequestParam String comment,
-            @RequestParam int rating) {
-        
-        Map<String, Object> response = new HashMap<>();
-        
-        if (comment == null || comment.trim().isEmpty()) {
-            response.put("error", "Comment is required");
-            return ResponseEntity.badRequest().body(response);
-        }
-        if (rating < 1 || rating > 5) {
-            response.put("error", "Rating must be between 1 and 5");
-            return ResponseEntity.badRequest().body(response);
-        }
-
+            @RequestParam String name,
+            @RequestParam String description,
+            @RequestParam double price,
+            @RequestParam int stock,
+            @RequestParam(required = false) MultipartFile imageData) {
         try {
-            UserWebDTO currentUser = userService.getUser();
-            if (currentUser == null) {
-                response.put("error", "User not logged in");
-                return ResponseEntity.badRequest().body(response);
+            // Validaciones
+            if (name == null || name.trim().isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+            if (description == null || description.trim().isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+            if (price <= 0) {
+                return ResponseEntity.badRequest().build();
+            }
+            if (stock < 0) {
+                return ResponseEntity.badRequest().build();
             }
 
-            ProductWebDTO product = productService.getProductByIdWeb(productId);
-            if (product == null) {
-                response.put("error", "Product not found");
-                return ResponseEntity.badRequest().body(response);
+            ProductWebDTO existingProduct = productService.getProductByIdWeb(productId);
+            if (existingProduct == null) {
+                return ResponseEntity.notFound().build();
             }
-            
-            ReviewDTO reviewDTO = new ReviewDTO(
-                null,
-                comment,
-                rating,
-                currentUser,
-                product
+
+            String imagePath = existingProduct.imagePath(); // Mantener la ruta de la imagen existente
+            byte[] imageBytes = existingProduct.imageData(); // Mantener los datos de la imagen existente
+
+            if (imageData != null && !imageData.isEmpty()) {
+                // Verificar que la nueva imagen sea válida
+                try {
+                    BufferedImage image = ImageIO.read(new java.io.ByteArrayInputStream(imageData.getBytes()));
+                    if (image == null) {
+                        return ResponseEntity.badRequest().build();
+                    }
+                    imageBytes = imageData.getBytes(); // Actualizar los datos de la imagen
+                } catch (IOException e) {
+                    return ResponseEntity.badRequest().build();
+                }
+            }
+
+            ProductWebDTO updatedProduct = new ProductWebDTO(
+                productId, // ID del producto a actualizar
+                name,
+                description,
+                price,
+                stock,
+                imagePath,
+                imageBytes, // Usar los datos de la imagen actualizados
+                null, // returnPolicyPath no se usa en este endpoint
+                null, // returnPolicyData no se usa en este endpoint
+                null, // reviews no se usa en este endpoint
+                0.0 // rating inicial
             );
-            
-            reviewService.addReview(productId, reviewDTO);
-            response.put("success", "Review added successfully");
-            return ResponseEntity.ok(response);
+
+            productService.updateProductWeb(updatedProduct);
+            return ResponseEntity.ok(updatedProduct);
         } catch (Exception e) {
-            response.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.badRequest().build();
         }
     }
-
     @DeleteMapping("/{productId}")//works perfectly
-    public ResponseEntity<Map<String, Object>> deleteProduct(@PathVariable Long productId) {
-        Map<String, Object> response = new HashMap<>();
+    public ResponseEntity<?> deleteProduct(@PathVariable Long productId) {
         try {
+            ProductDTO productDTO = productService.getProductDTO(productId);
             productService.deleteProduct(productId);
-            response.put("success", "Product deleted successfully");
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(productDTO);
         } catch (Exception e) {
-            response.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -235,21 +267,6 @@ public class ProductApiController {
         }
     }
 
-    @DeleteMapping("/{productId}/reviews/{reviewId}")
-    public ResponseEntity<Map<String, Object>> deleteReview(
-            @PathVariable Long productId,
-            @PathVariable Long reviewId) {
-        
-        Map<String, Object> response = new HashMap<>();
-        try {
-            reviewService.deleteReview(productId, reviewId);
-            response.put("success", "Review deleted successfully");
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
 
     @GetMapping("/management")
     public ResponseEntity<Map<String, Object>> getProductsForManagement(

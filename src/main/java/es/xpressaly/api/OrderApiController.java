@@ -22,7 +22,11 @@ import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Collection;
 import java.util.HashMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/orders")
@@ -44,6 +48,11 @@ public class OrderApiController {
     @Autowired
     private OrderService orderService;
     
+    @GetMapping("/")
+    public Collection<OrderDTO> getAllOrders() {     
+        return orderService.getAllOrders();
+    }
+    
     @GetMapping("/cart-count")
     public ResponseEntity<Integer> getCartItemCount() {
         try {
@@ -60,36 +69,7 @@ public class OrderApiController {
         }
     }
 
-    /*@PostMapping("/add-to-order")
-    public ResponseEntity<Map<String, Object>> addToOrder(@RequestParam Long productId) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            Product product = productService.getProductById(productId);
-            if (product == null) {
-                response.put("error", "Product not found");
-                return ResponseEntity.badRequest().body(response);
-            }
-
-            if (product.getStock() <= 0) {
-                response.put("error", "Product out of stock");
-                return ResponseEntity.badRequest().body(response);
-            }
-
-            Order currentOrder = getCurrentOrder();
-            if (currentOrder == null) {
-                currentOrder = new Order(userService.getUser(), userService.getUser().getAddress());
-            }
-
-            // Check stock and add product logic here
-            // ...
-            
-            response.put("success", "Product added to order");
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(response);
-        }
-    }*/
+    
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> viewOrder() {
@@ -144,50 +124,7 @@ public class OrderApiController {
         }
     }
 
-    /*@PostMapping("/update-amount")
-    public ResponseEntity<Map<String, Object>> updateAmount(
-            @RequestParam int amount, 
-            @RequestParam Long productId) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            Order currentOrder = getCurrentOrder();
-            if (currentOrder == null) {
-                response.put("error", "No active order");
-                return ResponseEntity.badRequest().body(response);
-            }
-
-            if (amount < 1) {
-                response.put("error", "Quantity must be greater than 0");
-                return ResponseEntity.badRequest().body(response);
-            }
-
-            Product productInStock = productService.getProductById(productId);
-            if (productInStock == null) {
-                response.put("error", "Product not found");
-                return ResponseEntity.badRequest().body(response);
-            }
-
-            Product productInOrder = currentOrder.findProductById(productId);
-            if (productInOrder == null) {
-                response.put("error", "Product not in order");
-                return ResponseEntity.badRequest().body(response);
-            }
-
-            if (amount > productInStock.getStock()) {
-                response.put("error", "Not enough stock");
-                return ResponseEntity.badRequest().body(response);
-            }
-
-            productInOrder.setAmount(amount);
-            currentOrder.calculateTotal();
-            response.put("order", currentOrder);
-            response.put("total", currentOrder.getTotal());
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(response);
-        }
-    }*/
+    
 
     @PostMapping("/confirm")
     public ResponseEntity<Map<String, Object>> confirmOrder(@RequestParam String address) {

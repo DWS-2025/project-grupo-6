@@ -18,4 +18,5 @@ public record UserWebDTO(
     List<ReviewDTO> reviews,
     List<OrderDTO> orders,
     UserRole role
-) {} 
+) {
+} 

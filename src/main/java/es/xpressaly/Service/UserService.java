@@ -1,6 +1,7 @@
 package es.xpressaly.Service;
 
 import org.hibernate.Hibernate;
+import org.mapstruct.control.MappingControl.Use;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -222,7 +223,7 @@ public class UserService {
         User user = userRepository.findByEmail(email).orElse(null);
         return user;
     }
-    // Method to obtain the user DTO by ID
+    
     public UserDTO getUserDTO(UserWebDTO userWebDTO) {
         User user = userWebMapper.toDomain(userWebDTO);
         return userMapper.toDTO(user);
@@ -461,4 +462,22 @@ public class UserService {
     public User getUserByFirstName(String userName) {
        return userRepository.findByFirstName(userName).orElse(null);
     }
+
+
+    public UserDTO getUserApiById(Long id) {
+        User user=userRepository.findById(id).orElse(null);
+        return userMapper.toDTO(user);
+    }
+
+
+    public UserDTO toDTO(UserWebDTO userWebDTO) {
+        User user=userRepository.findById(userWebDTO.id()).orElse(null);
+        Hibernate.initialize(user.getOrders());
+        Hibernate.initialize(user.getReviews());
+        UserDTO userDTO = userMapper.toDTO(user);
+        return userDTO;
+    }
+
+
+    
 }

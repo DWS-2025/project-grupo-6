@@ -17,6 +17,7 @@ import jakarta.transaction.Transactional;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -155,5 +156,11 @@ public class OrderService {
 
     public Order findById(Long orderId) {
         return orderRepository.findById(orderId).orElse(null);
+    }
+
+    public Collection<OrderDTO> getAllOrders() {
+        return orderRepository.findAll().stream()
+            .map(orderWebMapper::toDTO)
+            .collect(Collectors.toList());
     }
 }
