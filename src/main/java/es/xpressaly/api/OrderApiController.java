@@ -10,7 +10,9 @@ import es.xpressaly.Model.User;
 import es.xpressaly.Service.OrderService;
 import es.xpressaly.Service.ProductService;
 import es.xpressaly.Service.UserService;
+import es.xpressaly.dto.OrderApiDTO;
 import es.xpressaly.dto.OrderDTO;
+import es.xpressaly.dto.ProductDTO;
 import es.xpressaly.dto.ProductWebDTO;
 import es.xpressaly.dto.UserDTO;
 import es.xpressaly.dto.UserWebDTO;
@@ -48,11 +50,71 @@ public class OrderApiController {
     @Autowired
     private OrderService orderService;
     
-    @GetMapping("/")
-    public Collection<OrderDTO> getAllOrders() {     
+    @GetMapping("/all")
+    public List<OrderApiDTO> getAllOrders() {     
         return orderService.getAllOrders();
     }
     
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderApiDTO> getOrderById(@PathVariable Long id) {     
+        OrderApiDTO order = orderService.getOrderByIdApi(id);
+        if (order == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(order);
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<?> createOrder(@RequestBody OrderApiDTO orderDto) {
+        try {
+            // Validar que el usuario existe
+            if (orderDto.userId() == null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("error", "El ID de usuario es obligatorio");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            // Validar que la dirección no esté vacía
+            if (orderDto.address() == null || orderDto.address().trim().isEmpty()) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("error", "La dirección es obligatoria");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            // Validar que haya al menos un producto
+            if (orderDto.products() == null || orderDto.products().isEmpty()) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("error", "La orden debe contener al menos un producto");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            // Validar que todos los productos existan
+            for (ProductDTO productDto : orderDto.products()) {
+                if (productDto.id() == null) {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("error", "Todos los productos deben tener un ID válido");
+                    return ResponseEntity.badRequest().body(response);
+                }
+            }
+            
+            OrderApiDTO createdOrder = orderService.createOrderApiDTO(orderDto);
+            return ResponseEntity.ok(createdOrder);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteOrder(@PathVariable Long id) {
+        try{
+            OrderApiDTO order = orderService.getOrderByIdApi(id);
+            orderService.deleteOrderApi(id);
+            return ResponseEntity.ok(order);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
     @GetMapping("/cart-count")
     public ResponseEntity<Integer> getCartItemCount() {
         try {

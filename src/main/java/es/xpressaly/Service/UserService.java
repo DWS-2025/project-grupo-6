@@ -307,23 +307,30 @@ public class UserService {
             throw new IllegalArgumentException("Address cannot be empty");
         }
 
-        User updatedUser = userWebMapper.toDomain(userWebDTO);
+        // En lugar de crear un nuevo objeto User, actualizamos el existente
+        existingUser.setFirstName(userWebDTO.firstName());
+        existingUser.setLastName(userWebDTO.lastName());
+        existingUser.setEmail(userWebDTO.email());
+        existingUser.setAddress(userWebDTO.address());
+        existingUser.setPhoneNumber(userWebDTO.phoneNumber());
+        existingUser.setAge(userWebDTO.age());
         
         // Comprobar si la contraseña ya está codificada o no
-        if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
-            if (!updatedUser.getPassword().startsWith("$2a$")) {
+        if (userWebDTO.password() != null && !userWebDTO.password().isEmpty()) {
+            if (!userWebDTO.password().startsWith("$2a$")) {
                 // La contraseña no está codificada, codificarla
-                updatedUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+                existingUser.setPassword(passwordEncoder.encode(userWebDTO.password()));
+            } else {
+                existingUser.setPassword(userWebDTO.password());
             }
-        } else {
-            updatedUser.setPassword(existingUser.getPassword());
         }
-        sanitizeUser(updatedUser); //Sanitizacion ---------------------------------
-        userRepository.save(updatedUser);
+        
+        sanitizeUser(existingUser); //Sanitizacion ---------------------------------
+        userRepository.save(existingUser);
         
         // Debug para verificar la actualización
-        System.out.println("Usuario actualizado: " + updatedUser.getEmail());
-        System.out.println("Contraseña actualizada: " + (updatedUser.getPassword() != null ? "Sí" : "No"));
+        System.out.println("Usuario actualizado: " + existingUser.getEmail());
+        System.out.println("Contraseña actualizada: " + (existingUser.getPassword() != null ? "Sí" : "No"));
     }
 
     public UserWebDTO findByEmail(String email) {
@@ -374,44 +381,65 @@ public class UserService {
     }
 
     public UserWebDTO setPassword(UserWebDTO userWebDTO, String password) {
-        User user = userWebMapper.toDomain(userWebDTO);
-        user.setPassword(passwordEncoder.encode(password));
+        User user = userRepository.findById(userWebDTO.id()).orElse(null);
+        if (user != null) {
+            user.setPassword(password);
+            user = userRepository.save(user);
+        }
         return userWebMapper.toDTO(user);
     }
 
     public UserWebDTO setFirstName(UserWebDTO userWebDTO, String firstName) {
-        User user = userWebMapper.toDomain(userWebDTO);
-        user.setFirstName(firstName);
+        User user = userRepository.findById(userWebDTO.id()).orElse(null);
+        if (user != null) {
+            user.setFirstName(firstName);
+            user = userRepository.save(user);
+        }
         return userWebMapper.toDTO(user);
     }
 
     public UserWebDTO setLastName(UserWebDTO userWebDTO, String lastName) {
-        User user = userWebMapper.toDomain(userWebDTO);
-        user.setLastName(lastName);
+        User user = userRepository.findById(userWebDTO.id()).orElse(null);
+        if (user != null) {
+            user.setLastName(lastName);
+            user = userRepository.save(user);
+        }
         return userWebMapper.toDTO(user);
     }
 
     public UserWebDTO setEmail(UserWebDTO userWebDTO, String email) {
-        User user = userWebMapper.toDomain(userWebDTO);
-        user.setEmail(email);
+        User user = userRepository.findById(userWebDTO.id()).orElse(null);
+        if (user != null) {
+            user.setEmail(email);
+            user = userRepository.save(user);
+        }
         return userWebMapper.toDTO(user);
     }
 
     public UserWebDTO setAddress(UserWebDTO userWebDTO, String address) {
-        User user = userWebMapper.toDomain(userWebDTO);
-        user.setAddress(address);
+        User user = userRepository.findById(userWebDTO.id()).orElse(null);
+        if (user != null) {
+            user.setAddress(address);
+            user = userRepository.save(user);
+        }
         return userWebMapper.toDTO(user);
     }
 
     public UserWebDTO setPhoneNumber(UserWebDTO userWebDTO, int phoneNumber) {
-        User user = userWebMapper.toDomain(userWebDTO);
-        user.setPhoneNumber(phoneNumber);
+        User user = userRepository.findById(userWebDTO.id()).orElse(null);
+        if (user != null) {
+            user.setPhoneNumber(phoneNumber);
+            user = userRepository.save(user);
+        }
         return userWebMapper.toDTO(user);
     }
 
     public UserWebDTO setAge(UserWebDTO userWebDTO, int age) {
-        User user = userWebMapper.toDomain(userWebDTO);
-        user.setAge(age);
+        User user = userRepository.findById(userWebDTO.id()).orElse(null);
+        if (user != null) {
+            user.setAge(age);
+            user = userRepository.save(user);
+        }
         return userWebMapper.toDTO(user);
     }
 

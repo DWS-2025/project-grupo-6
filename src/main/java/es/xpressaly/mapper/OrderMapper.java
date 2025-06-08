@@ -22,7 +22,7 @@ import java.util.ArrayList;
 
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
-
+    
     @Mapping(target = "quantities", expression = "java(getProductQuantities(order))")
     @Mapping(target = "products", expression = "java(getProducts(order))")
     OrderDTO toDTO(Order order);
