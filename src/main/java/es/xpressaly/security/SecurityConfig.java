@@ -78,9 +78,14 @@ public class SecurityConfig {
 					.requestMatchers( "/api/auth/**").permitAll()
 					
 					// USER API ENDPOINTS (authenticated users)
-					.requestMatchers(HttpMethod.GET, "/api/users/").hasAnyRole("USER", "ADMIN")
+					.requestMatchers(HttpMethod.GET, "/api/users/**").hasAnyRole("USER", "ADMIN")
+					.requestMatchers(HttpMethod.PUT, "/api/users/**").hasAnyRole("USER", "ADMIN")
 					.requestMatchers(HttpMethod.POST, "/api/reviews/**").hasAnyRole("USER", "ADMIN")
 					.requestMatchers(HttpMethod.PUT, "/api/reviews/**").hasAnyRole("USER", "ADMIN")
+					.requestMatchers(HttpMethod.GET, "/api/orders/**").hasAnyRole("USER", "ADMIN")
+					.requestMatchers(HttpMethod.POST, "/api/orders/**").hasAnyRole("USER", "ADMIN")
+					.requestMatchers(HttpMethod.PUT, "/api/orders/**").hasAnyRole("USER", "ADMIN")
+					.requestMatchers(HttpMethod.DELETE, "/api/orders/**").hasAnyRole("USER", "ADMIN")
 					
 					// ADMIN ONLY API ENDPOINTS
 					.requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
