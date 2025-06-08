@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "9c46d809-e474-4fb8-af2b-a24cba9e58dd",
+		"_postman_id": "4d2c3853-a1c6-4e00-b917-c279c894846c",
 		"name": "Notion API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "43977344"
+		"_exporter_id": "43834974",
+		"_collection_link": "https://xpressaly.postman.co/workspace/xpressaly-Workspace~6af24eca-58da-444c-8229-16cae169b011/collection/43834974-4d2c3853-a1c6-4e00-b917-c279c894846c?action=share&source=collection_link&creator=43834974"
 	},
 	"item": [
 		{
@@ -20,6 +21,9 @@
 					}
 				}
 			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -45,10 +49,10 @@
 							"type": "text"
 						},
 						{
-							"key": "mainImage",
+							"key": "imageData",
 							"description": "metete al discord",
 							"type": "file",
-							"src": "/C:/Users/User/Desktop/Nueva carpeta/FotosProf/Chill.jpg"
+							"src": "/C:/Users/danie/OneDrive/Imágenes/GnoQ20cW0AAM39C.jpg"
 						},
 						{
 							"key": "description",
@@ -59,7 +63,7 @@
 					]
 				},
 				"url": {
-					"raw": "https://localhost:8443/api/products",
+					"raw": "https://localhost:8443/api/products/",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -67,14 +71,15 @@
 					"port": "8443",
 					"path": [
 						"api",
-						"products"
+						"products",
+						""
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "GetProducts1",
+			"name": "GetProducts",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -103,11 +108,6 @@
 					"mode": "formdata",
 					"formdata": [
 						{
-							"key": "id",
-							"value": "14",
-							"type": "text"
-						},
-						{
 							"key": "price",
 							"value": "250",
 							"type": "text"
@@ -123,39 +123,19 @@
 							"type": "text"
 						},
 						{
-							"key": "image_data",
-							"value": "Glass Heart",
-							"type": "text"
+							"key": "imageData",
+							"type": "file",
+							"src": "/C:/Users/danie/OneDrive/Imágenes/copia.jpg"
 						},
 						{
 							"key": "name",
-							"type": "file",
-							"src": "dxwQXymZM/Glass Heart.jpg"
+							"value": "Glass Heart",
+							"type": "text"
 						}
 					]
 				},
 				"url": {
-					"raw": "https://localhost:8443/api/products",
-					"protocol": "https",
-					"host": [
-						"localhost"
-					],
-					"port": "8443",
-					"path": [
-						"api",
-						"products"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GetProducts2",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "https://localhost:8443/api/products/all",
+					"raw": "https://localhost:8443/api/products/1",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -164,7 +144,28 @@
 					"path": [
 						"api",
 						"products",
-						"all"
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetIndividualProduct",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:8443/api/products/50",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8443",
+					"path": [
+						"api",
+						"products",
+						"50"
 					]
 				}
 			},
@@ -173,6 +174,21 @@
 		{
 			"name": "DeleteProduct",
 			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "Password123",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "juan.perez@email.com",
+							"type": "string"
+						}
+					]
+				},
 				"method": "DELETE",
 				"header": [],
 				"body": {
@@ -180,7 +196,7 @@
 					"formdata": []
 				},
 				"url": {
-					"raw": "https://localhost:8443/api/products/51",
+					"raw": "https://localhost:8443/api/products/50",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -189,7 +205,7 @@
 					"path": [
 						"api",
 						"products",
-						"51"
+						"50"
 					]
 				}
 			},
@@ -198,11 +214,26 @@
 		{
 			"name": "CreateReview",
 			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "Password123",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "juan.perez@email.com",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"user_id\": 1,\r\n    \"product_id\": 1,\r\n    \"comment\": \"esto es una review\",\r\n    \"rating\": 4\r\n}",
+					"raw": "{\r\n    \"userName\": \"Juan\",\r\n    \"productName\": \"Wireless Keyboard\",\r\n    \"comment\": \"esto es una review\",\r\n    \"rating\": 4\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -225,36 +256,7 @@
 			"response": []
 		},
 		{
-			"name": "CreateReview2",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"user_id\": 2,\r\n    \"product_id\": 10,\r\n    \"comment\": \"Segunda review :)\",\r\n    \"rating\": 3\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "https://localhost:8443/api/reviews",
-					"protocol": "https",
-					"host": [
-						"localhost"
-					],
-					"port": "8443",
-					"path": [
-						"api",
-						"reviews"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GetReviews1",
+			"name": "GetAllReviews",
 			"event": [
 				{
 					"listen": "test",
@@ -268,10 +270,25 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "Password123",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "juan.perez@email.com",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:8443/api/reviews",
+					"raw": "https://localhost:8443/api/reviews/all",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -279,43 +296,15 @@
 					"port": "8443",
 					"path": [
 						"api",
-						"reviews"
+						"reviews",
+						"all"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "UpdateReview",
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"id\": 2,\r\n    \"user_id\": 2,\r\n    \"product_id\": 3,\r\n    \"comment\": \"The camera looks like a ceramic hob\",\r\n    \"rating\": 2\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "https://localhost:8443/api/reviews",
-					"protocol": "https",
-					"host": [
-						"localhost"
-					],
-					"port": "8443",
-					"path": [
-						"api",
-						"reviews"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GetReviews2",
+			"name": "GetIndividualReview",
 			"event": [
 				{
 					"listen": "test",
@@ -329,10 +318,25 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "Password123",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "juan.perez@email.com",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:8443/api/reviews",
+					"raw": "https://localhost:8443/api/reviews/42",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -340,7 +344,8 @@
 					"port": "8443",
 					"path": [
 						"api",
-						"reviews"
+						"reviews",
+						"42"
 					]
 				}
 			},
@@ -349,6 +354,21 @@
 		{
 			"name": "DeleteReview",
 			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "Test4567",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "maria.garcia@email.com",
+							"type": "string"
+						}
+					]
+				},
 				"method": "DELETE",
 				"header": [],
 				"body": {
@@ -361,7 +381,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://localhost:8443/api/reviews/1",
+					"raw": "https://localhost:8443/api/reviews/45",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -370,7 +390,7 @@
 					"path": [
 						"api",
 						"reviews",
-						"1"
+						"45"
 					]
 				}
 			},
@@ -383,7 +403,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"firstName\": \"Eugenia\",\r\n    \"lastName\": \"Gonzalez\",\r\n    \"email\": \"eugenia.gonzalez@email.com\",\r\n    \"password\": \"Qwerty09\",\r\n    \"address\": \"Avenida Real 103\",\r\n    \"phoneNumber\": 753951486,\r\n    \"age\": 23,\r\n    \"role\": \"USER\"\r\n}",
+					"raw": "{\r\n    \"firstName\": \"Ernesto\",\r\n    \"lastName\": \"Gomez\",\r\n    \"email\": \"ernesto.gomez@email.com\",\r\n    \"password\": \"Hola1234\",\r\n    \"address\": \"Calle Real 666\",\r\n    \"phoneNumber\": 678542132,\r\n    \"age\": 20,\r\n    \"role\": \"USER\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -391,104 +411,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://localhost:8443/api/users",
-					"protocol": "https",
-					"host": [
-						"localhost"
-					],
-					"port": "8443",
-					"path": [
-						"api",
-						"users"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GetUsers1",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "https://localhost:8443/api/users",
-					"protocol": "https",
-					"host": [
-						"localhost"
-					],
-					"port": "8443",
-					"path": [
-						"api",
-						"users"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "UpdateUserProfile",
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "firstName",
-							"value": "Eugenia",
-							"type": "text"
-						},
-						{
-							"key": "lastName",
-							"value": "Gonzalez",
-							"type": "text"
-						},
-						{
-							"key": "email",
-							"value": "eugenia.gonzalez@email.com",
-							"type": "text"
-						},
-						{
-							"key": "address",
-							"value": "la cabra",
-							"type": "text"
-						},
-						{
-							"key": "age",
-							"value": "33",
-							"type": "text"
-						},
-						{
-							"key": "phone",
-							"value": "123456789",
-							"type": "text"
-						},
-						{
-							"key": "password",
-							"value": "Qwerty09",
-							"type": "text"
-						},
-						{
-							"key": "confirmPassword",
-							"value": "Qwerty09",
-							"type": "text"
-						}
-					]
-				},
-				"url": {
-					"raw": "https://localhost:8443/api/users/api/profile",
+					"raw": "https://localhost:8443/api/users/create",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -497,15 +420,14 @@
 					"path": [
 						"api",
 						"users",
-						"api",
-						"profile"
+						"create"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "GetUsers2",
+			"name": "LogUser",
 			"event": [
 				{
 					"listen": "test",
@@ -519,10 +441,22 @@
 				}
 			],
 			"request": {
-				"method": "GET",
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\" : \"juan.perez@email.com\",\r\n    \"password\" : \"Password123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "https://localhost:8443/api/users",
+					"raw": "https://localhost:8443/api/auth/login",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -530,7 +464,113 @@
 					"port": "8443",
 					"path": [
 						"api",
-						"users"
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateUserProfile",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "Password123",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "juan.perez@email.com",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\":1,\r\n    \"firstName\":\"Paco\",\r\n    \"lastName\":\"Alonso\",\r\n    \"email\":\"juan.perez@email.com\",\r\n    \"address\":\"calle cualquiera\",\r\n    \"phoneNumber\":640234568,\r\n    \"age\":33,\r\n    \"password\":\"Hola1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:8443/api/users/update",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8443",
+					"path": [
+						"api",
+						"users",
+						"update"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "LogOutUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "juan.perez@email.com",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "Password123",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\" : \"juan.perez@email.com\",\r\n    \"password\" : \"Password123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:8443/api/auth/logout",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8443",
+					"path": [
+						"api",
+						"auth",
+						"logout"
 					]
 				}
 			},
@@ -573,7 +613,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"user\": 3,\r\n    \"address\": \"Biblioteca de la URJC\",\r\n    \"total\": 127\r\n}",
+					"raw": "{\r\n        \"id\":23,        \r\n        \"userId\": 1,\r\n        \"address\": \"Calle Ficticia 123\",\r\n        \"total\": 185.0,\r\n        \"products\": [\r\n            {\r\n                \"id\": 1,\r\n                \"name\": \"Wireless mouse\",\r\n                \"description\": \"2.4G Wireless Bluetooth Mouse Ergonomic 800/1200/1600DPI 6 Silent Buttons for MacBook Tablet Laptops Computer PC\",\r\n                \"price\": 50.0,\r\n                \"stock\": 25\r\n            },\r\n            {\r\n                \"id\": 2,\r\n                \"name\": \"Keyboard\",\r\n                \"description\": \"Subblim Business Slim Silent, Spanish Keyboard Layout (QWERTY), Plug & Play via USB, Flat Design, Silent Typing, Black\",\r\n                \"price\": 40.0,\r\n                \"stock\": 2\r\n            },\r\n            {\r\n                \"id\": 24,\r\n                \"name\": \"Security Camera\",\r\n                \"description\": \"Indoor wireless security camera with 1080p HD video, motion detection, night vision and two-way audio.\",\r\n                \"price\": 60.0,\r\n                \"stock\": 25\r\n            },\r\n            {\r\n                \"id\": 23,\r\n                \"name\": \"Desk Lamp\",\r\n                \"description\": \"LED desk lamp with 5 brightness levels, 5 color modes, USB charging port and adjustable arm.\",\r\n                \"price\": 35.0,\r\n                \"stock\": 40\r\n            }\r\n        ]\r\n}\r\n   ",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -581,7 +621,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://localhost:8443/api/orders",
+					"raw": "https://localhost:8443/api/orders/create",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -589,14 +629,15 @@
 					"port": "8443",
 					"path": [
 						"api",
-						"orders"
+						"orders",
+						"create"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "GetOrders1",
+			"name": "GetAllOrders",
 			"event": [
 				{
 					"listen": "test",
@@ -613,7 +654,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:8443/api/orders",
+					"raw": "https://localhost:8443/api/orders/all",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -621,43 +662,15 @@
 					"port": "8443",
 					"path": [
 						"api",
-						"orders"
+						"orders",
+						"all"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "UpdateOrder",
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"id\": 1,\r\n    \"user\": 2,\r\n    \"address\": \"Aparcamiento de la UCM\",\r\n    \"total\": 12\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "https://localhost:8443/api/orders",
-					"protocol": "https",
-					"host": [
-						"localhost"
-					],
-					"port": "8443",
-					"path": [
-						"api",
-						"orders"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GetOrders2",
+			"name": "GetIndividualOrder",
 			"event": [
 				{
 					"listen": "test",
@@ -674,7 +687,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:8443/api/orders",
+					"raw": "https://localhost:8443/api/orders/1",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -682,7 +695,8 @@
 					"port": "8443",
 					"path": [
 						"api",
-						"orders"
+						"orders",
+						"1"
 					]
 				}
 			},
@@ -703,7 +717,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://localhost:8443/api/orders/1",
+					"raw": "https://localhost:8443/api/orders/delete/9",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -712,6 +726,115 @@
 					"path": [
 						"api",
 						"orders",
+						"delete",
+						"9"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getAllUsers",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:8443/api/users/",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8443",
+					"path": [
+						"api",
+						"users",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetIndividualUser",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:8443/api/users/1",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8443",
+					"path": [
+						"api",
+						"users",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DeleteUser",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "Password123",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "juan.perez@email.com",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:8443/api/users/delete/1",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8443",
+					"path": [
+						"api",
+						"users",
+						"delete",
 						"1"
 					]
 				}
