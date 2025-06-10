@@ -1,6 +1,7 @@
 package es.xpressaly.Controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,8 +13,11 @@ import es.xpressaly.Model.Order;
 import es.xpressaly.Model.User;
 import es.xpressaly.Service.OrderService;
 import es.xpressaly.Service.UserService;
+import es.xpressaly.security.jwt.UserLoginService;
 import es.xpressaly.dto.OrderDTO;
 import es.xpressaly.dto.UserWebDTO;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.util.HashMap;
@@ -26,6 +30,8 @@ public class AuthController {
     private final UserService userService;
     @Autowired
     private final OrderService orderService;
+    @Autowired
+    private UserLoginService userLoginService;
 
     private final OrderController orderController= new OrderController();
 
@@ -35,8 +41,10 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public String showLoginForm() {
+    public String showLoginForm(Model model, HttpServletRequest request) {
         //userService.setCurrentUser(null);
+        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
+        model.addAttribute("token", token.getToken());
         return "login";
     }
 
@@ -145,10 +153,11 @@ public class AuthController {
         }
     }
 
-    @GetMapping("/logout")
-    public String logout(HttpSession session) {
-        session.invalidate();
-        session.removeAttribute("currentOrder");
+    @PostMapping("/logout")
+    public String logout(HttpServletResponse response) {
+        // Invalidar los tokens JWT usando el servicio
+        userLoginService.logout(response);
+        
         return "redirect:/login";
     }
 

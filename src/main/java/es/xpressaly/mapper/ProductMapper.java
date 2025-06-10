@@ -13,6 +13,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
     
+    
     ProductDTO toDTO(Product product);
     
     List<ProductDTO> toDTOs(List<Product> products);
