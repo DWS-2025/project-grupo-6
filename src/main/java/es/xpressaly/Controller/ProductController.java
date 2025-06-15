@@ -418,19 +418,16 @@ public class ProductController {
     }
 
     @PostMapping("/delete-review")
-    public String deleteReview(@RequestParam Long productId, @RequestParam Long reviewId, Model model) {
-        UserWebDTO currentUser = userService.getUser();
-        if (currentUser == null) {
-            return "redirect:/login";
-        }
-
+    public String deleteReview(@RequestParam Long productId, @RequestParam Long reviewId, RedirectAttributes redirectAttributes) {
         try {
             reviewService.deleteReview(productId, reviewId);
-            return "redirect:/product-details?id=" + productId;
+            redirectAttributes.addFlashAttribute("successMessage", "Reseña eliminada correctamente.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
-            return "redirect:/product-details?id=" + productId;
+            redirectAttributes.addFlashAttribute("errorMessage", "Ha ocurrido un error al eliminar la reseña.");
         }
+        return "redirect:/product-details?id=" + productId;
     }
 
     // Endpoint for searching products with JSON results

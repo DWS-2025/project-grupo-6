@@ -55,6 +55,21 @@ public class PdfStorageService {
         return "/uploads/pdfs/" + uniqueFileName; // Return the relative path for web access
     }
 
+    public void deleteFile(String filePath) throws IOException {
+        if (filePath == null || filePath.isEmpty()) {
+            return;
+        }
+        
+        // Extraer solo el nombre del archivo de la ruta completa
+        String fileName = Paths.get(filePath).getFileName().toString();
+        
+        // Construir la ruta completa del archivo en el sistema de archivos
+        Path targetLocation = this.fileStorageLocation.resolve(fileName);
+        
+        // Eliminar el archivo si existe
+        Files.deleteIfExists(targetLocation);
+    }
+
     public Path loadFileAsResource(String fileName) {
         return this.fileStorageLocation.resolve(fileName).normalize();
     }

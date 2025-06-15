@@ -13,6 +13,12 @@
     {{> common/header}}
     
     <div class="container">
+        {{#successMessage}}
+            <div class="alert alert-success">{{successMessage}}</div>
+        {{/successMessage}}
+        {{#errorMessage}}
+            <div class="alert alert-danger">{{errorMessage}}</div>
+        {{/errorMessage}}
         <!-- Header Section -->
         <div class="header-section">
             <div class="header-content">

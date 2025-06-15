@@ -72,6 +72,12 @@
     {{> common/header}}
     
     <div class="container">
+        {{#successMessage}}
+            <div class="alert alert-success">{{successMessage}}</div>
+        {{/successMessage}}
+        {{#errorMessage}}
+            <div class="alert alert-danger">{{errorMessage}}</div>
+        {{/errorMessage}}
         <div class="back-button-container">
             <a href="/products" class="back-button">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

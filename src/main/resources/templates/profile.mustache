@@ -210,6 +210,15 @@
             background-color: #294156;
         }
 
+        .pdf-section .delete-pdf-btn {
+            background-color: #dc3545; /* Red for delete */
+            margin-left: 15px; /* Space between buttons */
+        }
+
+        .pdf-section .delete-pdf-btn:hover {
+            background-color: #c82333;
+        }
+
         .pdf-section .view-pdf-btn .sign,
         .pdf-section .view-pdf-btn .text {
             display: contents;
@@ -364,29 +373,27 @@
     </div>
 
     <div class="pdf-section">
-        <h2>Upload PDF Document</h2>
-        <form action="/upload-pdf" method="post" enctype="multipart/form-data" id="pdfUploadForm">
+        <h2>Currículum Vitae (CV)</h2>
+        <form action="/upload-pdf" method="post" enctype="multipart/form-data">
             <div class="form-group">
-                <label for="pdfFile" class="custom-file-label">
-                    <i class="fas fa-file-upload"></i> Select PDF
-                    <input type="file" id="pdfFile" name="pdfFile" accept="application/pdf" class="custom-file-input" onchange="updateFileName()" />
-                </label>
-                <span class="file-name" id="selectedFileName">No file selected</span>
+                <label for="pdfFile">Sube tu CV en formato PDF para que los empleadores puedan verlo.</label>
+                <input type="file" id="pdfFile" name="pdfFile" accept=".pdf" required>
             </div>
             <button type="submit" class="upload-pdf-btn">
-                <i class="fas fa-upload"></i> Upload PDF
+                <i class="fas fa-upload"></i> Subir PDF
             </button>
         </form>
 
         {{#pdfPath}}
-        <div class="form-group" style="margin-top: 20px;">
-            <label>View your uploaded PDF:</label>
+        <div class="pdf-actions">
             <a href="/view-pdf" target="_blank" class="view-pdf-btn">
-                <div class="sign">
-                    <i class="fas fa-file-pdf"></i>
-                </div>
-                <div class="text">View PDF</div>
+                <i class="fas fa-eye"></i> View PDF
             </a>
+            <form action="/delete-pdf" method="post" style="display: inline;">
+                <button type="submit" class="upload-pdf-btn delete-pdf-btn">
+                    <i class="fas fa-trash-alt"></i> Delete PDF
+                </button>
+            </form>
         </div>
         {{/pdfPath}}
     </div>

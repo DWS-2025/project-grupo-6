@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import es.xpressaly.Model.Product;
 import es.xpressaly.Model.Review;
@@ -81,7 +82,8 @@ public class ReviewManagementController {
     @PostMapping("/delete-review-admin")
     public String deleteReviewAdmin(
             @RequestParam Long productId, 
-            @RequestParam Long reviewId) {
+            @RequestParam Long reviewId,
+            RedirectAttributes redirectAttributes) {
         
         UserWebDTO currentUser = userService.getUser();
         if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
@@ -90,9 +92,12 @@ public class ReviewManagementController {
 
         try {
             reviewService.deleteReview(productId, reviewId);
-            return "redirect:/review-management";
+            redirectAttributes.addFlashAttribute("successMessage", "Reseña eliminada correctamente.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         } catch (Exception e) {
-            return "redirect:/review-management";
+            redirectAttributes.addFlashAttribute("errorMessage", "Ha ocurrido un error al eliminar la reseña.");
         }
+        return "redirect:/review-management";
     }
 } 

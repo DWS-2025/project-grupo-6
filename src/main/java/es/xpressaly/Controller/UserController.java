@@ -12,6 +12,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -244,6 +245,33 @@ public class UserController {
             model.addAttribute("error", "An unexpected error occurred: " + ex.getMessage());
             return "redirect:/profile";
         }
+    }
+
+    @PostMapping("/delete-pdf")
+    public String deletePdf(RedirectAttributes redirectAttributes) {
+        try {
+            User currentUser = userService.getUserEntity();
+            if (currentUser == null) {
+                return "redirect:/login";
+            }
+
+            // Obtener la ruta del PDF y eliminar el archivo físico
+            String pdfPath = currentUser.getPdfPath();
+            if (pdfPath != null && !pdfPath.isEmpty()) {
+                pdfStorageService.deleteFile(pdfPath);
+            }
+
+            // Limpiar la ruta del PDF en la base de datos
+            currentUser.setPdfPath(null);
+            userService.saveUser(currentUser);
+
+            redirectAttributes.addFlashAttribute("success", "PDF eliminado correctamente.");
+            
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al eliminar el PDF: " + e.getMessage());
+        }
+        
+        return "redirect:/profile";
     }
 
     @GetMapping("/view-pdf")
