@@ -179,8 +179,8 @@ public class SecurityConfig {
 						.logoutUrl("/logout")
 						.logoutSuccessUrl("/")
 						.permitAll()
-				);
-				//.csrf(csrf->csrf.disable());
+				)
+				.csrf(csrf->csrf.disable());
 				
 		// Require HTTPS for all web requests
 		http.requiresChannel(channel -> channel.anyRequest().requiresSecure());
