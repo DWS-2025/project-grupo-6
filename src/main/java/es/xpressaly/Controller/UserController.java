@@ -282,7 +282,7 @@ public class UserController {
                 return ResponseEntity.notFound().build();
             }
 
-            // Extract filename from the stored path (e.g., /uploads/pdfs/unique_file.pdf)
+            // Extract filename from the stored path (e.g., /pdfs/unique_file.pdf)
             String storedFileName = currentUser.getPdfPath().substring(currentUser.getPdfPath().lastIndexOf("/") + 1);
 
             Resource resource = new org.springframework.core.io.UrlResource(pdfStorageService.loadFileAsResource(storedFileName).toUri());

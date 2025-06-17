@@ -20,7 +20,7 @@ public class PdfStorageService {
     private final Path fileStorageLocation;
 
     public PdfStorageService() {
-        this.fileStorageLocation = Paths.get("src/main/resources/static/uploads/pdfs")
+        this.fileStorageLocation = Paths.get("pdfs")
                                         .toAbsolutePath().normalize();
         try {
             Files.createDirectories(this.fileStorageLocation);
@@ -52,7 +52,7 @@ public class PdfStorageService {
         Path targetLocation = this.fileStorageLocation.resolve(uniqueFileName);
         Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
-        return "/uploads/pdfs/" + uniqueFileName; // Return the relative path for web access
+        return "/pdfs/" + uniqueFileName; // Return the relative path for web access
     }
 
     public void deleteFile(String filePath) throws IOException {

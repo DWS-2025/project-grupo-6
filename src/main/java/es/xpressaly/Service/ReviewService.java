@@ -177,7 +177,7 @@ public class ReviewService {
         
         // Allow admins to delete any review, but regular users can only delete their own
         if (user.getRole() != UserRole.ADMIN && !review.getUser().getId().equals(user.getId())) {
-            throw new IllegalArgumentException("Lo siento, no tienes permisos para eliminar esta reseña.");
+            throw new SecurityException("Sorry, you don't have permissions to delete this review.");
         }
         
         // Delete the review from database first

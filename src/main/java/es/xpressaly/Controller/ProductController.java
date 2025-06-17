@@ -421,13 +421,14 @@ public class ProductController {
     public String deleteReview(@RequestParam Long productId, @RequestParam Long reviewId, RedirectAttributes redirectAttributes) {
         try {
             reviewService.deleteReview(productId, reviewId);
-            redirectAttributes.addFlashAttribute("successMessage", "Reseña eliminada correctamente.");
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            redirectAttributes.addFlashAttribute("successMessage", "Review deleted successfully.");
+        } catch (SecurityException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "You do not have permission to delete this review.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Ha ocurrido un error al eliminar la reseña.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Error deleting review: " + e.getMessage());
         }
-        return "redirect:/product-details?id=" + productId;
+        
+        return "redirect:/profile";
     }
 
     // Endpoint for searching products with JSON results
