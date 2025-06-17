@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import es.xpressaly.Model.Order;
 import es.xpressaly.Model.Product;
 import es.xpressaly.Model.User;
+import es.xpressaly.Model.UserRole;
 import es.xpressaly.Repository.OrderRepository;
 import es.xpressaly.Repository.ProductRepository;
 import es.xpressaly.Repository.UserRepository;
@@ -18,6 +19,7 @@ import es.xpressaly.mapper.OrderApiMapper;
 import es.xpressaly.mapper.ProductWebMapper;
 import es.xpressaly.mapper.UserWebMapper;
 import jakarta.transaction.Transactional;
+import jakarta.persistence.EntityManager;
 
 import java.util.Collection;
 import java.util.List;
@@ -53,6 +55,9 @@ public class OrderService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private EntityManager entityManager;
 
     //Sanitizado
     public OrderDTO createOrderDTO(UserWebDTO user, String address) {
@@ -252,7 +257,27 @@ public class OrderService {
     }
 
     public void delete(Order orderToDelete) {
+        User user = userService.getUserEntity();
+        
+        if (user == null) {
+            throw new IllegalArgumentException("User not authenticated");
+        }
+        
+        if (orderToDelete == null) {
+            throw new IllegalArgumentException("Order not found");
+        }
+        
+        // Allow admins to delete any order, but regular users can only delete their own
+        if (user.getRole() != UserRole.ADMIN && !orderToDelete.getUser().getId().equals(user.getId())) {
+            throw new SecurityException("Sorry, you don't have permission to delete this order");
+        }
+        
+        // Delete the order
         orderRepository.delete(orderToDelete);
+        
+        // Force flush to ensure deletion is committed to database immediately
+        entityManager.flush();
+        entityManager.clear(); // Clear persistence context to force fresh query
     }
 
     public Order findById(Long orderId) {
@@ -359,6 +384,23 @@ public class OrderService {
     }
 
     public void deleteOrderApi(Long id) {
-        orderRepository.deleteById(id);
+        Order orderToDelete = orderRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+        delete(orderToDelete);
+    }
+
+    private void checkUserPermissionForOrder(Order order) {
+        User currentUser = userService.getUserEntity();
+        if (currentUser == null) {
+            throw new SecurityException("User not authenticated");
+        }
+    
+        if (order == null) {
+            throw new IllegalArgumentException("Order cannot be null");
+        }
+    
+        if (currentUser.getRole() != UserRole.ADMIN && (order.getUser() == null || !order.getUser().getId().equals(currentUser.getId()))) {
+            throw new SecurityException("Sorry, you don't have permission to delete this order");
+        }
     }
 }

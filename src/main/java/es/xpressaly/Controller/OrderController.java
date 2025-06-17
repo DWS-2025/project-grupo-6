@@ -203,47 +203,44 @@ public class OrderController {
             return "redirect:/products";
         }
 
-        currentOrder = orderService.clearOrder(currentOrder);
-        setCurrentOrder(currentOrder);
+        try {
+            orderService.delete(currentOrder);
+            model.addAttribute("message", "Order deleted successfully");
+        } catch (IllegalArgumentException | SecurityException e) {
+            model.addAttribute("error", e.getMessage());
+        } catch (Exception e) {
+            model.addAttribute("error", "Error deleting order: " + e.getMessage());
+        }
+
         model.addAttribute("products", productService.getAllProductsWeb());
-        model.addAttribute("order", currentOrder);
         model.addAttribute("isAdmin", currentUser.role() == UserRole.ADMIN);
         model.addAttribute("cartItemCount", getCartItemCount());
         return "Wellcome";
     }
     @DeleteMapping("/delete-order/{id}")
     @ResponseBody
-    public ResponseEntity<Map<String, Boolean>> deleteOrder(@PathVariable("id") Long orderId) {
-        Map<String, Boolean> response = new HashMap<>();
-        UserWebDTO currentUser = userService.getUser();
-
-        if (currentUser == null) {
-            response.put("success", false);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-        }
-
-        List<Order> orders = orderService.getOrdersByUser(currentUser);
-        Order orderToDelete = null;
+    public ResponseEntity<Map<String, Object>> deleteOrder(@PathVariable("id") Long orderId) {
+        Map<String, Object> response = new HashMap<>();
         
-        for (Order order : orders) {
-            if(order.getId().equals(orderId)){
-                orderToDelete = order;
-                break;
-            }    
-        }    
-        
-        if (orderToDelete == null || !orderToDelete.getUser().getId().equals(currentUser.id())) {
-            response.put("success", false);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-
         try {
+            Order orderToDelete = orderService.findById(orderId);
+            if (orderToDelete == null) {
+                response.put("error", "Order not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+            
             orderService.delete(orderToDelete);
-            orders.remove(orderToDelete);
             response.put("success", true);
+            response.put("message", "Order deleted successfully");
             return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (SecurityException e) {
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         } catch (Exception e) {
-            response.put("success", false);
+            response.put("error", "Error deleting order: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
