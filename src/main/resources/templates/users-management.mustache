@@ -137,6 +137,7 @@
                     </button>
                     <form action="/delete-user" method="post" id="deleteUserForm">
                         <input type="hidden" name="email" id="userEmailInput">
+                        <input type="hidden" name="_csrf" value="{{token}}"/>
                         <button type="submit" class="modal-btn modal-btn-confirm">
                             <i class="fas fa-trash-alt"></i> Delete
                         </button>
@@ -156,7 +157,7 @@
             <div class="modal-body">
                 <form action="/edit-user" method="post" id="editUserForm">
                     <input type="hidden" name="originalEmail" id="originalEmailInput">
-                    
+                    <input type="hidden" name="_csrf" value="{{token}}"/>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="editFirstName">First Name</label>

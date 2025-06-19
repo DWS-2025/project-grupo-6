@@ -46,10 +46,12 @@
                                         </button>
                                     </div>
                                     <input type="hidden" name="productId" value="{{id}}">
+                                    <input type="hidden" name="_csrf" value="{{token}}"/>
                                 </form>
                                 
                                 <form action="/remove-from-order" method="post" class="remove-form">
                                     <input type="hidden" name="productId" value="{{id}}">
+                                    <input type="hidden" name="_csrf" value="{{token}}"/>
                                     <button type="submit" class="btn-danger text-white px-4 py-2 rounded-lg text-sm flex items-center">
                                         <i class="fas fa-trash-alt mr-2"></i> Remove
                                     </button>
@@ -101,6 +103,7 @@
                         </h3>
                         
                         <form action="/confirm-order" method="post" class="confirm-order-form">
+                            <input type="hidden" name="_csrf" value="{{token}}"/>
                             <div class="flex items-center mb-4">
                                 <div class="bg-[#E5EBF1] flex items-center justify-center w-10 h-10 rounded-l-lg border-y border-l border-[#CBD3E6]">
                                     <i class="fas fa-home text-[#567C8D]"></i>

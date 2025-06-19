@@ -14,7 +14,7 @@
         <h1>Edit Product</h1>
         <form action="/update-product" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="productId" value="{{product.id}}">
-            
+            <input type="hidden" name="_csrf" value="{{token}}"/>
             {{#error}}
             <div class="error-message">
                 {{message}}

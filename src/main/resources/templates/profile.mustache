@@ -326,10 +326,10 @@
         <h2>Personal Data</h2>
         <form action="/logout" method="post">
             <input type="submit" value="Log Out">            
-                    
+            <input type="hidden" name="_csrf" value="{{token}}"/>        
         </form>
         <form action="/update-profile" method="post">
-
+            <input type="hidden" name="_csrf" value="{{token}}"/>
             <div class="form-group">
                 <label><i class="fas fa-user"></i> Name:</label>
                 <input type="text" name="firstName" value="{{name}}" class="w-full p-2 border rounded mb-4 text-[#294156]" />
@@ -375,6 +375,7 @@
     <div class="pdf-section">
         <h2>Currículum Vitae (CV)</h2>
         <form action="/upload-pdf" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="_csrf" value="{{token}}"/>
             <div class="form-group">
                 <label for="pdfFile">Sube tu CV en formato PDF para que los empleadores puedan verlo.</label>
                 <input type="file" id="pdfFile" name="pdfFile" accept=".pdf" required>
@@ -390,6 +391,7 @@
                 <i class="fas fa-eye"></i> View PDF
             </a>
             <form action="/delete-pdf" method="post" style="display: inline;">
+                <input type="hidden" name="_csrf" value="{{token}}"/>
                 <button type="submit" class="upload-pdf-btn delete-pdf-btn">
                     <i class="fas fa-trash-alt"></i> Delete PDF
                 </button>
@@ -403,6 +405,7 @@
     <div id="passwordModal">
         <h3 class="modal-title">Change Password</h3>
         <form id="passwordChangeForm" onsubmit="return savePasswordAndClose()">
+            <input type="hidden" name="_csrf" value="{{token}}"/>
             <div class="form-group">
                 <label for="newPassword">New Password:</label>
                 <div class="password-container">
@@ -504,6 +507,7 @@
 
 <div class="delete-account-section" style="text-align: center; margin: 20px 0;">
     <form action="/delete-account" method="post">
+        <input type="hidden" name="_csrf" value="{{token}}"/>
         <button type="submit" class="delete-account-btn"
                 style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
             <i class="fas fa-trash-alt"></i> Delete Account</button>

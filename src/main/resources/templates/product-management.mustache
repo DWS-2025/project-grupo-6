@@ -146,6 +146,7 @@
                 </button>
                 <form action="/delete-product" method="post" id="deleteProductForm" style="display: inline;">
                     <input type="hidden" name="productId" id="productIdInput">
+                    <input type="hidden" name="_csrf" value="{{token}}"/>
                     <button type="submit" class="danger-btn">
                         <i class="fas fa-trash-alt"></i>
                         <span>Delete Product</span>

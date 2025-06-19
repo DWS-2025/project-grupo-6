@@ -33,6 +33,7 @@
             {{/error}}
             
             <form action="/register" method="post" id="registerForm">
+                <input type="hidden" name="_csrf" value="{{token}}"/>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="firstName">First Name</label>

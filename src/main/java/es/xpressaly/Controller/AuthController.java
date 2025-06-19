@@ -41,10 +41,10 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public String showLoginForm(Model model) {
+    public String showLoginForm(Model model, HttpServletRequest request) {
         //userService.setCurrentUser(null);
-        /*CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
-        model.addAttribute("token", token.getToken());*/
+        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
+        model.addAttribute("token", token.getToken());
         return "login";
     }
 

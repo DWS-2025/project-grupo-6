@@ -109,6 +109,7 @@
                     </div>
                     <form id="addToCartForm" action="/add-to-order" method="post" class="add-to-cart-form">
                         <input type="hidden" name="productId" value="{{product.id}}">
+                        <input type="hidden" name="_csrf" value="{{token}}"/>
                         <button type="submit" class="btn btn-primary add-to-cart-btn">Add to Cart</button>
                     </form>
                 </div>
@@ -143,6 +144,7 @@
                         <form action="/delete-review" method="post" class="review-actions delete-review-form">
                             <input type="hidden" name="reviewId" value="{{id}}">
                             <input type="hidden" name="productId" value="{{productId}}">
+                            <input type="hidden" name="_csrf" value="{{token}}"/>
                             <button type="button" class="btn btn-danger delete-btn" onclick="showDeleteConfirmation(this)">
                                 <i class="fas fa-trash-alt"></i> Delete Review
                             </button>
@@ -162,7 +164,7 @@
                 <form action="/add-review" method="post" class="add-review-form" id="reviewForm">
                     <input type="hidden" name="productId" value="{{product.id}}">
                     <input type="hidden" name="comment" id="hiddenComment">
-                    
+                    <input type="hidden" name="_csrf" value="{{token}}"/>
                     <div class="editor-actions">
                         <div class="draft-actions">
                             <button type="button" id="saveDraftBtn" class="draft-btn">
