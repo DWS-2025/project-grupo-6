@@ -15,10 +15,6 @@
 
 ### Entities and Diagram
 ![image](https://github.com/user-attachments/assets/45d52273-8d5f-42d3-bfb2-c27e602f6479)
-- **USER**: can place orders, add products to the cart and write product reviews.
-- **PRODUCT**: can be added to a user's cart, reviewed and included in orders.
-- **ORDER**: contains one or more products and is placed by a user.
-- **REVIEW**: written by a user to provide feedback on a product.
 
 #### **USER**
 
