@@ -217,6 +217,7 @@ public class OrderController {
         model.addAttribute("cartItemCount", getCartItemCount());
         return "Wellcome";
     }
+    
     @DeleteMapping("/delete-order/{id}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> deleteOrder(@PathVariable("id") Long orderId) {

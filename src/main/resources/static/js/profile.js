@@ -200,6 +200,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Obtén el token y el nombre de la cabecera desde el meta
+const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
 // Código para eliminar órdenes
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll('.delete-order-button').forEach(button => {
@@ -210,7 +214,8 @@ document.addEventListener("DOMContentLoaded", function () {
             fetch(`/delete-order/${orderId}`, { 
                 method: 'DELETE',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
                 }
             })
             .then(response => response.json())
