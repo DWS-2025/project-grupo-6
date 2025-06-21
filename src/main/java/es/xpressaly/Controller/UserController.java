@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.nio.file.Path;
 
 @Controller
 public class UserController {
@@ -219,7 +221,7 @@ public class UserController {
     }
 
     @PostMapping("/upload-pdf")
-    public String uploadPdf(@RequestParam("pdfFile") MultipartFile file, Model model) {
+    public String uploadPdf(@RequestParam("pdfFile") MultipartFile file, RedirectAttributes redirectAttributes) {
         try {
             User currentUser = userService.getUserEntity();
             if (currentUser == null) {
@@ -227,22 +229,32 @@ public class UserController {
             }
 
             if (file.isEmpty()) {
-                model.addAttribute("error", "Please select a file to upload.");
+                redirectAttributes.addFlashAttribute("error", "Please select a file to upload.");
                 return "redirect:/profile";
             }
 
-            String fileName = pdfStorageService.storeFile(file);
-            currentUser.setPdfPath(fileName);
-            userService.saveUser(currentUser); // Assuming saveUser method exists or update logic
+            // Delete existing PDF if present
+            if (currentUser.getPdfPath() != null && !currentUser.getPdfPath().isEmpty()) {
+                try {
+                    pdfStorageService.deleteFile(currentUser.getPdfPath(), currentUser.getId());
+                } catch (IOException e) {
+                    // Log the error but continue with new upload
+                    System.err.println("Error deleting existing PDF: " + e.getMessage());
+                }
+            }
 
-            model.addAttribute("success", "PDF uploaded successfully!");
+            String fileName = pdfStorageService.storeFile(file, currentUser.getId());
+            currentUser.setPdfPath(fileName);
+            userService.saveUser(currentUser);
+
+            redirectAttributes.addFlashAttribute("success", "PDF uploaded successfully!");
             return "redirect:/profile";
 
         } catch (IOException ex) {
-            model.addAttribute("error", "Failed to upload PDF: " + ex.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Failed to upload PDF: " + ex.getMessage());
             return "redirect:/profile";
         } catch (Exception ex) {
-            model.addAttribute("error", "An unexpected error occurred: " + ex.getMessage());
+            redirectAttributes.addFlashAttribute("error", "An unexpected error occurred: " + ex.getMessage());
             return "redirect:/profile";
         }
     }
@@ -255,20 +267,18 @@ public class UserController {
                 return "redirect:/login";
             }
 
-            // Obtener la ruta del PDF y eliminar el archivo físico
             String pdfPath = currentUser.getPdfPath();
             if (pdfPath != null && !pdfPath.isEmpty()) {
-                pdfStorageService.deleteFile(pdfPath);
+                pdfStorageService.deleteFile(pdfPath, currentUser.getId());
+                currentUser.setPdfPath(null);
+                userService.saveUser(currentUser);
+                redirectAttributes.addFlashAttribute("success", "PDF deleted successfully.");
             }
-
-            // Limpiar la ruta del PDF en la base de datos
-            currentUser.setPdfPath(null);
-            userService.saveUser(currentUser);
-
-            redirectAttributes.addFlashAttribute("success", "PDF eliminado correctamente.");
             
+        } catch (IOException e) {
+            redirectAttributes.addFlashAttribute("error", "Error deleting PDF: " + e.getMessage());
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error al eliminar el PDF: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "An unexpected error occurred while deleting the PDF.");
         }
         
         return "redirect:/profile";
@@ -282,15 +292,26 @@ public class UserController {
                 return ResponseEntity.notFound().build();
             }
 
-            // Extract filename from the stored path (e.g., /pdfs/unique_file.pdf)
-            String storedFileName = currentUser.getPdfPath().substring(currentUser.getPdfPath().lastIndexOf("/") + 1);
+            // Extract filename from the stored path (e.g., /pdfs/user_123/unique_file.pdf)
+            String storedPath = currentUser.getPdfPath();
+            String storedFileName = storedPath.substring(storedPath.lastIndexOf("/") + 1);
 
-            Resource resource = new org.springframework.core.io.UrlResource(pdfStorageService.loadFileAsResource(storedFileName).toUri());
+            // Validate user has access to this file
+            if (!storedPath.contains("/user_" + currentUser.getId() + "/")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            Path filePath = pdfStorageService.loadFileAsResource(storedFileName, currentUser.getId());
+            Resource resource = new org.springframework.core.io.UrlResource(filePath.toUri());
+
+            // Validate the resource exists and is readable
+            if (!resource.exists() || !resource.isReadable()) {
+                throw new IOException("Could not read PDF file");
+            }
 
             String contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
-
             if (contentType == null) {
-                contentType = "application/octet-stream";
+                contentType = "application/pdf";
             }
 
             return ResponseEntity.ok()

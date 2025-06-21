@@ -19,6 +19,7 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 import es.xpressaly.security.jwt.JwtRequestFilter;
 import es.xpressaly.security.jwt.UnauthorizedHandlerJwt;
+import es.xpressaly.security.filter.PathTraversalFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -26,6 +27,9 @@ public class SecurityConfig {
 
 	@Autowired
 	private JwtRequestFilter jwtRequestFilter;
+
+	@Autowired
+	private PathTraversalFilter pathTraversalFilter;
 
 	@Autowired
 	RepositoryUserDetailsService userDetailsService;
@@ -113,6 +117,9 @@ public class SecurityConfig {
 		// Add JWT Token filter
 		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 		
+		// Add Path Traversal filter
+		http.addFilterBefore(pathTraversalFilter, JwtRequestFilter.class);
+		
 		// Require HTTPS for all API requests
 		http.requiresChannel(channel -> channel.anyRequest().requiresSecure());
 
@@ -181,6 +188,12 @@ public class SecurityConfig {
 						.permitAll()
 				);
 				//.csrf(csrf->csrf.disable());
+				
+		// Add Path Traversal filter
+		http.addFilterBefore(pathTraversalFilter, UsernamePasswordAuthenticationFilter.class);
+				
+		// Enable CSRF protection for web endpoints
+		http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"));
 				
 		// Require HTTPS for all web requests
 		http.requiresChannel(channel -> channel.anyRequest().requiresSecure());
