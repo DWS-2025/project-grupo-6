@@ -167,6 +167,20 @@ form:hover {
     transform: translateY(-2px);
 }
 
+.char-counter {
+    text-align: right;
+    font-size: 0.8rem;
+    color: var(--teal);
+    margin-top: 0.5rem;
+    opacity: 0.8;
+    transition: color 0.3s ease, font-weight 0.3s ease;
+}
+
+.char-counter.limit-reached {
+    color: var(--danger-dark);
+    font-weight: 500;
+}
+
 .input-with-icon {
     position: relative;
     display: flex;

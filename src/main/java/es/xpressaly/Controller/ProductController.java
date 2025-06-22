@@ -202,8 +202,16 @@ public class ProductController {
             model.addAttribute("error", "Product name is required");
             return "add_product";
         }
+        if (name.length() > 40) {
+            model.addAttribute("error", "Product name cannot exceed 40 characters.");
+            return "add_product";
+        }
         if (description == null || description.trim().isEmpty()) {
             model.addAttribute("error", "Product description is required");
+            return "add_product";
+        }
+        if (description.length() > 300) {
+            model.addAttribute("error", "Product description cannot exceed 300 characters.");
             return "add_product";
         }
         if (price <= 0) {
@@ -587,8 +595,18 @@ public class ProductController {
             model.addAttribute("product", existingProductWebDTO);
             return "edit-product";
         }
+        if (name.length() > 40) {
+            model.addAttribute("error", "Product name cannot exceed 40 characters.");
+            model.addAttribute("product", existingProductWebDTO);
+            return "edit-product";
+        }
         if (description == null || description.trim().isEmpty()) {
             model.addAttribute("error", "Product description is required");
+            model.addAttribute("product", existingProductWebDTO);
+            return "edit-product";
+        }
+        if (description.length() > 300) {
+            model.addAttribute("error", "Product description cannot exceed 300 characters.");
             model.addAttribute("product", existingProductWebDTO);
             return "edit-product";
         }

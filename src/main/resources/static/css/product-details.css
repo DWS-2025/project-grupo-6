@@ -54,12 +54,14 @@
     flex-direction: column;
     gap: 1.8rem;
     opacity: 1;
+    min-width: 0;
 }
 
 .product-title {
     color: #294156;
     font-size: 2.2rem;
     margin-bottom: 0.5rem;
+    overflow-wrap: break-word;
 }
 
 /* Rating and Info Boxes */
@@ -100,11 +102,13 @@
     color: #294156;
     font-size: 2rem;
     margin-bottom: 0.5rem;
+    overflow-wrap: break-word;
 }
 
 .product-description {
     color: #567C8D;
     line-height: 1.6;
+    overflow-wrap: break-word;
 }
 
 .product-meta {
