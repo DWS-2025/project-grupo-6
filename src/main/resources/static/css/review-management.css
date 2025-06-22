@@ -411,7 +411,11 @@ body {
 .group-meta {
     display: flex;
     align-items: center;
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
+}
+
+.group-meta .meta-separator {
+    color: var(--color-gray-300);
 }
 
 .review-count {
@@ -501,7 +505,8 @@ body {
     gap: 0.125rem;
 }
 
-.review-rating .fas.fa-star {
+.review-rating .fas.fa-star,
+.review-rating .fas.fa-star-half-alt {
     color: #fbbf24;
     font-size: 0.875rem;
 }

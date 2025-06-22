@@ -61,17 +61,31 @@ document.addEventListener('DOMContentLoaded', function() {
         const ratingElements = document.querySelectorAll('.review-rating');
         
         ratingElements.forEach(element => {
-            const rating = parseInt(element.getAttribute('data-rating')) || 0;
+            const rating = parseFloat(element.getAttribute('data-rating')) || 0;
             generateStars(element, rating);
         });
     }
     
-    // Generate stars for rating
+    // Generate stars for rating (with half-star support)
     function generateStars(container, rating) {
         container.innerHTML = '';
-        for (let i = 1; i <= 5; i++) {
+        const fullStars = Math.floor(rating);
+        const halfStar = rating % 1 >= 0.5 ? 1 : 0;
+        const emptyStars = 5 - fullStars - halfStar;
+
+        for (let i = 0; i < fullStars; i++) {
             const star = document.createElement('i');
-            star.className = i <= rating ? 'fas fa-star' : 'far fa-star';
+            star.className = 'fas fa-star';
+            container.appendChild(star);
+        }
+        if (halfStar) {
+            const star = document.createElement('i');
+            star.className = 'fas fa-star-half-alt';
+            container.appendChild(star);
+        }
+        for (let i = 0; i < emptyStars; i++) {
+            const star = document.createElement('i');
+            star.className = 'far fa-star';
             container.appendChild(star);
         }
     }
@@ -232,7 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update rating stars
         const ratingElement = document.getElementById('reviewPreviewRating');
         ratingElement.setAttribute('data-rating', rating);
-        generateStars(ratingElement, parseInt(rating));
+        generateStars(ratingElement, parseFloat(rating));
         
         // Show modal
         const modal = document.getElementById('deleteReviewModal');

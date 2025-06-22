@@ -48,7 +48,7 @@
 - **PRODUCT**: one main image for each product.
 
 ## Collaborative Development
-> **Disclaimer:** all members of the team have participated equally. The complexity of the work makes it difficult to summarize each member’s efforts with only five commits.
+
 
 ### Dan: top 5 commits - Phase 3
 
