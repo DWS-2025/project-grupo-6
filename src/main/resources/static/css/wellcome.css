@@ -378,22 +378,127 @@ main {
 @media (min-width: 1024px) {
     .sidebar-container {
         position: sticky;
-        top: 20px;
+        top: 80px;
         max-height: calc(100vh - 40px);
         overflow-y: auto;
     }
 }
 
-/* Estilos para el contenedor del filtro de precio */
+/* --- Compact minimal modern filter sidebar styles --- */
 .filter-container {
-    background-color: white;
-    border-radius: 0.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 6px rgba(41,65,86,0.06);
+    border: 1px solid #e5e7eb;
+    padding: 0.85rem 0.7rem 0.7rem 0.7rem;
+    margin-bottom: 1rem;
+    transition: box-shadow 0.2s, border 0.2s;
+    position: relative;
 }
 
 .filter-container:hover {
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 12px rgba(41,65,86,0.10);
+    border-color: #b6c6d7;
+}
+
+.filter-container h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #294156;
+    margin-bottom: 0.7rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.filter-container svg {
+    color: #294156;
+    min-width: 18px;
+    min-height: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+.filter-container label {
+    font-size: 0.93rem;
+    color: #567C8D;
+    font-weight: 500;
+    margin-bottom: 0.1rem;
+}
+
+.filter-container input,
+.filter-container select {
+    width: 100%;
+    padding: 0.45rem 0.7rem;
+    border-radius: 6px;
+    border: 1.2px solid #e5e7eb;
+    background: #f9fafb;
+    font-size: 0.97rem;
+    color: #294156;
+    margin-bottom: 0.4rem;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+.filter-container input:focus,
+.filter-container select:focus {
+    border-color: #567C8D;
+    box-shadow: 0 0 0 2px #CBD3E6;
+    outline: none;
+}
+
+.filter-container .flex {
+    gap: 0.5rem;
+}
+
+.filter-container .filter-btn {
+    background: #294156;
+    border: none;
+    color: white;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: background 0.2s, transform 0.2s;
+    box-shadow: 0 1px 4px rgba(44, 62, 80, 0.06);
+    font-size: 0.97rem;
+    padding: 0.45rem 0.7rem;
+    cursor: pointer;
+}
+
+.filter-container .filter-btn:hover {
+    background: #567C8D;
+    transform: translateY(-1px) scale(1.01);
+}
+
+.filter-container .filter-btn-outline {
+    border: 1.2px solid #e5e7eb;
+    background: #f9fafb;
+    color: #294156;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: background 0.2s, color 0.2s;
+    font-size: 0.97rem;
+    padding: 0.45rem 0.7rem;
+    cursor: pointer;
+}
+
+.filter-container .filter-btn-outline:hover {
+    background: #f3f6fa;
+    color: #567C8D;
+}
+
+.filter-badge {
+    top: 8px !important;
+    right: 8px !important;
+    width: 11px !important;
+    height: 11px !important;
+    border: 2px solid #fff !important;
+    box-shadow: 0 1px 4px rgba(239,68,68,0.10);
+}
+
+/* Espaciado entre filtros sin líneas */
+.filter-container:not(:last-child) {
+    margin-bottom: 1.2rem;
 }
 
 /* Ajustes para el slider de precio */

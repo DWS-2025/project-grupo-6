@@ -707,3 +707,20 @@ footer {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
+.logout-btn {
+    background-color: #294156;
+    color: white;
+    padding: 0.85rem 1.7rem;
+    border: none;
+    border-radius: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+    font-size: 0.9rem;
+    margin-bottom: 1.2rem;
+}
+.logout-btn:hover {
+    background-color: #dc3545;
+    color: white;
+}
