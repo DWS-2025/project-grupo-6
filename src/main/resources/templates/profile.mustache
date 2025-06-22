@@ -527,6 +527,8 @@
         document.getElementById('modalOverlay').classList.add('active');
     });
 
+    document.getElementById('modalOverlay').addEventListener('click', closePasswordModal);
+
     function closePasswordModal() {
         document.getElementById('passwordModal').classList.remove('active');
         document.getElementById('modalOverlay').classList.remove('active');
