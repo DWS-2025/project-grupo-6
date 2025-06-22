@@ -38,8 +38,8 @@ public interface OrderApiMapper {
                 product.getDescription(),
                 product.getPrice(),
                 product.getStock(),
-                order.getProductQuantity(product)
-                // No incluir más relaciones
+                order.getProductQuantity(product),
+                product.getRating()
             ))
             .collect(Collectors.toList());
     }

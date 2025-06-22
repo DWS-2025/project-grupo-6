@@ -88,6 +88,7 @@ public class ProductController {
             @RequestParam(required = false, defaultValue = "default") String sort,
             @RequestParam(required = false, defaultValue = "0") double minPrice,
             @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false, defaultValue = "0") int minRating,
             Model model) {
         try {
             // Obtener el usuario actual para verificar permisos de administrador
@@ -102,18 +103,26 @@ public class ProductController {
             
             // Obtener la página de productos según los filtros
             Page<ProductWebDTO> productPage;
-            if (search != null && !search.isEmpty()) {
-                if (minPrice > 0 || maxPrice != null) {
-                    productPage = productService.searchProductsByPriceAndPageableWeb(search, minPrice, effectiveMaxPrice, pageable);
-                } else {
-                    productPage = productService.searchProductsByPageableWeb(search, pageable);
-                }
+            boolean hasSearch = search != null && !search.isEmpty();
+            boolean hasPrice = minPrice > 0 || maxPrice != null;
+            boolean hasRating = minRating > 0;
+
+            if (hasSearch && hasPrice && hasRating) {
+                productPage = productService.searchProductsByPriceAndMinRatingWeb(search, minPrice, effectiveMaxPrice, minRating, pageable);
+            } else if (hasSearch && hasRating) {
+                productPage = productService.searchProductsByMinRatingWeb(search, minRating, pageable);
+            } else if (hasPrice && hasRating) {
+                productPage = productService.getProductsByPriceAndMinRatingWeb(minPrice, effectiveMaxPrice, minRating, pageable);
+            } else if (hasSearch && hasPrice) {
+                productPage = productService.searchProductsByPriceAndPageableWeb(search, minPrice, effectiveMaxPrice, pageable);
+            } else if (hasRating) {
+                productPage = productService.getProductsByMinRatingWeb(minRating, pageable);
+            } else if (hasSearch) {
+                productPage = productService.searchProductsByPageableWeb(search, pageable);
+            } else if (hasPrice) {
+                productPage = productService.getProductsByPageAndPriceWeb(pageable, sort, minPrice, effectiveMaxPrice);
             } else {
-                if (minPrice > 0 || maxPrice != null) {
-                    productPage = productService.getProductsByPageAndPriceWeb(pageable, sort, minPrice, effectiveMaxPrice);
-                } else {
-                    productPage = productService.getProductsByPageWeb(pageable, sort);
-                }
+                productPage = productService.getProductsByPageWeb(pageable, sort);
             }
             
             // Añadir los productos y metadatos al modelo

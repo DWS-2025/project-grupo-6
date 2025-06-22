@@ -2,6 +2,7 @@ let currentProductPage = 1;
 const productsPerPage = 10;
 let minPrice = 0;
 let maxPrice = 1000;
+let minRating = 0; // Variable for minimum rating filter
 let currentSortValue = 'default';
 let allProductsLoaded = false;
 let searchTimeout = null; // For debouncing search queries
@@ -13,8 +14,10 @@ function updateFilterIndicators() {
     const minPriceInput = document.getElementById('price-min');
     const maxPriceInput = document.getElementById('price-max');
     const sortSelect = document.getElementById('priceSort');
+    const minRatingSelect = document.getElementById('min-rating');
     const priceFilterContainer = document.querySelector('.filter-container:has(#price-min)');
     const sortFilterContainer = document.querySelector('.filter-container:has(#priceSort)');
+    const ratingFilterContainer = document.querySelector('.filter-container:has(#min-rating)');
     
     // Indicador para búsqueda activa
     const searchTerm = searchInput.value.trim();
@@ -34,6 +37,16 @@ function updateFilterIndicators() {
         priceFilterContainer.classList.add('active');
     } else {
         priceFilterContainer.classList.remove('active');
+    }
+    
+    // Indicador para filtro de rating activo
+    const defaultMinRating = 0;
+    const currentMinRating = parseInt(minRatingSelect.value) || 0;
+    
+    if (currentMinRating > defaultMinRating) {
+        ratingFilterContainer.classList.add('active');
+    } else {
+        ratingFilterContainer.classList.remove('active');
     }
     
     // Indicador para ordenamiento activo
@@ -125,6 +138,9 @@ function loadMoreProducts(resetPagination = false) {
     }
     if (currentSortValue !== 'default') {
         url += `&sort=${currentSortValue}`;
+    }
+    if (minRating > 0) {
+        url += `&minRating=${minRating}`;
     }
     
     fetch(url)
@@ -312,6 +328,10 @@ function getActiveFiltersText() {
         activeFilters.push('price filtered');
     }
     
+    if (minRating > 0) {
+        activeFilters.push(`${minRating}★+ rated`);
+    }
+    
     if (currentSortValue !== 'default') {
         activeFilters.push('sorted');
     }
@@ -330,6 +350,10 @@ function clearAllFiltersAndSearch() {
     minPrice = 0;
     maxPrice = 1000;
     
+    // Resetear filtro de rating
+    document.getElementById('min-rating').value = 0;
+    minRating = 0;
+    
     // Resetear ordenamiento
     document.getElementById('priceSort').value = 'default';
     currentSortValue = 'default';
@@ -339,32 +363,50 @@ function clearAllFiltersAndSearch() {
 }
 
 function getCsrfToken() {
-    // Opción A: desde un meta tag
-    const meta = document.querySelector('meta[name="csrf-token"]');
-    return meta ? meta.getAttribute('content') : '';
-    // Opción B: desde un input oculto existente
-    // const input = document.querySelector('input[name="_csrf"]');
-    // return input ? input.value : '';
+    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 }
 
-// Función para crear una tarjeta de producto
+function createStarRating(rating) {
+    const fullStars = Math.floor(rating);
+    const halfStar = rating % 1 >= 0.5 ? 1 : 0;
+    const emptyStars = 5 - fullStars - halfStar;
+    let starsHTML = '<div class="star-rating">';
+
+    for (let i = 0; i < fullStars; i++) {
+        starsHTML += '<i class="fas fa-star"></i>';
+    }
+    if (halfStar) {
+        starsHTML += '<i class="fas fa-star-half-alt"></i>';
+    }
+    for (let i = 0; i < emptyStars; i++) {
+        starsHTML += '<i class="far fa-star"></i>';
+    }
+    starsHTML += '</div>';
+    return starsHTML;
+}
+
 function createProductCard(product) {
     const csrfToken = getCsrfToken();
     const card = document.createElement('div');
     card.className = 'product-card';
     
     card.innerHTML = `
-        <div class="product-image-container" onclick="window.location.href='/product-details?id=${product.id}'">
-            <img src="/image/${product.id}" alt="${product.name}" loading="lazy">
-        </div>
-        <div class="product-info">
-            <h3 class="product-name cursor-pointer hover:text-[#567C8D] transition-colors" onclick="window.location.href='/product-details?id=${product.id}'">${product.name}</h3>
-            <p class="product-description">${product.description}</p>
-            <div class="flex justify-between items-center mt-auto">
-                <span class="text-lg font-semibold text-[#294156]">$${product.price}</span>
-                <span class="text-sm text-[#567C8D]/70">Stock: ${product.stock}</span>
+        <a href="/product-details?id=${product.id}" class="block">
+            <div class="product-image-container">
+                <img src="/Images/${product.name}.jpg" alt="${product.name}" onerror="this.onerror=null;this.src='/Images/default.jpg';">
             </div>
-        </div>
+            <div class="product-info p-3">
+                <div>
+                    <h3 class="product-name">${product.name}</h3>
+                    ${createStarRating(product.rating)}
+                    <p class="product-description">${product.description}</p>
+                </div>
+                <div class="product-price-stock">
+                    <span class="product-price">$${product.price.toFixed(2)}</span>
+                    <span class="product-stock">${product.stock > 0 ? `${product.stock} available` : 'Out of stock'}</span>
+                </div>
+            </div>
+        </a>
         <div class="product-buttons">
             <form action="/add-to-order" method="post" class="add-to-cart-form">
                 <input type="hidden" name="productId" value="${product.id}">
@@ -439,6 +481,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const searchInput = document.getElementById('productSearch');
     const searchButton = document.getElementById('searchButton');
+    const applyRatingFilterBtn = document.getElementById('apply-rating-filter');
+    const resetRatingFilterBtn = document.getElementById('reset-rating-filter');
+    const minRatingSelect = document.getElementById('min-rating');
     
     // Búsqueda dinámica mejorada
     searchInput.addEventListener('input', () => {
@@ -472,6 +517,26 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             clearTimeout(searchTimeout);
+            loadMoreProducts(true);
+        }
+    });
+    
+    // Event listener for Apply Rating Filter button
+    applyRatingFilterBtn.addEventListener('click', () => {
+        const selectedRating = parseInt(minRatingSelect.value) || 0;
+        if (minRating !== selectedRating) {
+            minRating = selectedRating;
+            showFilterFeedback('Rating filter', selectedRating > 0);
+            loadMoreProducts(true);
+        }
+    });
+    
+    // Event listener for Reset Rating Filter button
+    resetRatingFilterBtn.addEventListener('click', () => {
+        if (minRating !== 0) {
+            minRating = 0;
+            minRatingSelect.value = 0;
+            showFilterFeedback('Rating filter', false);
             loadMoreProducts(true);
         }
     });

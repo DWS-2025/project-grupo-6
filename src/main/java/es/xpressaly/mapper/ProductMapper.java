@@ -6,6 +6,7 @@ import es.xpressaly.dto.ProductDTO;
 import es.xpressaly.dto.ReviewDTO;
 
 import java.util.List;
+import java.util.Collection;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -13,10 +14,11 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
     
-    
+    @Mapping(target = "quantity", ignore = true)
+    @Mapping(target = "rating", source = "rating")
     ProductDTO toDTO(Product product);
     
-    List<ProductDTO> toDTOs(List<Product> products);
+    List<ProductDTO> toDTOs(Collection<Product> products);
 
     @Mapping(target = "imageData", ignore = true)
     @Mapping(target = "amount", ignore = true)

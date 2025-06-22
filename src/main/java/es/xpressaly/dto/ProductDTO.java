@@ -6,7 +6,8 @@ public record ProductDTO(
     String description,
     double price,
     int stock,
-    int quantity
+    int quantity,
+    double rating
     //List<ReviewDTO> reviews
 ) {
 }

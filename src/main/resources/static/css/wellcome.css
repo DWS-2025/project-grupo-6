@@ -677,6 +677,39 @@ main {
     transition: all 0.5s ease-out;
 }
 
+.star-rating {
+    color: #f59e0b; /* Amber-500 from Tailwind */
+    font-size: 0.875rem; /* text-sm */
+    margin-bottom: 0.5rem; /* mb-2 */
+}
+
+.star-rating .fa-star-half-alt {
+    color: #f59e0b;
+}
+
+.star-rating .far {
+    color: #d1d5db; /* Gray-300 from Tailwind */
+}
+
+.product-price-stock {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-top: 0.5rem; /* pt-2 */
+    border-top: 1px solid #e5e7eb; /* gray-200 */
+}
+
+.product-price {
+    font-size: 1.5rem; /* ~text-2xl */
+    font-weight: 600; /* font-semibold */
+    color: var(--navy);
+}
+
+.product-stock {
+    font-size: 0.875rem; /* text-sm */
+    color: var(--teal);
+}
+
 /* Estilos para estados de carga */
 .search-loading {
     position: relative;

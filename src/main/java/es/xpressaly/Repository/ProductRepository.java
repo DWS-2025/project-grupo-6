@@ -51,4 +51,16 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> findByNameContainingAndPriceBetween(String name, double minPrice, double maxPrice, Pageable pageable);
     Page<Product> findByNameContaining(String name, Pageable pageable);
     Optional<Product> findByName(String productName);
+
+    @Query("SELECT p FROM Product p LEFT JOIN p.reviews r GROUP BY p.id HAVING AVG(r.rating) >= :minRating")
+    Page<Product> findByMinRating(@Param("minRating") double minRating, Pageable pageable);
+
+    @Query("SELECT p FROM Product p LEFT JOIN p.reviews r WHERE p.price BETWEEN :minPrice AND :maxPrice GROUP BY p.id HAVING AVG(r.rating) >= :minRating")
+    Page<Product> findByPriceBetweenAndMinRating(@Param("minPrice") double minPrice, @Param("maxPrice") double maxPrice, @Param("minRating") double minRating, Pageable pageable);
+
+    @Query("SELECT p FROM Product p LEFT JOIN p.reviews r WHERE p.name LIKE %:searchTerm% GROUP BY p.id HAVING AVG(r.rating) >= :minRating")
+    Page<Product> findByNameContainingAndMinRating(@Param("searchTerm") String searchTerm, @Param("minRating") double minRating, Pageable pageable);
+
+    @Query("SELECT p FROM Product p LEFT JOIN p.reviews r WHERE p.name LIKE %:searchTerm% AND p.price BETWEEN :minPrice AND :maxPrice GROUP BY p.id HAVING AVG(r.rating) >= :minRating")
+    Page<Product> findByNameContainingAndPriceBetweenAndMinRating(@Param("searchTerm") String searchTerm, @Param("minPrice") double minPrice, @Param("maxPrice") double maxPrice, @Param("minRating") double minRating, Pageable pageable);
 }

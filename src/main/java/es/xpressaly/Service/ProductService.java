@@ -78,6 +78,26 @@ public class ProductService {
             .map(productMapper::toDTO);
     }
 
+    public Page<ProductDTO> getProductsByMinRating(int minRating, Pageable pageable) {
+        return productRepository.findByMinRating(minRating, pageable)
+            .map(productMapper::toDTO);
+    }
+
+    public Page<ProductDTO> getProductsByPriceAndMinRating(double minPrice, double maxPrice, int minRating, Pageable pageable) {
+        return productRepository.findByPriceBetweenAndMinRating(minPrice, maxPrice, minRating, pageable)
+            .map(productMapper::toDTO);
+    }
+
+    public Page<ProductDTO> searchProductsByMinRating(String searchTerm, int minRating, Pageable pageable) {
+        return productRepository.findByNameContainingAndMinRating(searchTerm, minRating, pageable)
+            .map(productMapper::toDTO);
+    }
+
+    public Page<ProductDTO> searchProductsByPriceAndMinRating(String searchTerm, double minPrice, double maxPrice, int minRating, Pageable pageable) {
+        return productRepository.findByNameContainingAndPriceBetweenAndMinRating(searchTerm, minPrice, maxPrice, minRating, pageable)
+            .map(productMapper::toDTO);
+    }
+
     public List<ProductDTO> searchProducts(String term) {
         return productRepository.findByNameContainingIgnoreCase(term).stream()
             .map(productMapper::toDTO)
@@ -249,22 +269,22 @@ public class ProductService {
     }
 
     public Page<ProductWebDTO> getProductsByPageWeb(Pageable pageable, String sort) {
-        try {
-            Page<Product> productPage = productRepository.findAll(pageable);
-            
-            if (productPage == null || productPage.isEmpty()) {
-                return Page.empty(pageable);
-            }
-            
-            return productPage.map(productWebMapper::toDTO);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Page.empty(pageable);
-        }
+        return productRepository.findAll(pageable)
+            .map(productWebMapper::toDTO);
     }
 
     public Page<ProductWebDTO> getProductsByPageAndPriceWeb(Pageable pageable, String sort, double minPrice, double maxPrice) {
         return productRepository.findByPriceBetween(minPrice, maxPrice, pageable)
+            .map(productWebMapper::toDTO);
+    }
+
+    public Page<ProductWebDTO> getProductsByMinRatingWeb(int minRating, Pageable pageable) {
+        return productRepository.findByMinRating(minRating, pageable)
+            .map(productWebMapper::toDTO);
+    }
+
+    public Page<ProductWebDTO> getProductsByPriceAndMinRatingWeb(double minPrice, double maxPrice, int minRating, Pageable pageable) {
+        return productRepository.findByPriceBetweenAndMinRating(minPrice, maxPrice, minRating, pageable)
             .map(productWebMapper::toDTO);
     }
 
@@ -282,6 +302,16 @@ public class ProductService {
         return productRepository.findById(id)
             .map(productWebMapper::toDTO)
             .orElse(null);
+    }
+
+    public Page<ProductWebDTO> searchProductsByMinRatingWeb(String searchTerm, int minRating, Pageable pageable) {
+        return productRepository.findByNameContainingAndMinRating(searchTerm, minRating, pageable)
+            .map(productWebMapper::toDTO);
+    }
+
+    public Page<ProductWebDTO> searchProductsByPriceAndMinRatingWeb(String searchTerm, double minPrice, double maxPrice, int minRating, Pageable pageable) {
+        return productRepository.findByNameContainingAndPriceBetweenAndMinRating(searchTerm, minPrice, maxPrice, minRating, pageable)
+            .map(productWebMapper::toDTO);
     }
 
     public Product toDomain(ProductDTO productDTO) {

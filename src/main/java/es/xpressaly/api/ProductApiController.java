@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.PageImpl;
 
 import es.xpressaly.Model.Product;
 import es.xpressaly.Model.Review;
@@ -57,7 +58,8 @@ public class ProductApiController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false, defaultValue = "default") String sort,
             @RequestParam(required = false, defaultValue = "0") double minPrice,
-            @RequestParam(required = false) Double maxPrice) {
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false, defaultValue = "0") int minRating) {
         try {
             // Crear el objeto Pageable
             Pageable pageable = PageRequest.of(page - 1, size, getSortDirection(sort));
@@ -68,18 +70,26 @@ public class ProductApiController {
             
             // Obtener la página de productos según los filtros
             Page<ProductDTO> productPage;
-            if (search != null && !search.isEmpty()) {
-                if (minPrice > 0 || maxPrice != null) {
-                    productPage = productService.searchProductsByPriceAndPageable(search, minPrice, effectiveMaxPrice, pageable);
-                } else {
-                    productPage = productService.searchProductsByPageable(search, pageable);
-                }
+            boolean hasSearch = search != null && !search.isEmpty();
+            boolean hasPrice = minPrice > 0 || maxPrice != null;
+            boolean hasRating = minRating > 0;
+
+            if (hasSearch && hasPrice && hasRating) {
+                productPage = productService.searchProductsByPriceAndMinRating(search, minPrice, effectiveMaxPrice, minRating, pageable);
+            } else if (hasSearch && hasRating) {
+                productPage = productService.searchProductsByMinRating(search, minRating, pageable);
+            } else if (hasPrice && hasRating) {
+                productPage = productService.getProductsByPriceAndMinRating(minPrice, effectiveMaxPrice, minRating, pageable);
+            } else if (hasSearch && hasPrice) {
+                productPage = productService.searchProductsByPriceAndPageable(search, minPrice, effectiveMaxPrice, pageable);
+            } else if (hasRating) {
+                productPage = productService.getProductsByMinRating(minRating, pageable);
+            } else if (hasSearch) {
+                productPage = productService.searchProductsByPageable(search, pageable);
+            } else if (hasPrice) {
+                productPage = productService.getProductsByPageAndPrice(pageable, sort, minPrice, effectiveMaxPrice);
             } else {
-                if (minPrice > 0 || maxPrice != null) {
-                    productPage = productService.getProductsByPageAndPrice(pageable, sort, minPrice, effectiveMaxPrice);
-                } else {
-                    productPage = productService.getProductsByPage(pageable, sort);
-                }
+                productPage = productService.getProductsByPage(pageable, sort);
             }
             
             return ResponseEntity.ok(productPage);
