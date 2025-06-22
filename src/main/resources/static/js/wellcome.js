@@ -393,31 +393,34 @@ function createProductCard(product) {
     card.innerHTML = `
         <a href="/product-details?id=${product.id}" class="block">
             <div class="product-image-container">
-                <img src="/Images/${product.name}.jpg" alt="${product.name}" onerror="this.onerror=null;this.src='/Images/default.jpg';">
+                <img src="/image/${product.id}" alt="${product.name}" onerror="this.onerror=null;this.src='/Images/default.jpg';">
             </div>
-            <div class="product-info p-3">
-                <div>
-                    <h3 class="product-name">${product.name}</h3>
-                    ${createStarRating(product.rating)}
-                    <p class="product-description">${product.description}</p>
-                </div>
+        </a>
+        <div class="product-info p-3">
+            <div class="product-info-top">
+                <h3 class="product-name">${product.name}</h3>
+                ${createStarRating(product.rating)}
+                <p class="product-description">${product.description}</p>
+            </div>
+            
+            <div>
                 <div class="product-price-stock">
                     <span class="product-price">$${product.price.toFixed(2)}</span>
                     <span class="product-stock">${product.stock > 0 ? `${product.stock} available` : 'Out of stock'}</span>
                 </div>
+                <div class="product-buttons">
+                    <form action="/add-to-order" method="post" class="add-to-cart-form">
+                        <input type="hidden" name="productId" value="${product.id}">
+                        <input type="hidden" name="_csrf" value="${csrfToken}"/>
+                        <button type="submit" class="button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            Add to Cart
+                        </button>
+                    </form>
+                </div>
             </div>
-        </a>
-        <div class="product-buttons">
-            <form action="/add-to-order" method="post" class="add-to-cart-form">
-                <input type="hidden" name="productId" value="${product.id}">
-                <input type="hidden" name="_csrf" value="${csrfToken}"/>
-                <button type="submit" class="button">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    Add to Cart
-                </button>
-            </form>
         </div>
     `;
     
