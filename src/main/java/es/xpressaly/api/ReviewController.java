@@ -1,9 +1,16 @@
 package es.xpressaly.api;
 
+import java.security.Principal;
 import java.util.Map;
+
+import es.xpressaly.Service.UserService;
+import es.xpressaly.dto.UserWebDTO;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import es.xpressaly.Model.Review;
 import es.xpressaly.Service.ReviewService;
@@ -16,6 +23,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
+
 @RestController
 @RequestMapping("/api/reviews")
 public class ReviewController {
@@ -25,7 +34,7 @@ public class ReviewController {
 
     @GetMapping("/all")
     public Collection<ReviewApiDTO> getAllReviews() {
-        return reviewService.getAllAPIReviews();          
+        return reviewService.getAllAPIReviews();
     }
 
     @GetMapping("/{id}")
@@ -40,17 +49,31 @@ public class ReviewController {
             return ResponseEntity.ok(createdReview);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(
-                Map.of(
-                    "error", e.getMessage(),
-                    "timestamp", LocalDateTime.now()
-                )
+                    Map.of(
+                            "error", e.getMessage(),
+                            "timestamp", LocalDateTime.now()
+                    )
             );
         }
     }
 
     @DeleteMapping("/{reviewId}")
     @PreAuthorize("hasRole('ADMIN') or @reviewSecurityService.isReviewOwner(#reviewId, authentication.name)")
-    public ReviewApiDTO deleteReview(@PathVariable Long reviewId) {
-        return reviewService.deleteAPIReview(reviewId);
+    public ResponseEntity<?> deleteReview(@PathVariable Long reviewId) {
+        try {
+            // Obtener username del contexto de seguridad (forma estándar)
+            UserWebDTO user=userService.getUser();
+            String username = user.email();
+
+            ReviewApiDTO deletedReview = reviewService.deleteAPIReview(reviewId, username);
+            return ResponseEntity.ok(deletedReview);
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+                    Map.of("error", "Acceso denegado"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
+    @Autowired
+    private UserService userService;
 }

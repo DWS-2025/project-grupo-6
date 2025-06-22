@@ -488,7 +488,7 @@ public class UserService {
     }
 
     public User getUserByFirstName(String userName) {
-       return userRepository.findByFirstName(userName).orElse(null);
+       return UserRepository.findByFirstName(userName).orElse(null);
     }
 
 
@@ -508,6 +508,10 @@ public class UserService {
 
     public User saveUser(User user) {
         return userRepository.save(user);
+    }
+
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
     }
 
 }

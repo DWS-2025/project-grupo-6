@@ -14,7 +14,11 @@ import es.xpressaly.Model.User;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional <User> findByEmail(String email);
     boolean existsByEmail(String email);
-    Optional<User> findByFirstName(String firstName);
+
+    static Optional<User> findByFirstName(String firstName) {
+        return null;
+    }
+
     @Query("SELECT DISTINCT u FROM User u " +
            "LEFT JOIN FETCH u.reviews r " +
            "LEFT JOIN FETCH r.product " +

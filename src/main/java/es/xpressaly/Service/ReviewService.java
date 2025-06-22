@@ -3,6 +3,7 @@ package es.xpressaly.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import es.xpressaly.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -267,12 +268,35 @@ public class ReviewService {
         return reviewApiMapper.toDTO(review);
     }
 
-    public ReviewApiDTO deleteAPIReview(Long reviewId) {
-        Review review = reviewRepository.findById(reviewId).orElse(null);
-        if(review== null) {
-            throw new IllegalArgumentException("Review not found");
+    @Transactional
+    public ReviewApiDTO deleteAPIReview(Long reviewId, String currentUsername) {
+        // 1. Obtener la review
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("Review no encontrada"));
+
+        // 2. Obtener el usuario actual
+        User currentUser = userService.getUserByEmail(currentUsername);
+
+        // 3. Verificar permisos (ADMIN o dueño de la review)
+        boolean isAdmin = currentUser.getRole() == UserRole.ADMIN;
+        boolean isOwner = review.getUser().getId().equals(currentUser.getId());
+
+        if (!isAdmin || !isOwner) {
+            throw new SecurityException("No tienes permiso para borrar esta review");
         }
+
+        // 4. Eliminar y recalcular rating (como ya lo haces)
+        Product product = review.getProduct();
         reviewRepository.delete(review);
+
+        List<Review> remainingReviews = reviewRepository.findByProduct(product);
+        double newRating = remainingReviews.stream()
+                .mapToDouble(Review::getRating)
+                .average()
+                .orElse(0.0);
+        product.setRating(newRating);
+        productService.updateProduct(product);
+
         return reviewApiMapper.toDTO(review);
     }
 
