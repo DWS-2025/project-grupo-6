@@ -276,6 +276,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Actualizar el botón de eliminar para mostrar el estado de carga
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
         const submitButton = this.querySelector('button[type="submit"]');
         const originalButtonText = submitButton.innerHTML;
         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
@@ -286,6 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
+                [csrfHeader]: csrfToken
             },
             body: `productId=${productId}`
         })
