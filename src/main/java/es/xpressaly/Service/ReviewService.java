@@ -61,7 +61,7 @@ public class ReviewService {
         this.userService = userService;
         this.reviewRepository = reviewRepository;
     }
-    //funcion para la sanitizacion
+    //function for sanitization
     private void sanitizeReview(Review review) {
         if (review.getComment() != null) {
             review.setComment(sanitizationService.sanitize(review.getComment()));
@@ -92,7 +92,7 @@ public class ReviewService {
         review.setRating(reviewDTO.rating());
         review.setUser(user);
         review.setProduct(product);
-        sanitizeReview(review); //Sanitizacion
+        sanitizeReview(review); //Sanitization
         validateReview(review);
         
         if (product != null) {
@@ -111,10 +111,10 @@ public class ReviewService {
             review.setProduct(product);       
             product.addReview(review);
             reviewRepository.save(review);
-            // Obtener todas las reviews del producto incluyendo la nueva
+            // Get all product reviews including the new one
             List<Review> allReviews = reviewRepository.findByProduct(product);
-            
-            // Calcular el nuevo rating promedio
+
+            // Calculate the new average rating
             double totalRating = allReviews.stream()
                 .mapToDouble(Review::getRating)
                 .sum();
@@ -132,8 +132,8 @@ public class ReviewService {
                 || review.getComment().equals("<p><br></p>")) {
             throw new IllegalArgumentException("El comentario no puede estar vacío");
         }
-        
-        // Extraer texto plano sin etiquetas HTML para contar caracteres correctamente
+
+        // Extract plain text without HTML tags to count characters correctly
         String plainText = review.getComment().replaceAll("<[^>]*>", "").trim();
         
         if (plainText.length() > 400) {
@@ -143,8 +143,8 @@ public class ReviewService {
         if (review.getRating() < 1 || review.getRating() > 5) {
             throw new IllegalArgumentException("La calificación debe estar entre 1 y 5 estrellas");
         }
-        
-        // Verificar si el usuario es válido
+
+        // Check if the user is valid
         if (review.getUser() == null) {
             throw new IllegalArgumentException("El usuario no puede ser nulo");
         }
@@ -236,14 +236,14 @@ public class ReviewService {
     public ReviewApiDTO saveAPIReview(ReviewApiDTO reviewApiDTO) {
         Review review = reviewApiMapper.toDomain(reviewApiDTO);
         
-        // Verificar usuario
+        // Verify user
         User user = userService.getUserByFirstName(reviewApiDTO.userName());
         if (user == null) {
             throw new IllegalArgumentException("User not found");
         }
         review.setUser(user);
         
-        // Verificar producto
+        // Verify product
         Product product = productService.getProductByName(reviewApiDTO.productName());
         if (product == null) {
             throw new IllegalArgumentException("Product not found");
@@ -252,15 +252,15 @@ public class ReviewService {
         
         validateReview(review);
         
-        // Verificar si el usuario ya tiene una review para este producto
+        // Verify if user has a review for that product
         boolean userHasReview = product.getReviews().stream()
             .anyMatch(r -> r.getUser().getId().equals(user.getId()));
         
         if (userHasReview) {
             throw new IllegalArgumentException("You have already submitted a review for this product");
         }
-        
-        // Si no tiene review previa, proceder
+
+        // If you have no previous review, proceed
         product.addReview(review);
         review = reviewRepository.save(review);
         
