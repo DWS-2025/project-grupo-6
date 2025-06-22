@@ -59,7 +59,7 @@ public class OrderService {
     @Autowired
     private EntityManager entityManager;
 
-    //Sanitizado
+    //Sanitized
     public OrderDTO createOrderDTO(UserWebDTO user, String address) {
         User userEntity = userWebMapper.toDomain(user);
         Order order = new Order();
@@ -67,9 +67,9 @@ public class OrderService {
         order.setAddress(sanitizationService.sanitize(address));
         order.setTotal(0.0);
         
-        // Establecer el número de orden del usuario
+        // Set the user order number
         List<Order> userOrders = orderRepository.findByUser(userEntity);
-        // El número de orden debe ser el siguiente al último número de orden existente
+        // The order number must be the next to the last existing order number
         int maxOrderNumber = 0;
         for (Order existingOrder : userOrders) {
             if (existingOrder.getUserOrderNumber() != null && existingOrder.getUserOrderNumber() > maxOrderNumber) {
@@ -84,9 +84,9 @@ public class OrderService {
     public List<OrderDTO> getOrdersByUserDTO(UserWebDTO user) {
         User userEntity = userWebMapper.toDomain(user);
         List<Order> orders = orderRepository.findByUser(userEntity);
-        
-        // Asegurarse de que todos los pedidos tienen userOrderNumber
-        // El número de orden debe ser el siguiente al último número de orden existente
+
+        // Make sure all orders have a userOrderNumber
+        // The order number must be the next to the last existing order number
         int maxOrderNumber = 0;
         for (Order existingOrder : orders) {
             if (existingOrder.getUserOrderNumber() != null && existingOrder.getUserOrderNumber() > maxOrderNumber) {
@@ -104,17 +104,18 @@ public class OrderService {
         
         return orderWebMapper.toDTOs(orders);
     }
-    //Sanitizado
+
+    //Sanitized
     public Order createOrder(UserWebDTO user, String address) {
         User userEntity = userWebMapper.toDomain(user);
         Order order = new Order();
         order.setUser(userEntity);
         order.setAddress(sanitizationService.sanitize(address));
         order.setTotal(0.0);
-        
-        // Establecer el número de orden del usuario
+
+        // Set the user's order number
         List<Order> userOrders = orderRepository.findByUser(userEntity);
-        // El número de orden debe ser el siguiente al último número de orden existente
+        // The order number must be the next to the last existing order number
         int maxOrderNumber = 0;
         for (Order existingOrder : userOrders) {
             if (existingOrder.getUserOrderNumber() != null && existingOrder.getUserOrderNumber() > maxOrderNumber) {
@@ -133,9 +134,9 @@ public class OrderService {
     public List<Order> getOrdersByUser(UserWebDTO user) {
         User userEntity = userWebMapper.toDomain(user);
         List<Order> orders = orderRepository.findByUser(userEntity);
-        
-        // Asegurarse de que todos los pedidos tienen userOrderNumber
-        // El número de orden debe ser el siguiente al último número de orden existente
+
+        // Make sure all orders have a userOrderNumber
+
         int maxOrderNumber = 0;
         for (Order existingOrder : orders) {
             if (existingOrder.getUserOrderNumber() != null && existingOrder.getUserOrderNumber() > maxOrderNumber) {
@@ -157,7 +158,7 @@ public class OrderService {
     public Order addProductToOrder(ProductWebDTO productWebDTO, int amount, UserWebDTO currentUser, Order currentOrder) {
         User user = userWebMapper.toDomain(currentUser);
         
-        // Si el order es null, crear uno nuevo
+
         if (currentOrder == null) {
             currentOrder = createOrder(currentUser, user.getAddress());
             user.setCurrentOrder(currentOrder);
@@ -173,20 +174,20 @@ public class OrderService {
             throw new IllegalArgumentException("Insufficient stock");
         }
 
-        // Obtener la cantidad actual del producto
+
         int currentQuantity = currentOrder.getProductQuantity(product);
-        // Actualizar la cantidad sumando la nueva cantidad
+        // Update the quantity by adding the new quantity
         currentOrder.setProductQuantity(product, currentQuantity + amount);
         currentOrder.calculateTotal();
-        
-        // Asegurar que el order se actualiza en el usuario
+
+        // Ensure the order is updated on the user
         user.setCurrentOrder(currentOrder);
         currentOrder.addProduct(product);
-        
-        // Asegurarse de que el userOrderNumber está establecido
+
+        // Make sure the userOrderNumber is set
         if (currentOrder.getUserOrderNumber() == null) {
             List<Order> userOrders = orderRepository.findByUser(user);
-            // El número de orden debe ser el siguiente al último número de orden existente
+
             int maxOrderNumber = 0;
             for (Order existingOrder : userOrders) {
                 if (existingOrder.getUserOrderNumber() != null && existingOrder.getUserOrderNumber() > maxOrderNumber) {
@@ -229,10 +230,10 @@ public class OrderService {
     }
 
     public void save(Order order) {
-        // Asegurarse de que el userOrderNumber está establecido
+        // Make sure the userOrderNumber is set
         if (order.getUserOrderNumber() == null && order.getUser() != null) {
             List<Order> userOrders = orderRepository.findByUser(order.getUser());
-            // El número de orden debe ser el siguiente al último número de orden existente
+
             int maxOrderNumber = 0;
             for (Order existingOrder : userOrders) {
                 if (existingOrder.getUserOrderNumber() != null && existingOrder.getUserOrderNumber() > maxOrderNumber) {
@@ -286,12 +287,12 @@ public class OrderService {
 
     public List<OrderApiDTO> getAllOrders() {
         List<Order> orders = orderRepository.findAll();
-        
-        // Asegurarse de que todos los pedidos tienen userOrderNumber
+
+        // Make sure all orders have a userOrderNumber
         for (Order order : orders) {
             if (order.getUserOrderNumber() == null && order.getUser() != null) {
                 List<Order> userOrders = orderRepository.findByUser(order.getUser());
-                // El número de orden debe ser el siguiente al último número de orden existente
+                // The order number must be the next to the last existing order number
                 int maxOrderNumber = 0;
                 for (Order existingOrder : userOrders) {
                     if (existingOrder.getUserOrderNumber() != null && existingOrder.getUserOrderNumber() > maxOrderNumber) {
@@ -317,12 +318,12 @@ public class OrderService {
             User user = userService.getUserEntityById(orderDto.userId());
             if (user != null) {
                 order.setUser(user);
-                // Añadir la orden al usuario
+                // add order to user
                 user.addOrder(order);
                 
-                // Establecer el número de orden del usuario
+
                 List<Order> userOrders = orderRepository.findByUser(user);
-                // El número de orden debe ser el siguiente al último número de orden existente
+                // The order number must be the next to the last existing order number
                 int maxOrderNumber = 0;
                 for (Order existingOrder : userOrders) {
                     if (existingOrder.getUserOrderNumber() != null && existingOrder.getUserOrderNumber() > maxOrderNumber) {
@@ -332,7 +333,7 @@ public class OrderService {
                 order.setUserOrderNumber(maxOrderNumber + 1);
             }
         } else {
-            // Si no hay usuario, establecer un número de orden temporal
+            // If there is no user, set a temporary order number
             order.setUserOrderNumber(0);
         }
         
@@ -341,15 +342,15 @@ public class OrderService {
                 if (productDto.id() != null) {
                     Product product = productRepository.findById(productDto.id())
                             .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + productDto.id()));
-                    
-                    // Verificar que hay suficiente stock
+
+                    // Check that there is sufficient stock
                     int quantity = productDto.quantity() > 0 ? productDto.quantity() : 1;
                     if (product.getStock() < quantity) {
                         throw new RuntimeException("No hay suficiente stock para el producto: " + product.getName() + 
                             ". Stock disponible: " + product.getStock() + ", Cantidad solicitada: " + quantity);
                     }
-                    
-                    // Establecer la cantidad especificada en el ProductDTO
+
+                    // Set the quantity specified in the ProductDTO
                     order.setProductQuantity(product, quantity);
                 }
             }
@@ -365,8 +366,8 @@ public class OrderService {
         if (order == null) {
             return null;
         }
-        
-        // Asegurarse de que el userOrderNumber está establecido
+
+        // Make sure the userOrderNumber is set
         if (order.getUserOrderNumber() == null && order.getUser() != null) {
             List<Order> userOrders = orderRepository.findByUser(order.getUser());
             // El número de orden debe ser el siguiente al último número de orden existente

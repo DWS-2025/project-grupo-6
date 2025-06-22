@@ -143,7 +143,7 @@ public class ProductService {
 
     public void addProduct(ProductWebDTO productWebDTO) {
         Product product = productWebMapper.toDomain(productWebDTO);
-        sanitizeProduct(product); //sanitizado con la funcion de mas arriba
+        sanitizeProduct(product); //sanitized with the function above
         validateProduct(product);
         productRepository.save(product);
     }
@@ -181,7 +181,7 @@ public class ProductService {
 
     public void updateProductWeb(ProductWebDTO productWebDTO) {
         Product product = productWebMapper.toDomain(productWebDTO);
-        sanitizeProduct(product); //sanitizado con la funcion de mas arriba
+        sanitizeProduct(product); //sanitized with the function above
         validateProduct(product);
         productRepository.save(product);
     }
