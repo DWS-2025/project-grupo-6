@@ -4,51 +4,11 @@ function updateQuantity(productId, change) {
     if (value < 1) value = 1;
     input.value = value;
 
-    // Show an update indicator
+    // Get the form and submit it
     const form = input.closest('.quantity-form');
-    form.classList.add('updating');
-    
-    // Create FormData with the form data
-    const formData = new FormData();
-    formData.append('productId', productId);
-    formData.append('amount', value);
-    
-    // Send update to server using FormData instead of JSON
-    fetch('/update-amount', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        if (response.ok) {
-            return response.json(); // Convert response to JSON if successful
-        } else {
-            throw new Error('Error in server response');
-        }
-    })
-    .then(data => {
-        // Update order summary dynamically
-        updateOrderSummary(data);
-        
-        // Remove the visual indicator after a brief pause
-        setTimeout(() => {
-            form.classList.remove('updating');
-        }, 500);
-        
-        // Update the input value to reflect the change
-        const updatedProduct = data.products.find(p => p.id == productId);
-        if (updatedProduct) {
-            input.value = updatedProduct.amount;
-        }
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        // No show alert, only remove the visual indicator
-        form.classList.remove('updating');
-        // Revert to the previous value
-        setTimeout(() => {
-            window.location.reload(); // Reload the page if there's an error
-        }, 300);
-    });
+    if (form) {
+        form.submit();
+    }
 }
 
 function updateOrderSummary(data) {
@@ -130,7 +90,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Event for when the user finishes editing the value
         input.addEventListener('change', function() {
-            const productId = this.closest('.quantity-form').querySelector('input[name="productId"]').value;
             const value = parseInt(this.value);
             
             if (isNaN(value) || value < 1) {
@@ -138,8 +97,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Update the quantity with the new value
-            updateQuantity(productId, 0);
+            // Submit the form
+            const form = this.closest('.quantity-form');
+            if (form) {
+                form.submit();
+            }
+            
             originalValue = this.value;
         });
         
