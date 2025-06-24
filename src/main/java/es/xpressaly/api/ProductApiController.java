@@ -1,6 +1,7 @@
 package es.xpressaly.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -198,7 +199,12 @@ public class ProductApiController {
             @RequestParam int stock,
             @RequestParam(required = false) MultipartFile imageData) {
         try {
-            // Validaciones
+            
+            UserWebDTO user = userService.getUser();
+            if(user.role()!=UserRole.ADMIN){
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+
             if (name == null || name.trim().isEmpty()) {
                 return ResponseEntity.badRequest().build();
             }
