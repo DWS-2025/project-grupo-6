@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import es.xpressaly.Model.Review;
+import es.xpressaly.Model.User;
 import es.xpressaly.Model.UserRole;
 import es.xpressaly.Service.ReviewService;
 import es.xpressaly.dto.ReviewApiDTO;
@@ -67,7 +68,15 @@ public class ReviewController {
         try {
             // Obtener username del contexto de seguridad (forma estándar)
             UserWebDTO user=userService.getUser();
+            if(user==null){
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
             String username = user.email();
+            User userReview=userService.getUserByFirstName(username);
+            
+            if(user.id()!=userReview.getId()&&user.role()!=UserRole.ADMIN){
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
 
             ReviewApiDTO deletedReview = reviewService.deleteAPIReview(reviewId, username);
             return ResponseEntity.ok(deletedReview);
