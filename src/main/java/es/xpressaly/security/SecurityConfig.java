@@ -178,7 +178,7 @@ public class SecurityConfig {
 						.requestMatchers("/css/**", "/js/**", "/Images/**", "/images/**", "/uploads/**", "/image/**").permitAll()
 						.requestMatchers("/error").permitAll()
 						
-						// PUBLIC PRODUCT PAGES - Reading only
+						// PUBLIC PRODUCT PAGES - Reading only (equivalent to GET /api/products/**)
 						.requestMatchers(HttpMethod.GET, "/products", "/products/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/search-products").permitAll()
 						.requestMatchers(HttpMethod.GET, "/search-products-json").permitAll()
@@ -186,28 +186,37 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.GET, "/download-return-policy/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/get-cart-quantity").permitAll()
 						
-						// CART AND ORDER ENDPOINTS - User authenticated
-						.requestMatchers("/add-to-order", "/remove-from-order", "/order", "/cart-prompt").hasAnyRole("USER", "ADMIN")
+						// PUBLIC REVIEW PAGES - Reading only (equivalent to GET /api/reviews/**)
+						.requestMatchers(HttpMethod.GET, "/reviews", "/reviews/**").permitAll()
 						
-						// REVIEW ENDPOINTS - User authenticated
+						// USER ENDPOINTS - Orders (equivalent to /api/orders/**)
+						.requestMatchers("/view-order", "/view_order_products").hasAnyRole("USER", "ADMIN")
+						.requestMatchers("/add-to-order", "/remove-from-order", "/update-amount").hasAnyRole("USER", "ADMIN")
+						.requestMatchers("/confirm-order", "/delete-order").hasAnyRole("USER", "ADMIN")
+						.requestMatchers("/cart-prompt").hasAnyRole("USER", "ADMIN")
+						
+						// USER ENDPOINTS - Reviews (equivalent to /api/reviews/**)
 						.requestMatchers(HttpMethod.POST, "/add-review").hasAnyRole("USER", "ADMIN")
-						.requestMatchers(HttpMethod.POST, "/delete-review").hasAnyRole("USER", "ADMIN") // Backend handles specific permissions
+						.requestMatchers(HttpMethod.POST, "/delete-review").hasAnyRole("USER", "ADMIN")
 						
-						// USER PROFILE ENDPOINTS
-						.requestMatchers("/profile", "/edit-profile", "/edit-profile/**").hasAnyRole("USER", "ADMIN")
+						// USER ENDPOINTS - Profile (equivalent to /api/users/**)
+						.requestMatchers("/profile").hasAnyRole("USER", "ADMIN")
+						.requestMatchers("/edit-profile", "/edit-profile/**").hasAnyRole("USER", "ADMIN")
 						
-						// ADMIN ONLY ENDPOINTS - Product management
+						// ADMIN ENDPOINTS - Product Management (equivalent to admin-only /api/products/**)
 						.requestMatchers("/create-product", "/add-product").hasRole("ADMIN")
 						.requestMatchers("/edit-product/**", "/update-product").hasRole("ADMIN")
 						.requestMatchers("/delete-product", "/delete-product/**").hasRole("ADMIN")
 						.requestMatchers("/product-management").hasRole("ADMIN")
 						
-						// ADMIN ONLY ENDPOINTS - User management
+						// ADMIN ENDPOINTS - User Management (equivalent to admin-only /api/users/**)
 						.requestMatchers("/users-management", "/users-management/**").hasRole("ADMIN")
 						.requestMatchers("/delete-user/**").hasRole("ADMIN")
 						
-						// ADMIN ONLY ENDPOINTS - System management
+						// ADMIN ENDPOINTS - Review Management
 						.requestMatchers("/review-management", "/review-management/**").hasRole("ADMIN")
+						
+						// ADMIN ENDPOINTS - System Management
 						.requestMatchers("/admin/**").hasRole("ADMIN")
 						
 						// Default: require authentication for any other web endpoint
