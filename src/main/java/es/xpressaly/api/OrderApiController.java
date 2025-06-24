@@ -1,12 +1,15 @@
 package es.xpressaly.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import es.xpressaly.Model.Order;
 import es.xpressaly.Model.Product;
 import es.xpressaly.Model.User;
+import es.xpressaly.Model.UserRole;
 import es.xpressaly.Service.OrderService;
 import es.xpressaly.Service.ProductService;
 import es.xpressaly.Service.UserService;
@@ -14,7 +17,6 @@ import es.xpressaly.dto.OrderApiDTO;
 import es.xpressaly.dto.OrderDTO;
 import es.xpressaly.dto.ProductDTO;
 import es.xpressaly.dto.ProductWebDTO;
-import es.xpressaly.dto.UserDTO;
 import es.xpressaly.dto.UserWebDTO;
 import es.xpressaly.Repository.OrderRepository;
 
@@ -24,7 +26,6 @@ import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Collection;
 import java.util.HashMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -69,49 +70,51 @@ public class OrderApiController {
         try {
             // Validar que el usuario existe
             if (orderDto.userId() == null) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("error", "El ID de usuario es obligatorio");
-                return ResponseEntity.badRequest().body(response);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
-            
+            UserWebDTO user=userService.getUser();
+            if(user==null){
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            if(!user.id().equals(orderDto.userId())){
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
             // Validar que la dirección no esté vacía
             if (orderDto.address() == null || orderDto.address().trim().isEmpty()) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("error", "La dirección es obligatoria");
-                return ResponseEntity.badRequest().body(response);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
             
             // Validar que haya al menos un producto
             if (orderDto.products() == null || orderDto.products().isEmpty()) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("error", "La orden debe contener al menos un producto");
-                return ResponseEntity.badRequest().body(response);
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
             
             // Validar que todos los productos existan
             for (ProductDTO productDto : orderDto.products()) {
                 if (productDto.id() == null) {
-                    Map<String, Object> response = new HashMap<>();
-                    response.put("error", "Todos los productos deben tener un ID válido");
-                    return ResponseEntity.badRequest().body(response);
+                    return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
                 }
             }
             
             OrderApiDTO createdOrder = orderService.createOrderApiDTO(orderDto);
             return ResponseEntity.ok(createdOrder);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteOrder(@PathVariable Long id) {
         try{
+            UserWebDTO user=userService.getUser();
             OrderApiDTO order = orderService.getOrderByIdApi(id);
+            if(!user.id().equals(order.userId())&&user.role()!=UserRole.ADMIN){
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
             orderService.deleteOrderApi(id);
             return ResponseEntity.ok(order);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 

@@ -3,37 +3,22 @@ package es.xpressaly.api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import es.xpressaly.Model.User;
-import es.xpressaly.Model.UserRole;
-import es.xpressaly.Model.Review;
 import es.xpressaly.Service.UserService;
-import es.xpressaly.Service.ReviewService;
 import es.xpressaly.dto.UserDTO;
 import es.xpressaly.dto.UserWebDTO;
 
-import es.xpressaly.security.jwt.UserLoginService;
-import es.xpressaly.dto.ReviewApiDTO;
-import es.xpressaly.dto.ReviewDTO;
-
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController
 @RequestMapping("/api/users")
 public class UserApiController {
     @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ReviewService reviewService;    
+    private UserService userService;    
 
     @GetMapping("/")
     public ResponseEntity<List<UserDTO>> getUsers() {
@@ -54,9 +39,15 @@ public class UserApiController {
     public ResponseEntity<?> updateProfile(@RequestBody UserWebDTO userWebDTO) {
         try {
             // Verificar que el usuario existe
+            UserWebDTO user = userService.getUser();
             UserWebDTO existingUser = userService.getUserById(userWebDTO.id());
+            
             if(existingUser == null) {
-                return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            if(!user.id().equals(existingUser.id())){
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
 
             // Input validation
