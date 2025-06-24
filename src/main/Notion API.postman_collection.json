@@ -25,6 +25,9 @@
 				"disabledSystemHeaders": {}
 			},
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
@@ -52,7 +55,7 @@
 							"key": "imageData",
 							"description": "metete al discord",
 							"type": "file",
-							"src": "/C:/Users/danie/OneDrive/Imágenes/GnoQ20cW0AAM39C.jpg"
+							"src": "/C:/Users/danie/OneDrive/Imágenes/Captura de pantalla 2025-04-07 202922.png"
 						},
 						{
 							"key": "description",
@@ -81,6 +84,9 @@
 		{
 			"name": "GetProducts",
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -102,6 +108,9 @@
 		{
 			"name": "UpdateProduct",
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "PUT",
 				"header": [],
 				"body": {
@@ -153,6 +162,9 @@
 		{
 			"name": "GetIndividualProduct",
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -175,19 +187,7 @@
 			"name": "DeleteProduct",
 			"request": {
 				"auth": {
-					"type": "basic",
-					"basic": [
-						{
-							"key": "password",
-							"value": "Password123",
-							"type": "string"
-						},
-						{
-							"key": "username",
-							"value": "juan.perez@email.com",
-							"type": "string"
-						}
-					]
+					"type": "noauth"
 				},
 				"method": "DELETE",
 				"header": [],
@@ -215,19 +215,7 @@
 			"name": "CreateReview",
 			"request": {
 				"auth": {
-					"type": "basic",
-					"basic": [
-						{
-							"key": "password",
-							"value": "Password123",
-							"type": "string"
-						},
-						{
-							"key": "username",
-							"value": "juan.perez@email.com",
-							"type": "string"
-						}
-					]
+					"type": "noauth"
 				},
 				"method": "POST",
 				"header": [],
@@ -271,19 +259,7 @@
 			],
 			"request": {
 				"auth": {
-					"type": "basic",
-					"basic": [
-						{
-							"key": "password",
-							"value": "Password123",
-							"type": "string"
-						},
-						{
-							"key": "username",
-							"value": "juan.perez@email.com",
-							"type": "string"
-						}
-					]
+					"type": "noauth"
 				},
 				"method": "GET",
 				"header": [],
@@ -319,19 +295,7 @@
 			],
 			"request": {
 				"auth": {
-					"type": "basic",
-					"basic": [
-						{
-							"key": "password",
-							"value": "Password123",
-							"type": "string"
-						},
-						{
-							"key": "username",
-							"value": "juan.perez@email.com",
-							"type": "string"
-						}
-					]
+					"type": "noauth"
 				},
 				"method": "GET",
 				"header": [],
@@ -355,19 +319,7 @@
 			"name": "DeleteReview",
 			"request": {
 				"auth": {
-					"type": "basic",
-					"basic": [
-						{
-							"key": "password",
-							"value": "Test4567",
-							"type": "string"
-						},
-						{
-							"key": "username",
-							"value": "maria.garcia@email.com",
-							"type": "string"
-						}
-					]
+					"type": "noauth"
 				},
 				"method": "DELETE",
 				"header": [],
@@ -381,7 +333,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://localhost:8443/api/reviews/45",
+					"raw": "https://localhost:8443/api/reviews/34",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -390,7 +342,7 @@
 					"path": [
 						"api",
 						"reviews",
-						"45"
+						"34"
 					]
 				}
 			},
@@ -399,6 +351,9 @@
 		{
 			"name": "CreateUser",
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
@@ -448,7 +403,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"username\" : \"juan.perez@email.com\",\r\n    \"password\" : \"Password123\"\r\n}",
+					"raw": "{\r\n    \"username\" : \"maria.garcia@email.com\",\r\n    \"password\" : \"Test4567\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -478,19 +433,7 @@
 			},
 			"request": {
 				"auth": {
-					"type": "basic",
-					"basic": [
-						{
-							"key": "password",
-							"value": "Password123",
-							"type": "string"
-						},
-						{
-							"key": "username",
-							"value": "juan.perez@email.com",
-							"type": "string"
-						}
-					]
+					"type": "noauth"
 				},
 				"method": "PUT",
 				"header": [],
@@ -535,25 +478,13 @@
 			],
 			"request": {
 				"auth": {
-					"type": "basic",
-					"basic": [
-						{
-							"key": "username",
-							"value": "juan.perez@email.com",
-							"type": "string"
-						},
-						{
-							"key": "password",
-							"value": "Password123",
-							"type": "string"
-						}
-					]
+					"type": "noauth"
 				},
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"username\" : \"juan.perez@email.com\",\r\n    \"password\" : \"Password123\"\r\n}",
+					"raw": "{\r\n    \"username\" : \"maria.garcia@email.com\",\r\n    \"password\" : \"Test4567\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -579,6 +510,9 @@
 		{
 			"name": "DeleteUser",
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "DELETE",
 				"header": [],
 				"body": {
@@ -591,7 +525,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://localhost:8443/api/users/4",
+					"raw": "https://localhost:8443/api/users/delete/4",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -600,6 +534,7 @@
 					"path": [
 						"api",
 						"users",
+						"delete",
 						"4"
 					]
 				}
@@ -609,11 +544,14 @@
 		{
 			"name": "CreateOrder",
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n        \"id\":23,        \r\n        \"userId\": 1,\r\n        \"address\": \"Calle Ficticia 123\",\r\n        \"total\": 185.0,\r\n        \"products\": [\r\n            {\r\n                \"id\": 1,\r\n                \"name\": \"Wireless mouse\",\r\n                \"description\": \"2.4G Wireless Bluetooth Mouse Ergonomic 800/1200/1600DPI 6 Silent Buttons for MacBook Tablet Laptops Computer PC\",\r\n                \"price\": 50.0,\r\n                \"stock\": 25\r\n            },\r\n            {\r\n                \"id\": 2,\r\n                \"name\": \"Keyboard\",\r\n                \"description\": \"Subblim Business Slim Silent, Spanish Keyboard Layout (QWERTY), Plug & Play via USB, Flat Design, Silent Typing, Black\",\r\n                \"price\": 40.0,\r\n                \"stock\": 2\r\n            },\r\n            {\r\n                \"id\": 24,\r\n                \"name\": \"Security Camera\",\r\n                \"description\": \"Indoor wireless security camera with 1080p HD video, motion detection, night vision and two-way audio.\",\r\n                \"price\": 60.0,\r\n                \"stock\": 25\r\n            },\r\n            {\r\n                \"id\": 23,\r\n                \"name\": \"Desk Lamp\",\r\n                \"description\": \"LED desk lamp with 5 brightness levels, 5 color modes, USB charging port and adjustable arm.\",\r\n                \"price\": 35.0,\r\n                \"stock\": 40\r\n            }\r\n        ]\r\n}\r\n   ",
+					"raw": "{\r\n        \"id\":23,        \r\n        \"userId\": 2,\r\n        \"address\": \"Calle Ficticia 123\",\r\n        \"total\": 185.0,\r\n        \"products\": [\r\n            {\r\n                \"id\": 1,\r\n                \"name\": \"Wireless mouse\",\r\n                \"description\": \"2.4G Wireless Bluetooth Mouse Ergonomic 800/1200/1600DPI 6 Silent Buttons for MacBook Tablet Laptops Computer PC\",\r\n                \"price\": 50.0,\r\n                \"stock\": 25\r\n            },\r\n            {\r\n                \"id\": 2,\r\n                \"name\": \"Keyboard\",\r\n                \"description\": \"Subblim Business Slim Silent, Spanish Keyboard Layout (QWERTY), Plug & Play via USB, Flat Design, Silent Typing, Black\",\r\n                \"price\": 40.0,\r\n                \"stock\": 2\r\n            },\r\n            {\r\n                \"id\": 24,\r\n                \"name\": \"Security Camera\",\r\n                \"description\": \"Indoor wireless security camera with 1080p HD video, motion detection, night vision and two-way audio.\",\r\n                \"price\": 60.0,\r\n                \"stock\": 25\r\n            },\r\n            {\r\n                \"id\": 23,\r\n                \"name\": \"Desk Lamp\",\r\n                \"description\": \"LED desk lamp with 5 brightness levels, 5 color modes, USB charging port and adjustable arm.\",\r\n                \"price\": 35.0,\r\n                \"stock\": 40\r\n            }\r\n        ]\r\n}\r\n   ",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -651,6 +589,9 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -684,6 +625,9 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -705,6 +649,9 @@
 		{
 			"name": "DeleteOrder",
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "DELETE",
 				"header": [],
 				"body": {
@@ -799,19 +746,7 @@
 			"name": "DeleteUser",
 			"request": {
 				"auth": {
-					"type": "basic",
-					"basic": [
-						{
-							"key": "password",
-							"value": "Password123",
-							"type": "string"
-						},
-						{
-							"key": "username",
-							"value": "juan.perez@email.com",
-							"type": "string"
-						}
-					]
+					"type": "noauth"
 				},
 				"method": "DELETE",
 				"header": [],
@@ -825,7 +760,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://localhost:8443/api/users/delete/1",
+					"raw": "https://localhost:8443/api/users/delete/2",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -835,7 +770,7 @@
 						"api",
 						"users",
 						"delete",
-						"1"
+						"2"
 					]
 				}
 			},
