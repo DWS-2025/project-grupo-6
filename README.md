@@ -40,7 +40,7 @@
 
 
 ### User Permissions🕴️
-- **Admin**: full control to create, update, and delete users, products and reviews.
+- **Admin**: full control to create, update, and delete users, products and reviews. Can place and delete their orders.
 - **User**: can buy and review products, delete their own reviews and deactivate their account.
 - **Guest**: can browse products and reviews, with the option to register for full access.
 
@@ -48,7 +48,6 @@
 - **PRODUCT**: one main image for each product.
 
 ## Collaborative Development
-
 
 ### Dan: top 5 commits - Phase 3
 
@@ -61,11 +60,11 @@
 
 ### Daniel: top 5 commits - Phase 3
 
-1. Tokens CSRF activos → [0692938] (https://github.com/DWS-2025/project-grupo-6/commit/06929385343d2a570e57967c2ed2042a7ffd3122)
-2. Cambios API → [236f46f] (https://github.com/DWS-2025/project-grupo-6/commit/236f46f17659d75054ba3e84fd63d20c5473eeb0)
-3. Postman collection actualizada → [62b7465] (https://github.com/DWS-2025/project-grupo-6/commit/62b7465f27aeaecd15f331b85cb3ef70e15ac2ac)
-4. Actualizacion comprobaciones api → [73fde61] (https://github.com/DWS-2025/project-grupo-6/commit/73fde61ce7cd74a0956d00240a8006aeef761039)
-5. Api para las reviews → [39d5b5e] (https://github.com/DWS-2025/project-grupo-6/commit/39d5b5e26141653c9b62d76e73ec1a0cec0bb54a)
+1. Tokens CSRF activos → [0692938](https://github.com/DWS-2025/project-grupo-6/commit/06929385343d2a570e57967c2ed2042a7ffd3122)
+2. Cambios API → [236f46f](https://github.com/DWS-2025/project-grupo-6/commit/236f46f17659d75054ba3e84fd63d20c5473eeb0)
+3. Postman collection actualizada → [62b7465](https://github.com/DWS-2025/project-grupo-6/commit/62b7465f27aeaecd15f331b85cb3ef70e15ac2ac)
+4. Actualizacion comprobaciones api → [73fde61](https://github.com/DWS-2025/project-grupo-6/commit/73fde61ce7cd74a0956d00240a8006aeef761039)
+5. Api para las reviews → [39d5b5e](https://github.com/DWS-2025/project-grupo-6/commit/39d5b5e26141653c9b62d76e73ec1a0cec0bb54a)
 
 ### Laura: top 5 commits - Phase 3
 
