@@ -1,7 +1,9 @@
 package es.xpressaly.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import es.xpressaly.Model.User;
@@ -11,7 +13,9 @@ import es.xpressaly.Service.UserService;
 import es.xpressaly.Service.ReviewService;
 import es.xpressaly.dto.UserDTO;
 import es.xpressaly.dto.UserWebDTO;
+
 import es.xpressaly.security.jwt.UserLoginService;
+import es.xpressaly.dto.ReviewApiDTO;
 import es.xpressaly.dto.ReviewDTO;
 
 import java.util.List;
@@ -109,13 +113,15 @@ public class UserApiController {
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         try {
             UserWebDTO user = userService.getUserById(id);
-            userService.deleteUser(user.email());
             if (user == null) {
                 return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
             }
+            userService.deleteUser(user.email());
+            
             return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+    
 }
