@@ -52,15 +52,23 @@ public class OrderApiController {
     private OrderService orderService;
     
     @GetMapping("/all")
-    public List<OrderApiDTO> getAllOrders() {     
-        return orderService.getAllOrders();
+    public ResponseEntity<List<OrderApiDTO>> getAllOrders() {     
+        UserWebDTO currentUser = userService.getUser();
+        if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.ok(orderService.getAllOrders());
     }
     
     @GetMapping("/{id}")
     public ResponseEntity<OrderApiDTO> getOrderById(@PathVariable Long id) {     
+        UserWebDTO currentUser = userService.getUser();
         OrderApiDTO order = orderService.getOrderByIdApi(id);
         if (order == null) {
             return ResponseEntity.notFound().build();
+        }
+        if (!currentUser.id().equals(order.userId()) && currentUser.role() != UserRole.ADMIN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         return ResponseEntity.ok(order);
     }
@@ -68,12 +76,11 @@ public class OrderApiController {
     @PostMapping("/create")
     public ResponseEntity<?> createOrder(@RequestBody OrderApiDTO orderDto) {
         try {
-            // Validar que el usuario existe
             if (orderDto.userId() == null) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
-            UserWebDTO user=userService.getUser();
-            if(user==null){
+            UserWebDTO user = userService.getUser();
+            if (user == null) {
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }
             if(!user.id().equals(orderDto.userId())){
@@ -106,9 +113,12 @@ public class OrderApiController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteOrder(@PathVariable Long id) {
         try{
-            UserWebDTO user=userService.getUser();
+            UserWebDTO user = userService.getUser();
             OrderApiDTO order = orderService.getOrderByIdApi(id);
-            if(!user.id().equals(order.userId())&&user.role()!=UserRole.ADMIN){
+            if (order == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            if (!user.id().equals(order.userId()) && user.role() != UserRole.ADMIN) {
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
             orderService.deleteOrderApi(id);
@@ -121,6 +131,10 @@ public class OrderApiController {
     @GetMapping("/cart-count")
     public ResponseEntity<Integer> getCartItemCount() {
         try {
+            UserWebDTO currentUser = userService.getUser();
+            if (currentUser == null) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
             OrderDTO currentOrder = getCurrentOrder();
             if (currentOrder == null || currentOrder.products() == null) {
                 return ResponseEntity.ok(0);
@@ -134,23 +148,27 @@ public class OrderApiController {
         }
     }
 
-    
-
     @GetMapping
     public ResponseEntity<Map<String, Object>> viewOrder() {
         Map<String, Object> response = new HashMap<>();
         try {
+            UserWebDTO currentUser = userService.getUser();
+            if (currentUser == null) {
+                response.put("error", "Authentication required");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
             OrderDTO currentOrder = getCurrentOrder();
             if (currentOrder == null) {
                 response.put("message", "No active order");
                 return ResponseEntity.ok(response);
             }
-            
-            // Calculate the total using the DTO data
+            if (!currentUser.id().equals(currentOrder.user().id()) && currentUser.role() != UserRole.ADMIN) {
+                response.put("error", "Access denied");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
             double total = currentOrder.products().stream()
                 .mapToDouble(product -> product.price() * currentOrder.quantities().getOrDefault(product.id(), 0))
                 .sum();
-            
             response.put("order", currentOrder);
             response.put("total", total);
             return ResponseEntity.ok(response);
@@ -164,15 +182,22 @@ public class OrderApiController {
     public ResponseEntity<Map<String, Object>> removeFromOrder(@RequestParam Long productId) {
         Map<String, Object> response = new HashMap<>();
         try {
+            UserWebDTO currentUser = userService.getUser();
+            if (currentUser == null) {
+                response.put("error", "Authentication required");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
             OrderDTO currentOrder = getCurrentOrder();
             if (currentOrder != null) {
+                if (!currentUser.id().equals(currentOrder.user().id()) && currentUser.role() != UserRole.ADMIN) {
+                    response.put("error", "Access denied");
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+                }
                 ProductWebDTO product = productService.getProductByIdWeb(productId);
                 if (product == null) {
                     response.put("error", "Product not found");
                     return ResponseEntity.badRequest().body(response);
                 }
-
-                // Get the Order entity to remove the product
                 Order orderEntity = orderService.getOrderById(currentOrder.id());
                 if (orderEntity != null) {
                     orderEntity = orderService.removeProductFromOrder(orderEntity, product);
@@ -189,42 +214,42 @@ public class OrderApiController {
         }
     }
 
-    
-
     @PostMapping("/confirm")
     public ResponseEntity<Map<String, Object>> confirmOrder(@RequestParam String address) {
         Map<String, Object> response = new HashMap<>();
         try {
+            UserWebDTO currentUser = userService.getUser();
+            if (currentUser == null) {
+                response.put("error", "Authentication required");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
             OrderDTO currentOrderDTO = getCurrentOrder();
             if (currentOrderDTO == null || currentOrderDTO.products().isEmpty()) {
                 response.put("error", "No products in order");
                 return ResponseEntity.badRequest().body(response);
             }
-
+            if (!currentUser.id().equals(currentOrderDTO.user().id()) && currentUser.role() != UserRole.ADMIN) {
+                response.put("error", "Access denied");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
             if (address == null || address.trim().isEmpty()) {
                 response.put("error", "Address required");
                 return ResponseEntity.badRequest().body(response);
             }
 
-            UserWebDTO currentUserDTO = userService.getUser();
-            User currentUser = userService.getUserEntityById(currentUserDTO.id());
+            User currentUserEntity = userService.getUserEntityById(currentUser.id());
             
-            // Get the Order entity
             Order currentOrder = orderService.getOrderById(currentOrderDTO.id());
             if (currentOrder == null) {
                 response.put("error", "Order not found");
                 return ResponseEntity.badRequest().body(response);
             }
-            
-            // Calculate the order number for this user
             int userOrderNumber = 1;
-            List<Order> userOrders = orderRepository.findByUser(currentUser);
+            List<Order> userOrders = orderRepository.findByUser(currentUserEntity);
             if (!userOrders.isEmpty()) {
                 userOrderNumber = userOrders.size() + 1;
             }
             currentOrder.setUserOrderNumber(userOrderNumber);
-            
-            // Validate stock and update product quantities
             for (ProductWebDTO orderProductDTO : currentOrderDTO.products()) {
                 Product stockProduct = productService.getProductById(orderProductDTO.id());
                 if (stockProduct == null || currentOrderDTO.quantities().get(orderProductDTO.id()) > stockProduct.getStock()) {
@@ -234,11 +259,9 @@ public class OrderApiController {
                 stockProduct.setStock(stockProduct.getStock() - currentOrderDTO.quantities().get(orderProductDTO.id()));
                 entityManager.merge(stockProduct);
             }
-            
             currentOrder.setAddress(address);
-            currentUser.addOrder(currentOrder);
+            currentUserEntity.addOrder(currentOrder);
             orderRepository.save(currentOrder);
-            
             response.put("success", "Order confirmed");
             response.put("orderNumber", userOrderNumber);
             return ResponseEntity.ok(response);

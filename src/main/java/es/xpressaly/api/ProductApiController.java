@@ -140,6 +140,10 @@ public class ProductApiController {
                                                     @RequestParam int stock,
                                                     @RequestParam MultipartFile imageData) {
         try {
+            UserWebDTO currentUser = userService.getUser();
+            if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
             // Validaciones
             if (name == null || name.trim().isEmpty()) {
                 return ResponseEntity.badRequest().build();
@@ -199,12 +203,10 @@ public class ProductApiController {
             @RequestParam int stock,
             @RequestParam(required = false) MultipartFile imageData) {
         try {
-            
-            UserWebDTO user = userService.getUser();
-            if(user.role()!=UserRole.ADMIN){
+            UserWebDTO currentUser = userService.getUser();
+            if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
-
             if (name == null || name.trim().isEmpty()) {
                 return ResponseEntity.badRequest().build();
             }
@@ -259,9 +261,14 @@ public class ProductApiController {
             return ResponseEntity.badRequest().build();
         }
     }
-    @DeleteMapping("/{productId}")//works perfectly
+
+    @DeleteMapping("/{productId}")
     public ResponseEntity<?> deleteProduct(@PathVariable Long productId) {
         try {
+            UserWebDTO currentUser = userService.getUser();
+            if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
             ProductDTO productDTO = productService.getProductDTO(productId);
             productService.deleteProduct(productId);
             return ResponseEntity.ok(productDTO);
@@ -288,8 +295,11 @@ public class ProductApiController {
     public ResponseEntity<Map<String, Object>> getProductsForManagement(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size) {
+        UserWebDTO currentUser = userService.getUser();
+        if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         Map<String, Object> response = new HashMap<>();
-        
         try {
             // Validar parámetros de entrada
             if (page < 1) {

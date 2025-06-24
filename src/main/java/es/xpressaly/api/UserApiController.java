@@ -22,12 +22,20 @@ public class UserApiController {
 
     @GetMapping("/")
     public ResponseEntity<List<UserDTO>> getUsers() {
+        UserWebDTO currentUser = userService.getUser();
+        if (currentUser.role() != es.xpressaly.Model.UserRole.ADMIN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         return ResponseEntity.ok(userService.getUsers());
     }
     
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getProfile(@PathVariable Long id) {
+        UserWebDTO currentUser = userService.getUser();
+        if (!currentUser.id().equals(id) && currentUser.role() != es.xpressaly.Model.UserRole.ADMIN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
+        }
         UserDTO user = userService.getUserApiById(id);
         if(user==null){
             return ResponseEntity.badRequest().body("User does not exist");
@@ -38,15 +46,14 @@ public class UserApiController {
     @PutMapping("/update")
     public ResponseEntity<?> updateProfile(@RequestBody UserWebDTO userWebDTO) {
         try {
-            // Verificar que el usuario existe
-            UserWebDTO user = userService.getUser();
+            UserWebDTO currentUser = userService.getUser();
             UserWebDTO existingUser = userService.getUserById(userWebDTO.id());
             
             if(existingUser == null) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
-            if(!user.id().equals(existingUser.id())){
+            if (!currentUser.id().equals(existingUser.id()) && currentUser.role() != es.xpressaly.Model.UserRole.ADMIN) {
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
 
@@ -103,6 +110,10 @@ public class UserApiController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         try {
+            UserWebDTO currentUser = userService.getUser();
+            if (!currentUser.id().equals(id) && currentUser.role() != es.xpressaly.Model.UserRole.ADMIN) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Access denied"));
+            }
             UserWebDTO user = userService.getUserById(id);
             if (user == null) {
                 return ResponseEntity.badRequest().body(Map.of("error", "User not found"));

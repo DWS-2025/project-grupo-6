@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import es.xpressaly.Model.Review;
+import es.xpressaly.Model.UserRole;
 import es.xpressaly.Service.ReviewService;
 import es.xpressaly.dto.ReviewApiDTO;
 import es.xpressaly.dto.ReviewDTO;
@@ -31,6 +32,9 @@ public class ReviewController {
 
     @Autowired
     private ReviewService reviewService;
+
+    @Autowired
+    private UserService userService;
 
     @GetMapping("/all")
     public Collection<ReviewApiDTO> getAllReviews() {
@@ -74,6 +78,4 @@ public class ReviewController {
             return ResponseEntity.notFound().build();
         }
     }
-    @Autowired
-    private UserService userService;
 }

@@ -98,6 +98,45 @@ public class SecurityConfig {
 					.requestMatchers(HttpMethod.DELETE, "/api/reviews/**").hasAnyRole("USER", "ADMIN") // Backend handles specific permissions
 					.requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")
 					
+					// USERS
+					.requestMatchers(HttpMethod.POST, "/api/users/create").permitAll()
+					.requestMatchers(HttpMethod.GET, "/api/users/").hasAnyRole("ADMIN")
+					.requestMatchers(HttpMethod.GET, "/api/users/{id}").hasAnyRole("USER", "ADMIN")
+					.requestMatchers(HttpMethod.PUT, "/api/users/update").hasAnyRole("USER", "ADMIN")
+					.requestMatchers(HttpMethod.DELETE, "/api/users/delete/{id}").hasAnyRole("USER", "ADMIN")
+
+					// PRODUCTS
+					.requestMatchers(HttpMethod.GET, "/api/products/all").permitAll()
+					.requestMatchers(HttpMethod.GET, "/api/products/management").hasRole("ADMIN")
+					.requestMatchers(HttpMethod.GET, "/api/products/debug").hasRole("ADMIN")
+					.requestMatchers(HttpMethod.GET, "/api/products").permitAll()
+					.requestMatchers(HttpMethod.GET, "/api/products/{id}").permitAll()
+					.requestMatchers(HttpMethod.POST, "/api/products/").hasRole("ADMIN")
+					.requestMatchers(HttpMethod.PUT, "/api/products/{productId}").hasRole("ADMIN")
+					.requestMatchers(HttpMethod.DELETE, "/api/products/{productId}").hasRole("ADMIN")
+
+					// REVIEWS
+					.requestMatchers(HttpMethod.GET, "/api/reviews/all").permitAll()
+					.requestMatchers(HttpMethod.GET, "/api/reviews").permitAll()
+					.requestMatchers(HttpMethod.GET, "/api/reviews/{id}").permitAll()
+					.requestMatchers(HttpMethod.POST, "/api/reviews").hasAnyRole("USER", "ADMIN")
+					.requestMatchers(HttpMethod.DELETE, "/api/reviews/{reviewId}").hasAnyRole("USER", "ADMIN")
+
+					// ORDERS
+					.requestMatchers(HttpMethod.GET, "/api/orders/all").hasRole("ADMIN")
+					.requestMatchers(HttpMethod.GET, "/api/orders").hasRole("ADMIN")
+					.requestMatchers(HttpMethod.GET, "/api/orders/{id}").hasAnyRole("USER", "ADMIN")
+					.requestMatchers(HttpMethod.POST, "/api/orders/create").hasAnyRole("USER", "ADMIN")
+					.requestMatchers(HttpMethod.DELETE, "/api/orders/delete/{id}").hasAnyRole("USER", "ADMIN")
+					.requestMatchers(HttpMethod.GET, "/api/orders/cart-count").hasAnyRole("USER", "ADMIN")
+					.requestMatchers(HttpMethod.POST, "/api/orders/remove-from-order").hasAnyRole("USER", "ADMIN")
+					.requestMatchers(HttpMethod.POST, "/api/orders/confirm").hasAnyRole("USER", "ADMIN")
+
+					// AUTH
+					.requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+					.requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
+					.requestMatchers(HttpMethod.POST, "/api/auth/logout").hasAnyRole("USER", "ADMIN")
+					
 					// Default: require authentication for any other API endpoint
 					.anyRequest().authenticated()
 			);
