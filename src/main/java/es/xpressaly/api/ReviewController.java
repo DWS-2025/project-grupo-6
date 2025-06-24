@@ -72,7 +72,7 @@ public class ReviewController {
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }
             String username = user.email();
-            User userReview=userService.getUserByFirstName(username);
+            User userReview=userService.getUserByEmail(username);
             
             if(user.id()!=userReview.getId()&&user.role()!=UserRole.ADMIN){
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
