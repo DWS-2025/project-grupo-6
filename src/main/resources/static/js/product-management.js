@@ -14,6 +14,14 @@ document.addEventListener('DOMContentLoaded', function() {
     let hasMore = true;
     const pageSize = 20;
     
+    // Function to show delete confirmation modal
+    window.showDeleteConfirmation = function(id, name) {
+        productNameElement.textContent = name;
+        productIdInput.value = id;
+        modalOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+    }
+    
     // Function to show elegant notifications
     function showNotification(message, type = 'success') {
         // Create notification element
@@ -144,7 +152,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <button class="action-btn delete-btn" 
                                             data-id="${product.id}" 
                                             data-name="${product.name}" 
-                                            title="Delete Product">
+                                            title="Delete Product"
+                                            onclick="showDeleteConfirmation(${product.id}, '${product.name}')">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </div>
