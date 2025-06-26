@@ -79,7 +79,7 @@
 1. Fixed Broken Access Control on delete review -> [94c9d5f](https://github.com/DWS-2025/project-grupo-6/commit/94c9d5f84369f8b92b6ad2808dd98687019206fa)
 2. Sanitization on backend -> [ff95a16](https://github.com/DWS-2025/project-grupo-6/commit/ff95a16ac85310b55994dd65f8740defc01926f9)
 3. Profile update when changing the password -> [0b8ca06](https://github.com/DWS-2025/project-grupo-6/commit/0b8ca069f6f69d01a6cf359aa4f10fba76744577)
-4. Saving the password hashed when updating it -> [c9f9af3](https://github.com/DWS-2025/project-grupo-6/commit/c9f9af37a4df5e41489b3d35ff0be6f1063a9dba)
+4. Saving the password hashed in BD when updating it -> [c9f9af3](https://github.com/DWS-2025/project-grupo-6/commit/c9f9af37a4df5e41489b3d35ff0be6f1063a9dba)
 
 
 -[@Ten1O0](https://github.com/Ten1O0), [@daniel-navarro-ls](https://github.com/daniel-navarro-ls), [@Laura-261](https://github.com/Laura-261), [@fernandotorres-sudo](https://github.com/fernandotorres-sudo)
