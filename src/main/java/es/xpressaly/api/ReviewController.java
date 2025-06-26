@@ -48,17 +48,12 @@ public class ReviewController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createReview(@RequestBody ReviewApiDTO reviewApiDTO) {
+    public ResponseEntity<ReviewApiDTO> createReview(@RequestBody ReviewApiDTO reviewApiDTO) {
         try {
             ReviewApiDTO createdReview = reviewService.saveAPIReview(reviewApiDTO);
-            return ResponseEntity.ok(createdReview);
+            return new ResponseEntity<ReviewApiDTO>(createdReview, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(
-                    Map.of(
-                            "error", e.getMessage(),
-                            "timestamp", LocalDateTime.now()
-                    )
-            );
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
     }
 

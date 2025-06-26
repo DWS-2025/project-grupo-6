@@ -251,6 +251,7 @@ public class ReviewService {
         }
         review.setProduct(product);
         
+        sanitizeReview(review);
         validateReview(review);
         
         // Verify if user has a review for that product

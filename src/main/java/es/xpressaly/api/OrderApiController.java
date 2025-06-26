@@ -111,8 +111,8 @@ public class OrderApiController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteOrder(@PathVariable Long id) {
-        try{
+    public ResponseEntity<OrderApiDTO> deleteOrder(@PathVariable Long id) {
+        
             UserWebDTO user = userService.getUser();
             OrderApiDTO order = orderService.getOrderByIdApi(id);
             if (order == null) {
@@ -122,10 +122,7 @@ public class OrderApiController {
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
             orderService.deleteOrderApi(id);
-            return ResponseEntity.ok(order);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+            return new ResponseEntity<OrderApiDTO>(order, HttpStatus.OK);
     }
 
     @GetMapping("/cart-count")
