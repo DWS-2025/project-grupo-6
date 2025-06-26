@@ -58,7 +58,7 @@ public class UserService {
 
     private static Map<Long, Order> userCurrentOrders = new HashMap<>();
 
-    //Funcion de sanitizacion
+    //Sanitization function
     private void sanitizeUser(User user) {
         if (user.getFirstName() != null) {
             user.setFirstName(sanitizationService.sanitize(user.getFirstName()));
@@ -80,19 +80,19 @@ public class UserService {
         }
         User user = userRepository.findById(userId).orElse(null);
         if (user != null) {
-            // Inicializar las colecciones
+            // Initialize collections
             if (user.getOrders() != null) {
-                user.getOrders().size(); // Forzar inicialización
+                user.getOrders().size(); // Force initialization
                 user.getOrders().forEach(order -> {
                     if (order.getProducts() != null) {
-                        order.getProducts().size(); // Forzar inicialización de productos
+                        order.getProducts().size(); // Force initialization of products
                     }
                 });
             }
             if (user.getReviews() != null) {
-                user.getReviews().size(); // Forzar inicialización
+                user.getReviews().size(); // Force initialization
             }
-            // Establecer el currentOrder desde el mapa estático
+            // Set currentOrder from static map
             user.setCurrentOrder(userCurrentOrders.get(userId));
         }
         return user;
@@ -147,7 +147,7 @@ public class UserService {
     }
 
     private boolean isValidPassword(String password) {
-        // Al menos 8 caracteres, una mayúscula, una minúscula y un número
+        // At least 8 characters, one uppercase, one lowercase and one number
         return password != null && 
                password.length() >= 8 && 
                password.matches(".*[0-9].*") && 

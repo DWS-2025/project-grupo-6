@@ -90,11 +90,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
 });
 
-// Obtén el token y el nombre de la cabecera desde el meta
+// Get the token and header name from the meta
 const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
 const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
-// Código para eliminar órdenes
+// Code to delete orders
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll('.delete-order-button').forEach(button => {
         button.addEventListener('click', function () {
@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
                 if (data.success) {
                     orderCard.remove();
-                    // Si no hay más órdenes, mostrar el mensaje de "No orders yet"
+                    // If there are no more orders, show the message "No orders yet"
                     if (document.querySelectorAll('.order-card').length === 0) {
                         const noOrdersMessage = document.createElement('p');
                         noOrdersMessage.className = 'no-reviews';
@@ -120,12 +120,12 @@ document.addEventListener("DOMContentLoaded", function () {
                         document.querySelector('.options-menu').appendChild(noOrdersMessage);
                     }
                 } else {
-                    showNotification('Error al eliminar la orden. Por favor, inténtalo de nuevo.', 'error');
+                    showNotification('Error deleting the order. Please try again.', 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showNotification('Error al eliminar la orden. Por favor, inténtalo de nuevo.', 'error');
+                showNotification('Error deleting the order. Please try again.', 'error');
             });
         });
     });

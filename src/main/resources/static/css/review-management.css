@@ -231,7 +231,6 @@ body {
     100% { transform: translateX(100%); }
 }
 
-/* SOLO para botones dentro del view-toggle */
 .view-toggle .toggle-btn {
     display: flex;
     align-items: center;

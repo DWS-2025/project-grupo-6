@@ -8,7 +8,7 @@ let allProductsLoaded = false;
 let searchTimeout = null; // For debouncing search queries
 let isLoading = false; // Prevent multiple simultaneous requests
 
-// Función para actualizar indicadores visuales de filtros activos
+// Function to update visual indicators of active filters
 function updateFilterIndicators() {
     const searchInput = document.getElementById('productSearch');
     const minPriceInput = document.getElementById('price-min');
@@ -19,7 +19,7 @@ function updateFilterIndicators() {
     const sortFilterContainer = document.querySelector('.filter-container:has(#priceSort)');
     const ratingFilterContainer = document.querySelector('.filter-container:has(#min-rating)');
     
-    // Indicador para búsqueda activa
+    // Active search indicator
     const searchTerm = searchInput.value.trim();
     if (searchTerm) {
         searchInput.parentElement.classList.add('search-input-typing');
@@ -27,7 +27,7 @@ function updateFilterIndicators() {
         searchInput.parentElement.classList.remove('search-input-typing', 'search-input-results', 'search-input-no-results');
     }
     
-    // Indicador para filtro de precio activo
+    // Active price filter indicator
     const defaultMinPrice = 0;
     const defaultMaxPrice = 1000;
     const currentMinPrice = parseFloat(minPriceInput.value) || 0;
@@ -39,7 +39,7 @@ function updateFilterIndicators() {
         priceFilterContainer.classList.remove('active');
     }
     
-    // Indicador para filtro de rating activo
+    // Active rating filter indicator
     const defaultMinRating = 0;
     const currentMinRating = parseInt(minRatingSelect.value) || 0;
     
@@ -49,7 +49,7 @@ function updateFilterIndicators() {
         ratingFilterContainer.classList.remove('active');
     }
     
-    // Indicador para ordenamiento activo
+    // Active sorting indicator
     if (sortSelect.value !== 'default') {
         sortFilterContainer.classList.add('active');
     } else {
@@ -57,7 +57,7 @@ function updateFilterIndicators() {
     }
 }
 
-// Función para mostrar feedback después de aplicar filtros
+// Function to show feedback after applying filters
 function showFilterFeedback(filterType, isActive) {
     const notifications = document.getElementById('filterNotifications');
     if (!notifications) {
@@ -82,12 +82,12 @@ function showFilterFeedback(filterType, isActive) {
     
     document.getElementById('filterNotifications').appendChild(notification);
     
-    // Mostrar notificación
+    // Show notification
     setTimeout(() => {
         notification.style.transform = 'translateX(0)';
     }, 100);
     
-    // Ocultar y eliminar notificación
+    // Hide and delete notification
     setTimeout(() => {
         notification.style.transform = 'translateX(full)';
         setTimeout(() => {
@@ -96,7 +96,7 @@ function showFilterFeedback(filterType, isActive) {
     }, 2000);
 }
 
-// Función para cargar productos con indicador de carga mejorado
+// Function to load products with improved loading indicator
 function loadMoreProducts(resetPagination = false) {
     if (isLoading) return;
     
@@ -110,13 +110,13 @@ function loadMoreProducts(resetPagination = false) {
         productsGrid.innerHTML = '';
         showLoadingGrid();
         
-        // Actualizar indicadores de filtros
+        // Update filter indicators
         updateFilterIndicators();
     }
     
     isLoading = true;
     
-    // Actualizar estado visual del input de búsqueda
+    // Update visual state of the search input
     const searchContainer = searchInput.closest('.search-input-container');
     if (searchTerm) {
         searchContainer.classList.add('search-loading');
@@ -125,7 +125,7 @@ function loadMoreProducts(resetPagination = false) {
     loadMoreBtn.disabled = true;
     loadMoreBtn.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="vertical-align: middle;"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="leading-none" style="vertical-align: middle;">Loading...</span>';
     
-    // Construir la URL con todos los parámetros
+    // Build the URL with all parameters
     let url = `/api/products?page=${currentProductPage}&size=${productsPerPage}`;
     if (searchTerm) {
         url += `&search=${encodeURIComponent(searchTerm)}`;
@@ -160,7 +160,7 @@ function loadMoreProducts(resetPagination = false) {
             }
             
             if (data.content && data.content.length > 0) {
-                // Actualizar estado visual del input según resultados
+                // Update visual state of the search input according to results
                 if (searchTerm) {
                     searchInput.parentElement.classList.remove('search-input-no-results');
                     searchInput.parentElement.classList.add('search-input-results');
@@ -184,7 +184,7 @@ function loadMoreProducts(resetPagination = false) {
                 loadMoreBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="vertical-align: middle;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg><span class="leading-none" style="vertical-align: middle;">Load More</span>';
                 loadMoreBtn.style.display = data.last ? 'none' : 'block';
             } else {
-                // Actualizar estado visual para sin resultados
+                // Update visual state for no results
                 if (searchTerm) {
                     searchInput.parentElement.classList.remove('search-input-results');
                     searchInput.parentElement.classList.add('search-input-no-results');
@@ -212,7 +212,7 @@ function loadMoreProducts(resetPagination = false) {
         });
 }
 
-// Función para realizar búsqueda dinámica con debouncing
+// Function to perform dynamic search with debouncing
 function performDynamicSearch() {
     clearTimeout(searchTimeout);
     
@@ -221,7 +221,7 @@ function performDynamicSearch() {
     }, 300); // 300ms delay for debouncing
 }
 
-// Función para mostrar indicador de carga en el grid
+// Function to show loading indicator in the grid
 function showLoadingGrid() {
     const productsGrid = document.getElementById('productsGrid');
     const loadingHTML = `
@@ -236,13 +236,13 @@ function showLoadingGrid() {
         </div>
     `;
     
-    // Solo mostrar loading si el grid está vacío
+    // Only show loading if the grid is empty
     if (productsGrid.children.length === 0) {
         productsGrid.innerHTML = loadingHTML;
     }
 }
 
-// Función para ocultar indicador de carga
+// Function to hide loading indicator
 function hideLoadingGrid() {
     const productsGrid = document.getElementById('productsGrid');
     const loadingElement = productsGrid.querySelector('.col-span-5');
@@ -251,7 +251,7 @@ function hideLoadingGrid() {
     }
 }
 
-// Función para mostrar mensaje de "sin resultados"
+// Function to show "no results" message
 function showNoResultsMessage(searchTerm) {
     const productsGrid = document.getElementById('productsGrid');
     const message = searchTerm ? 
@@ -274,7 +274,7 @@ function showNoResultsMessage(searchTerm) {
     `;
 }
 
-// Función para mostrar mensaje de error
+// Function to show error message
 function showErrorMessage() {
     const productsGrid = document.getElementById('productsGrid');
     productsGrid.innerHTML = `
@@ -293,7 +293,7 @@ function showErrorMessage() {
     `;
 }
 
-// Función para actualizar contador de resultados con mejor animación
+// Function to update results counter with better animation
 function updateResultsCounter(totalElements, searchTerm) {
     let counterElement = document.getElementById('resultsCounter');
     
@@ -305,7 +305,7 @@ function updateResultsCounter(totalElements, searchTerm) {
         searchContainer.appendChild(counterElement);
     }
     
-    // Aplicar animación de salida
+    // Apply exit animation
     counterElement.classList.remove('visible');
     
     setTimeout(() => {
@@ -320,7 +320,7 @@ function updateResultsCounter(totalElements, searchTerm) {
     }, 150);
 }
 
-// Función para obtener texto de filtros activos
+// Function to get active filters text
 function getActiveFiltersText() {
     const activeFilters = [];
     
@@ -339,26 +339,26 @@ function getActiveFiltersText() {
     return activeFilters.length > 0 ? ` (${activeFilters.join(', ')})` : '';
 }
 
-// Función para limpiar todos los filtros y búsquedas
+// Function to clear all filters and searches
 function clearAllFiltersAndSearch() {
-    // Limpiar búsqueda
+    // Clear search
     document.getElementById('productSearch').value = '';
     
-    // Resetear filtros de precio
+    // Reset price filters
     document.getElementById('price-min').value = 0;
     document.getElementById('price-max').value = 1000;
     minPrice = 0;
     maxPrice = 1000;
     
-    // Resetear filtro de rating
+    // Reset rating filter
     document.getElementById('min-rating').value = 0;
     minRating = 0;
     
-    // Resetear ordenamiento
+    // Reset sorting
     document.getElementById('priceSort').value = 'default';
     currentSortValue = 'default';
     
-    // Recargar productos
+    // Reload products
     loadMoreProducts(true);
 }
 
@@ -427,7 +427,7 @@ function createProductCard(product) {
     return card;
 }
 
-// Función para manejar el envío de formularios de "añadir al carrito"
+// Function to handle the submission of "add to cart" forms
 function attachAddToCartListeners(forms) {
     forms.forEach(form => {
         form.addEventListener('submit', function(e) {
@@ -436,22 +436,22 @@ function attachAddToCartListeners(forms) {
             const button = this.querySelector('button[type="submit"]');
             const originalText = button.innerHTML;
             
-            // Cambiar el botón a estado de carga
+            // Change the button to loading state
             button.disabled = true;
             button.innerHTML = '<svg class="animate-spin h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Adding...';
             
-            // Enviar el formulario
+            // Submit the form
             fetch(this.action, {
                 method: 'POST',
                 body: new FormData(this)
             })
             .then(response => {
                 if (response.ok) {
-                    // Mostrar feedback visual
+                    // Show visual feedback
                     button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>Added!';
                     button.className = button.className.replace('bg-[#294156]', 'bg-green-500');
                     
-                    // Restaurar el botón después de 2 segundos
+                    // Restore the button after 2 seconds
                     setTimeout(() => {
                         button.disabled = false;
                         button.innerHTML = originalText;
@@ -466,7 +466,7 @@ function attachAddToCartListeners(forms) {
                 button.disabled = false;
                 button.innerHTML = originalText;
                 
-                // Mostrar error brevemente
+                // Show error briefly
                 button.innerHTML = 'Error';
                 button.className = button.className.replace('bg-[#294156]', 'bg-red-500');
                 setTimeout(() => {
@@ -478,7 +478,7 @@ function attachAddToCartListeners(forms) {
     });
 }
 
-// Event Listeners mejorados
+// Improved event listeners
 document.addEventListener('DOMContentLoaded', () => {
     loadMoreProducts();
     
@@ -488,7 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetRatingFilterBtn = document.getElementById('reset-rating-filter');
     const minRatingSelect = document.getElementById('min-rating');
     
-    // Búsqueda dinámica mejorada
+    // Improved dynamic search
     searchInput.addEventListener('input', () => {
         const searchIcon = searchButton.querySelector('svg');
         
@@ -496,16 +496,16 @@ document.addEventListener('DOMContentLoaded', () => {
             searchIcon.innerHTML = '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>';
             searchIcon.classList.add('animate-spin');
             
-            // Agregar clase de búsqueda activa
+            // Add active search class
             document.body.classList.add('dynamic-search-active');
         } else {
             searchIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />';
             searchIcon.classList.remove('animate-spin');
             
-            // Remover clase de búsqueda activa
+            // Remove active search class
             document.body.classList.remove('dynamic-search-active');
             
-            // Limpiar estados visuales del input
+            // Clear visual states of the input
             searchInput.parentElement.classList.remove('search-input-typing', 'search-input-results', 'search-input-no-results');
         }
         
@@ -544,7 +544,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Filtros de precio con feedback visual
+    // Price filters with visual feedback
     const applyPriceFilter = document.getElementById('apply-price-filter');
     const resetPriceFilter = document.getElementById('reset-price-filter');
     const minPriceInput = document.getElementById('price-min');
@@ -584,7 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
         minPrice = newMinPrice;
         maxPrice = newMaxPrice;
         
-        // Animación del botón
+        // Button animation
         applyPriceFilter.classList.add('filter-applied');
         setTimeout(() => {
             applyPriceFilter.classList.remove('filter-applied');
@@ -603,7 +603,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadMoreProducts(true);
     });
     
-    // Ordenamiento con feedback
+    // Sorting with feedback
     const priceSort = document.getElementById('priceSort');
     priceSort.addEventListener('change', () => {
         const wasActive = currentSortValue !== 'default';
@@ -617,6 +617,6 @@ document.addEventListener('DOMContentLoaded', () => {
         loadMoreProducts(true);
     });
     
-    // Inicializar indicadores
+    // Initialize indicators
     updateFilterIndicators();
 });

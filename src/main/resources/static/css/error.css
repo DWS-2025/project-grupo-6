@@ -31,7 +31,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Animación para la entrada de elementos */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -59,7 +58,6 @@ body {
   overflow: hidden;
 }
 
-/* Efecto de brillo en el borde */
 .error-container::before {
   content: '';
   position: absolute;

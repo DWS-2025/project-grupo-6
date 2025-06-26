@@ -160,17 +160,17 @@ public class UserController {
                     return "profile";
                 }
                 
-                // Debuggear la contraseña
+                // Debug the password
                 System.out.println("Contraseña válida: " + password.length() + " caracteres");
                 System.out.println("¿Tiene mayúsculas? " + password.matches(".*[A-Z].*"));
                 System.out.println("¿Tiene minúsculas? " + password.matches(".*[a-z].*"));
                 System.out.println("¿Tiene números? " + password.matches(".*\\d.*"));
             }
 
-            // Crear usuario con datos actualizados
+            // Create user with updated data
             UserWebDTO updatedUser;
             if (password != null && !password.isEmpty()) {
-                // Si se proporciona una nueva contraseña, codificarla
+                // If a new password is provided, hash it
                 String hashedPassword = userService.encodePassword(password);
                 System.out.println("Contraseña hasheada: " + hashedPassword);
                 
@@ -189,7 +189,7 @@ public class UserController {
                     user.pdfPath()
                 );
             } else {
-                // Si no se proporciona una nueva contraseña, mantener la actual
+                // If no new password is provided, keep the current one
                 updatedUser = new UserWebDTO(
                     user.id(),
                     firstName,
@@ -334,7 +334,7 @@ public class UserController {
         model.addAttribute("password", user.password());
         model.addAttribute("pdfPath", user.pdfPath());
         
-        // Obtener la entidad User para acceder a las reviews
+        // Get the User entity to access the reviews
         User userEntity = userService.getUserEntityById(user.id());
         if (userEntity != null) {
             List<Map<String, Object>> reviewsWithProducts = new ArrayList<>();
@@ -428,21 +428,21 @@ public class UserController {
                          Model model) {
         
         try {
-            // Verificar si el usuario actual es administrador
+            // Verify if the current user is an admin
             UserWebDTO currentUser = userService.getUser();
             if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
                 model.addAttribute("error", "You do not have permission to edit users");
                 return "redirect:/users-management";
             }
             
-            // Buscar el usuario a editar por su email original
+            // Search the user to edit by their original email
             UserWebDTO userToEdit = userService.findByEmail(originalEmail);
             if (userToEdit == null) {
                 model.addAttribute("error", "User not found");
                 return "redirect:/users-management";
             }
             
-            // Validar datos de entrada
+            // Validate input data
             if (firstName == null || firstName.trim().isEmpty() || firstName.length() > 50) {
                 model.addAttribute("error", "First name is required and must not exceed 50 characters");
                 return "redirect:/users-management";
@@ -460,7 +460,7 @@ public class UserController {
                 return "redirect:/users-management";
             }
             
-            // Validación de teléfono y edad si se proporcionaron
+            // Validate phone number and age if provided
             if (phoneNumber > 0 && (String.valueOf(phoneNumber).length() < 9 || String.valueOf(phoneNumber).length() > 15)) {
                 model.addAttribute("error", "Please enter a valid phone number");
                 return "redirect:/users-management";
@@ -470,38 +470,37 @@ public class UserController {
                 return "redirect:/users-management";
             }
             
-            // Validación de contraseña si se proporcionó una nueva
+            // Validate password if a new one is provided
             if (password != null && !password.isEmpty()) {
-                // Verificar longitud mínima
+                // Verify minimum length
                 if (password.length() < 8) {
                     model.addAttribute("error", "Password must be at least 8 characters long");
                     return "redirect:/users-management";
                 }
                 
-                // Verificar que contenga al menos una mayúscula
+                // Verify that it contains at least one uppercase letter
                 if (!password.matches(".*[A-Z].*")) {
                     model.addAttribute("error", "Password must contain at least one uppercase letter");
                     return "redirect:/users-management";
                 }
                 
-                // Verificar que contenga al menos una minúscula
+                // Verify that it contains at least one lowercase letter
                 if (!password.matches(".*[a-z].*")) {
                     model.addAttribute("error", "Password must contain at least one lowercase letter");
                     return "redirect:/users-management";
                 }
                 
-                // Verificar que contenga al menos un número
+                // Verify that it contains at least one number
                 if (!password.matches(".*[0-9].*")) {
                     model.addAttribute("error", "Password must contain at least one number");
                     return "redirect:/users-management";
                 }
                 
-                // Hashear la contraseña antes de guardarla
-                //userToEdit.setPassword(userService.encodePassword(password));
+                // Hash the password before saving it
                 userToEdit = userService.setPassword(userToEdit, password);
             }
             
-            // Actualizar los datos del usuario
+            // Update the user's data
             userToEdit = userService.setFirstName(userToEdit, firstName);
             userToEdit = userService.setLastName(userToEdit, lastName);
             userToEdit = userService.setEmail(userToEdit, email);
@@ -515,7 +514,7 @@ public class UserController {
                 userToEdit = userService.setAge(userToEdit, age);
             }
             
-            // Guardar los cambios
+            // Save the changes
             userService.updateUser(userToEdit);
             
             return "redirect:/users-management";

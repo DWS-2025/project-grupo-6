@@ -155,7 +155,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     public String logout(HttpServletResponse response) {
-        // Invalidar los tokens JWT usando el servicio
+        // Invalidate JWT tokens using the service
         userLoginService.logout(response);
         
         return "redirect:/login";

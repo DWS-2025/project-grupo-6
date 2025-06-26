@@ -690,7 +690,6 @@ footer {
     transform: translate(2px ,2px);
   }
 
-/* Estilo para los botones de mostrar contraseña */
 .password-toggle-btn {
     background-color: #567C8D;
     color: white;

@@ -114,7 +114,7 @@ public class ProductService {
     public Product getProductById(Long id) {
         Product product = productRepository.findById(id).orElse(null);
         if (product != null) {
-            // Forzar la inicialización de las colecciones lazy
+            // Force initialization of lazy collections
             Hibernate.initialize(product.getReviews());
             if (product.getReviews() != null) {
                 product.getReviews().forEach(review -> {

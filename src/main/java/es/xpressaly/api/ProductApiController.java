@@ -62,14 +62,14 @@ public class ProductApiController {
             @RequestParam(required = false) Double maxPrice,
             @RequestParam(required = false, defaultValue = "0") int minRating) {
         try {
-            // Crear el objeto Pageable
+            // Create the Pageable object
             Pageable pageable = PageRequest.of(page - 1, size, getSortDirection(sort));
             
-            // Obtener el precio máximo dinámico
+            // Get the dynamic maximum price
             double dynamicMaxPrice = productService.getMaxPriceForFilter();
             double effectiveMaxPrice = maxPrice != null ? maxPrice : dynamicMaxPrice;
             
-            // Obtener la página de productos según los filtros
+            // Get the page of products according to the filters
             Page<ProductDTO> productPage;
             boolean hasSearch = search != null && !search.isEmpty();
             boolean hasPrice = minPrice > 0 || maxPrice != null;
@@ -100,7 +100,7 @@ public class ProductApiController {
         }
     }
 
-    // Método auxiliar para obtener la dirección de ordenamiento
+    // Auxiliary method to get the sorting direction
     private Sort getSortDirection(String sort) {
         if (sort == null || sort.equals("default")) {
             return Sort.by(Sort.Direction.DESC, "id");
@@ -144,7 +144,7 @@ public class ProductApiController {
             if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
-            // Validaciones
+            // Validations
             if (name == null || name.trim().isEmpty()) {
                 return ResponseEntity.badRequest().build();
             }
@@ -165,7 +165,7 @@ public class ProductApiController {
                 return ResponseEntity.badRequest().build();
             }
 
-            // Verificar que la imagen sea válida
+            // Verify that the image is valid
             try {
                 BufferedImage image = ImageIO.read(new java.io.ByteArrayInputStream(imageData.getBytes()));
                 if (image == null) {
@@ -225,34 +225,34 @@ public class ProductApiController {
                 return ResponseEntity.notFound().build();
             }
 
-            String imagePath = existingProduct.imagePath(); // Mantener la ruta de la imagen existente
-            byte[] imageBytes = existingProduct.imageData(); // Mantener los datos de la imagen existente
+            String imagePath = existingProduct.imagePath(); // Keep the existing image path
+            byte[] imageBytes = existingProduct.imageData(); // Keep the existing image data
 
             if (imageData != null && !imageData.isEmpty()) {
-                // Verificar que la nueva imagen sea válida
+                // Verify that the new image is valid
                 try {
                     BufferedImage image = ImageIO.read(new java.io.ByteArrayInputStream(imageData.getBytes()));
                     if (image == null) {
                         return ResponseEntity.badRequest().build();
                     }
-                    imageBytes = imageData.getBytes(); // Actualizar los datos de la imagen
+                    imageBytes = imageData.getBytes(); // Update the image data
                 } catch (IOException e) {
                     return ResponseEntity.badRequest().build();
                 }
             }
 
             ProductWebDTO updatedProduct = new ProductWebDTO(
-                productId, // ID del producto a actualizar
+                productId, // ID of the product to update
                 name,
                 description,
                 price,
                 stock,
                 imagePath,
-                imageBytes, // Usar los datos de la imagen actualizados
-                null, // returnPolicyPath no se usa en este endpoint
-                null, // returnPolicyData no se usa en este endpoint
-                null, // reviews no se usa en este endpoint
-                0.0 // rating inicial
+                imageBytes, // Use the updated image data
+                null, // returnPolicyPath not used in this endpoint
+                null, // returnPolicyData not used in this endpoint
+                null, // reviews not used in this endpoint
+                0.0 // initial rating
             );
 
             productService.updateProductWeb(updatedProduct);
@@ -301,7 +301,7 @@ public class ProductApiController {
         }
         Map<String, Object> response = new HashMap<>();
         try {
-            // Validar parámetros de entrada
+            // Validate input parameters
             if (page < 1) {
                 page = 1;
             }

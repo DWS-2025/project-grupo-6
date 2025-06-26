@@ -86,17 +86,17 @@ public class OrderApiController {
             if(!user.id().equals(orderDto.userId())){
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
-            // Validar que la dirección no esté vacía
+            // Validate that the address is not empty
             if (orderDto.address() == null || orderDto.address().trim().isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
             
-            // Validar que haya al menos un producto
+            // Validate that there is at least one product
             if (orderDto.products() == null || orderDto.products().isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
             
-            // Validar que todos los productos existan
+            // Validate that all products exist
             for (ProductDTO productDto : orderDto.products()) {
                 if (productDto.id() == null) {
                     return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

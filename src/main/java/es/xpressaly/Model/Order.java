@@ -70,7 +70,7 @@ public class Order {
     public void addProduct(Product product) {
         OrderProduct existingOrderProduct = findOrderProduct(product);
         if (existingOrderProduct != null) {
-            // No hacemos nada aquí, la cantidad ya se actualizó con setProductQuantity
+            // We do nothing here, the quantity was already updated with setProductQuantity
         } else {
             OrderProduct orderProduct = new OrderProduct(this, product, 1);
             orderProducts.add(orderProduct);

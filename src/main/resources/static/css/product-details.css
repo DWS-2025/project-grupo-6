@@ -389,7 +389,6 @@
     text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
 }
 
-/* Estilos para el botón de volver */
 .back-button-container {
     margin-bottom: 1rem;
     padding: 0.5rem 0;
@@ -480,7 +479,6 @@ body.dark-mode .login-prompt a:hover {
     border-bottom-color: #fff;
 }
 
-/* Estilos para la sección de política de devoluciones */
 .return-policy {
     margin-top: 2rem;
     padding: 1.5rem;

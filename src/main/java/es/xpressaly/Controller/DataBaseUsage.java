@@ -279,7 +279,7 @@ public class DataBaseUsage implements CommandLineRunner {
     private void createReviewsForUsers(User adminUser, User mariaUser, User lucasUser, List<Product> products) {
         Review review;
         
-        // === PRODUCTOS POPULARES (3 reseñas cada uno) ===
+        // === POPULAR PRODUCTS (3 reviews each) ===
         
         // Wireless mouse (products.get(0)) - Popular tech product
         review = new Review(adminUser, "Excellent wireless mouse, very comfortable and responsive. Great battery life!", 5);
@@ -333,7 +333,7 @@ public class DataBaseUsage implements CommandLineRunner {
         review.setProduct(products.get(15));
         reviewRepository.save(review);
         
-        // === PRODUCTOS CON 2 RESEÑAS ===
+        // === PRODUCTS WITH 2 REVIEWS ===
         
         // Keyboard (products.get(1))
         review = new Review(adminUser, "Good keyboard for the price. Silent typing works as advertised.", 4);
@@ -398,7 +398,7 @@ public class DataBaseUsage implements CommandLineRunner {
         review.setProduct(products.get(10));
         reviewRepository.save(review);
         
-        // === PRODUCTOS CON 1 RESEÑA ===
+        // === PRODUCTS WITH 1 REVIEW ===
         
         // Television (products.get(3))
         review = new Review(adminUser, "Television picture quality is good for the price range.", 4);
@@ -485,11 +485,7 @@ public class DataBaseUsage implements CommandLineRunner {
         review.setProduct(products.get(44));
         reviewRepository.save(review);
         
-        // Note: Many products (like Tablet Stand, Desk Lamp, Digital Alarm Clock, Electric Fan, 
-        // Laptop Cooling Pad, Smart Scale, Microwave Oven, Water Bottle, Wireless Keyboard, 
-        // Digital Food Scale, Blender, Indoor Plant Pot, Bike Light Set, Cordless Drill, 
-        // Fitness Resistance Bands, Hand Mixer, Wireless Mouse Pad, Smart Wi-Fi Plug, 
-        // Selfie Ring Light, Slow Cooker, Smart Plant Monitor) 
+        // Note: Many products (like Tablet Stand, Desk Lamp, Digital Alarm Clock, etc) 
         // will have NO REVIEWS, making the distribution more realistic
     }
     

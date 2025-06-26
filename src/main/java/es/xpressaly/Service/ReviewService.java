@@ -271,14 +271,14 @@ public class ReviewService {
 
     @Transactional
     public ReviewApiDTO deleteAPIReview(Long reviewId, String currentUsername) {
-        // 1. Obtener la review
+        // 1. Get the review
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("Review no encontrada"));
 
-        // 2. Obtener el usuario actual
+        // 2. Get the current user
         User currentUser = userService.getUserByEmail(currentUsername);
 
-        // 3. Verificar permisos (ADMIN o dueño de la review)
+        // 3. Verify permissions (ADMIN or owner of the review)
         boolean isAdmin = currentUser.getRole() == UserRole.ADMIN;
         boolean isOwner = review.getUser().getId().equals(currentUser.getId());
 
@@ -286,7 +286,7 @@ public class ReviewService {
             throw new SecurityException("No tienes permiso para borrar esta review");
         }
 
-        // 4. Eliminar y recalcular rating (como ya lo haces)
+        // 4. Delete and recalculate rating (as you already do)
         Product product = review.getProduct();
         reviewRepository.delete(review);
 

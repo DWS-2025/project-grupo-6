@@ -613,16 +613,14 @@ input[type="text"]:focus, input[type="number"]:focus {
     transform: translateY(-2px);
 }
 
-/* Modificaciones para el formulario de eliminar */
 .remove-form {
     margin-top: 1rem;
-    background-color: transparent !important; /* Quitar el fondo del contenedor */
-    padding: 0 !important; /* Eliminar el padding que crea espacio extra */
-    border-radius: 0 !important; /* Eliminar borde redondeado del contenedor */
-    box-shadow: none !important; /* Eliminar sombra del contenedor */
+    background-color: transparent !important; 
+    padding: 0 !important; 
+    border-radius: 0 !important; 
+    box-shadow: none !important; 
 }
 
-/* Mantener los estilos del botón */
 .btn-danger, 
 button.btn-danger,
 .remove-form button {
@@ -630,8 +628,8 @@ button.btn-danger,
     color: white !important;
     transition: all 0.3s ease !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
-    border-radius: 8px !important; /* Asegurar que el botón tiene bordes redondeados */
-    padding: 10px 20px !important; /* Ajustar el padding del botón */
+    border-radius: 8px !important; 
+    padding: 10px 20px !important; 
 }
 
 .btn-danger:hover,

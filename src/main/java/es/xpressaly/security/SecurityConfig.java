@@ -69,12 +69,6 @@ public class SecurityConfig {
 		
 		http
 			.authorizeHttpRequests(authorize -> authorize
-					
-					//---------------------------------------------------------------------
-
-					// TODO ESTO SE TIENE QUE REVISAR PARA QUE SEA CORRECTO 
-
-					//---------------------------------------------------------------------
 
 					// PUBLIC API ENDPOINTS
 					.requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()

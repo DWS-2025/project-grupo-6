@@ -61,7 +61,7 @@ public class ReviewController {
     @PreAuthorize("hasRole('ADMIN') or @reviewSecurityService.isReviewOwner(#reviewId, authentication.name)")
     public ResponseEntity<?> deleteReview(@PathVariable Long reviewId) {
         try {
-            // Obtener username del contexto de seguridad (forma estándar)
+            // Get username from security context (standard form)
             UserWebDTO user=userService.getUser();
             if(user==null){
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

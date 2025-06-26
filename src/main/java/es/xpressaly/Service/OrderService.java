@@ -259,7 +259,7 @@ public class OrderService {
         return productWebMapper.toDTO(product);
     }
 
-    //Sanitizado
+    //Sanitized
     public Order setAddress(Order order, String address) {
         checkUserPermissionForOrder(order);
         order.setAddress(sanitizationService.sanitize(address));
@@ -418,7 +418,7 @@ public class OrderService {
         // Make sure the userOrderNumber is set
         if (order.getUserOrderNumber() == null && order.getUser() != null) {
             List<Order> userOrders = orderRepository.findByUser(order.getUser());
-            // El número de orden debe ser el siguiente al último número de orden existente
+            // The order number must be the next to the last existing order number
             int maxOrderNumber = 0;
             for (Order existingOrder : userOrders) {
                 if (existingOrder.getUserOrderNumber() != null && existingOrder.getUserOrderNumber() > maxOrderNumber) {

@@ -317,7 +317,7 @@ public class OrderController {
                 return "redirect:/view-order";
             }
 
-            // Verificar stock antes de hacer cualquier cambio
+            // Verify stock before making any changes
             for (Product orderProduct : currentOrder.getProducts()) {
                 ProductWebDTO productWebDTO = productService.getProductByIdWeb(orderProduct.getId());
                 if (productWebDTO == null) {
@@ -331,7 +331,7 @@ public class OrderController {
                 }
             }
 
-            // Actualizar stock y guardar cambios
+            // Update stock and save changes
             for (Product product : currentOrder.getProducts()) {
                 ProductWebDTO productWebDTO = productService.getProductByIdWeb(product.getId());
                 int quantity = getProductQuantity(currentOrder, product.getId());
@@ -340,17 +340,17 @@ public class OrderController {
                 entityManager.merge(stockProduct);
             }
 
-            // Configurar y guardar el pedido
+            // Configure and save the order
             currentOrder = orderService.setAddress(currentOrder, address);
             List<Order> userOrders = orderService.getOrdersByUser(currentUser);
             int userOrderNumber = userOrders.size() + 1;
             currentOrder = orderService.setUserOrderNumber(currentOrder, userOrderNumber);
             
-            // Guardar el pedido confirmado
+            // Save the confirmed order
             Order confirmedOrder = currentOrder;
             orderService.save(confirmedOrder);
 
-            // Crear nuevo pedido vacío
+            // Create a new empty order
             currentOrder = orderService.createOrder(currentUser, currentUser.address());
             setCurrentOrder(currentOrder);
 
@@ -359,8 +359,8 @@ public class OrderController {
             model.addAttribute("userOrderNumber", userOrderNumber);
             return "confirm_order";
         } catch (Exception e) {
-            e.printStackTrace(); // Para ver el error en los logs
-            model.addAttribute("error", "Error al confirmar el pedido: " + e.getMessage());
+            e.printStackTrace(); // To see the error in the logs
+            model.addAttribute("error", "Error confirming the order: " + e.getMessage());
             return "redirect:/view-order";
         }
     }

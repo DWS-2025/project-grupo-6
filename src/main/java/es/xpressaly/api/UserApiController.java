@@ -79,10 +79,10 @@ public class UserApiController {
                 }
             }
 
-            // Actualizar el usuario directamente
+            // Update the user directly
             userService.updateUser(userWebDTO);
             
-            // Obtener el usuario actualizado
+            // Get the updated user
             UserDTO userDTO = userService.toDTO(userWebDTO);
             return ResponseEntity.ok(userDTO);
         } catch (Exception e) {

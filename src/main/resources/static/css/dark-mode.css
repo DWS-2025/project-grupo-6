@@ -394,7 +394,6 @@ body.dark-mode .flex.items-center.mb-4 > div i {
   color: #999 !important;
 }
 
-/* Estilos específicos para la página de detalles del producto */
 body.dark-mode .product-details {
   background-color: #262626 !important;
   color: #f0f0f0 !important;
@@ -432,7 +431,6 @@ body.dark-mode .container {
   color: #f0f0f0 !important;
 }
 
-/* Estilos para la sección de comentarios */
 body.dark-mode .review-item {
   background-color: #262626 !important;
   border: 1px solid #444 !important;
@@ -473,7 +471,6 @@ body.dark-mode #addToCartForm {
   box-shadow: none !important;
 }
 
-/* Correcciones para el botón de Add to Cart en la página de detalles */
 body.dark-mode .add-to-cart-form button,
 body.dark-mode #addToCartForm button {
   background-color: #294156 !important;
@@ -484,7 +481,6 @@ body.dark-mode #addToCartForm button {
   width: 100% !important;
 }
 
-/* Formulario de comentarios */
 body.dark-mode .review-form .form-title {
   color: #84b6e0 !important;
   border-bottom: 1px solid #444 !important;
@@ -497,7 +493,6 @@ body.dark-mode .form-group {
   background-color: transparent !important;
 }
 
-/* Estilo específico para el formulario de añadir comentario */
 body.dark-mode .add-review-form button {
   background-color: #294156 !important;
   color: white !important;
