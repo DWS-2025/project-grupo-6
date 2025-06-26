@@ -281,7 +281,7 @@ public class ReviewService {
         boolean isAdmin = currentUser.getRole() == UserRole.ADMIN;
         boolean isOwner = review.getUser().getId().equals(currentUser.getId());
 
-        if (!isAdmin || !isOwner) {
+        if (!isAdmin && !isOwner) {
             throw new SecurityException("No tienes permiso para borrar esta review");
         }
 

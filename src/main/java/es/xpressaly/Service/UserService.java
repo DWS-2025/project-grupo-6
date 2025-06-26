@@ -74,6 +74,10 @@ public class UserService {
 
     // Method to obtain the user entity by ID
     public User getUserEntityById(Long userId) {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || (!currentUser.id().equals(userId) && currentUser.role() != UserRole.ADMIN)) {
+            throw new SecurityException("Access Denied");
+        }
         User user = userRepository.findById(userId).orElse(null);
         if (user != null) {
             // Inicializar las colecciones
@@ -96,6 +100,10 @@ public class UserService {
 
     // Method to obtain the user by ID
     public UserWebDTO getUserById(Long userId) {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || (!currentUser.id().equals(userId) && currentUser.role() != UserRole.ADMIN)) {
+            throw new SecurityException("Access Denied");
+        }
         User user = userRepository.findById(userId).orElse(null);
         return user != null ? userWebMapper.toDTO(user) : null;
     }
@@ -192,12 +200,20 @@ public class UserService {
 
     // Method to get all users
     public List<UserWebDTO> getAllUsers() {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
+            throw new SecurityException("Access Denied");
+        }
         return userRepository.findAll().stream()
             .map(userWebMapper::toDTO)
             .collect(Collectors.toList());
     }
 
     public List<User> getAllUsersEntity() {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
+            throw new SecurityException("Access Denied");
+        }
         return userRepository.findAll();
     }
 
@@ -266,25 +282,21 @@ public class UserService {
         return null;
     }
 
-    /*public void setCurrentUser(User currentUser) {
-        this.currentUser = currentUser;
-    }*/
 
-    // List of example user emails that should be preserved
-    private final List<String> exampleUserEmails = Arrays.asList(
-        "juan.perez@email.com",
-        "maria.garcia@email.com"
-    );
 
-    // Method to check if a user is an example user
-    private boolean isExampleUser(User user) {
-        return user != null && exampleUserEmails.contains(user.getEmail());
-    }
+
 
     // Method to update the user with validations
     public void updateUser(UserWebDTO userWebDTO) {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null) {
+            throw new SecurityException("Not authenticated");
+        }
         if (userWebDTO == null || userWebDTO.id() == null) {
             throw new IllegalArgumentException("Invalid user data");
+        }
+        if (!currentUser.id().equals(userWebDTO.id()) && currentUser.role() != UserRole.ADMIN) {
+            throw new SecurityException("Access Denied");
         }
 
         User existingUser = userRepository.findById(userWebDTO.id())
@@ -334,6 +346,10 @@ public class UserService {
     }
 
     public UserWebDTO findByEmail(String email) {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || (!currentUser.email().equals(email) && currentUser.role() != UserRole.ADMIN)) {
+            throw new SecurityException("Access Denied");
+        }
         User user = userRepository.findByEmail(email).orElse(null);
         return user != null ? userWebMapper.toDTO(user) : null;
     }
@@ -347,10 +363,18 @@ public class UserService {
     }
 
     public void deleteUser(String email) {
-        User user = userRepository.findByEmail(email).orElse(null);
-        if (user != null) {
-            userRepository.delete(user);
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null) {
+            throw new SecurityException("Not authenticated");
         }
+        User userToDelete = userRepository.findByEmail(email).orElse(null);
+        if (userToDelete == null) {
+            return;
+        }
+        if (!currentUser.id().equals(userToDelete.getId()) && currentUser.role() != UserRole.ADMIN) {
+            throw new SecurityException("Access Denied");
+        }
+        userRepository.delete(userToDelete);
     }
 
     public String encodePassword(String rawPassword) {
@@ -360,6 +384,10 @@ public class UserService {
     // Método mejorado para obtener todos los usuarios
     @Transactional(readOnly = true)
     public List<UserWebDTO> getAllUsersInitialized() {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
+            throw new SecurityException("Access Denied");
+        }
         // Usar la consulta optimizada que carga usuarios con sus reseñas y productos en una sola consulta
         List<User> usersWithReviews = userRepository.findAllUsersWithReviews();
         
@@ -381,6 +409,10 @@ public class UserService {
     }
 
     public UserWebDTO setPassword(UserWebDTO userWebDTO, String password) {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || (userWebDTO != null && !currentUser.id().equals(userWebDTO.id()) && currentUser.role() != UserRole.ADMIN)) {
+            throw new SecurityException("Access Denied");
+        }
         User user = userRepository.findById(userWebDTO.id()).orElse(null);
         if (user != null) {
             user.setPassword(password);
@@ -390,6 +422,10 @@ public class UserService {
     }
 
     public UserWebDTO setFirstName(UserWebDTO userWebDTO, String firstName) {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || (userWebDTO != null && !currentUser.id().equals(userWebDTO.id()) && currentUser.role() != UserRole.ADMIN)) {
+            throw new SecurityException("Access Denied");
+        }
         User user = userRepository.findById(userWebDTO.id()).orElse(null);
         if (user != null) {
             user.setFirstName(firstName);
@@ -399,6 +435,10 @@ public class UserService {
     }
 
     public UserWebDTO setLastName(UserWebDTO userWebDTO, String lastName) {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || (userWebDTO != null && !currentUser.id().equals(userWebDTO.id()) && currentUser.role() != UserRole.ADMIN)) {
+            throw new SecurityException("Access Denied");
+        }
         User user = userRepository.findById(userWebDTO.id()).orElse(null);
         if (user != null) {
             user.setLastName(lastName);
@@ -408,6 +448,10 @@ public class UserService {
     }
 
     public UserWebDTO setEmail(UserWebDTO userWebDTO, String email) {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || (userWebDTO != null && !currentUser.id().equals(userWebDTO.id()) && currentUser.role() != UserRole.ADMIN)) {
+            throw new SecurityException("Access Denied");
+        }
         User user = userRepository.findById(userWebDTO.id()).orElse(null);
         if (user != null) {
             user.setEmail(email);
@@ -417,6 +461,10 @@ public class UserService {
     }
 
     public UserWebDTO setAddress(UserWebDTO userWebDTO, String address) {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || (userWebDTO != null && !currentUser.id().equals(userWebDTO.id()) && currentUser.role() != UserRole.ADMIN)) {
+            throw new SecurityException("Access Denied");
+        }
         User user = userRepository.findById(userWebDTO.id()).orElse(null);
         if (user != null) {
             user.setAddress(address);
@@ -426,6 +474,10 @@ public class UserService {
     }
 
     public UserWebDTO setPhoneNumber(UserWebDTO userWebDTO, int phoneNumber) {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || (userWebDTO != null && !currentUser.id().equals(userWebDTO.id()) && currentUser.role() != UserRole.ADMIN)) {
+            throw new SecurityException("Access Denied");
+        }
         User user = userRepository.findById(userWebDTO.id()).orElse(null);
         if (user != null) {
             user.setPhoneNumber(phoneNumber);
@@ -435,6 +487,10 @@ public class UserService {
     }
 
     public UserWebDTO setAge(UserWebDTO userWebDTO, int age) {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || (userWebDTO != null && !currentUser.id().equals(userWebDTO.id()) && currentUser.role() != UserRole.ADMIN)) {
+            throw new SecurityException("Access Denied");
+        }
         User user = userRepository.findById(userWebDTO.id()).orElse(null);
         if (user != null) {
             user.setAge(age);
@@ -444,18 +500,30 @@ public class UserService {
     }
 
     public UserWebDTO setRole(UserWebDTO userWebDTO, UserRole role) {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
+            throw new SecurityException("Access Denied: Only admins can change roles.");
+        }
         User user = userWebMapper.toDomain(userWebDTO);
         user.setRole(role);
         return userWebMapper.toDTO(user);
     }
 
     public UserWebDTO addOrder(UserWebDTO userWebDTO, Order order) {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || (userWebDTO != null && !currentUser.id().equals(userWebDTO.id()) && currentUser.role() != UserRole.ADMIN)) {
+            throw new SecurityException("Access Denied");
+        }
         User user = userWebMapper.toDomain(userWebDTO);
         user.addOrder(order);
         return userWebMapper.toDTO(user);
     }
 
     public UserWebDTO addReview(UserWebDTO userWebDTO, ReviewDTO reviewDTO) {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || (userWebDTO != null && !currentUser.id().equals(userWebDTO.id()) && currentUser.role() != UserRole.ADMIN)) {
+            throw new SecurityException("Access Denied");
+        }
         User user = userWebMapper.toDomain(userWebDTO);
         Review review = reviewMapper.toDomain(reviewDTO);
         user.addReview(review);
@@ -463,6 +531,10 @@ public class UserService {
     }
 
     public String getAddress(UserWebDTO userWebDTO) {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || (userWebDTO != null && !currentUser.id().equals(userWebDTO.id()) && currentUser.role() != UserRole.ADMIN)) {
+            throw new SecurityException("Access Denied");
+        }
         User user = userWebMapper.toDomain(userWebDTO);
         return user.getAddress();
     }
@@ -482,23 +554,39 @@ public class UserService {
     }
 
     public List<UserDTO> getUsers() {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
+            throw new SecurityException("Access Denied");
+        }
         return userRepository.findAll().stream()
             .map(userMapper::toDTO)
             .collect(Collectors.toList());
     }
 
     public User getUserByFirstName(String userName) {
+       UserWebDTO currentUser = getUser();
+       if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
+            throw new SecurityException("Access Denied");
+       }
        return UserRepository.findByFirstName(userName).orElse(null);
     }
 
 
     public UserDTO getUserApiById(Long id) {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || (!currentUser.id().equals(id) && currentUser.role() != UserRole.ADMIN)) {
+            throw new SecurityException("Access Denied");
+        }
         User user=userRepository.findById(id).orElse(null);
         return userMapper.toDTO(user);
     }
 
 
     public UserDTO toDTO(UserWebDTO userWebDTO) {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || (userWebDTO != null && !currentUser.id().equals(userWebDTO.id()) && currentUser.role() != UserRole.ADMIN)) {
+            throw new SecurityException("Access Denied");
+        }
         User user=userRepository.findById(userWebDTO.id()).orElse(null);
         Hibernate.initialize(user.getOrders());
         Hibernate.initialize(user.getReviews());
@@ -507,10 +595,18 @@ public class UserService {
     }
 
     public User saveUser(User user) {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || (user != null && !currentUser.id().equals(user.getId()) && currentUser.role() != UserRole.ADMIN)) {
+            throw new SecurityException("Access Denied");
+        }
         return userRepository.save(user);
     }
 
     public User getUserByEmail(String email) {
+        UserWebDTO currentUser = getUser();
+        if (currentUser == null || (!currentUser.email().equals(email) && currentUser.role() != UserRole.ADMIN)) {
+            throw new SecurityException("Access Denied");
+        }
         return userRepository.findByEmail(email).orElse(null);
     }
 

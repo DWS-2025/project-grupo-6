@@ -450,7 +450,7 @@ public class ProductController {
             redirectAttributes.addFlashAttribute("errorMessage", "Error deleting review: " + e.getMessage());
         }
         
-        return "redirect:/profile";
+        return "redirect:/product-details?id=" + productId;
     }
 
     // Endpoint for searching products with JSON results

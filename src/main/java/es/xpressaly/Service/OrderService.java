@@ -59,8 +59,27 @@ public class OrderService {
     @Autowired
     private EntityManager entityManager;
 
+    private void checkUserPermissionForOrder(Order order) {
+        UserWebDTO currentUser = userService.getUser();
+        if (currentUser == null) {
+            throw new SecurityException("User not authenticated");
+        }
+    
+        if (order == null) {
+            throw new IllegalArgumentException("Order cannot be null");
+        }
+    
+        if (currentUser.role() != UserRole.ADMIN && (order.getUser() == null || !order.getUser().getId().equals(currentUser.id()))) {
+            throw new SecurityException("Sorry, you don't have permission to access this order");
+        }
+    }
+
     //Sanitized
     public OrderDTO createOrderDTO(UserWebDTO user, String address) {
+        UserWebDTO currentUser = userService.getUser();
+        if (currentUser == null || (!currentUser.id().equals(user.id()) && currentUser.role() != UserRole.ADMIN)) {
+            throw new SecurityException("Access Denied. You can only create orders for yourself.");
+        }
         User userEntity = userWebMapper.toDomain(user);
         Order order = new Order();
         order.setUser(userEntity);
@@ -82,6 +101,10 @@ public class OrderService {
     }
 
     public List<OrderDTO> getOrdersByUserDTO(UserWebDTO user) {
+        UserWebDTO currentUser = userService.getUser();
+        if (currentUser == null || (!currentUser.id().equals(user.id()) && currentUser.role() != UserRole.ADMIN)) {
+            throw new SecurityException("Access Denied. You can only view your own orders.");
+        }
         User userEntity = userWebMapper.toDomain(user);
         List<Order> orders = orderRepository.findByUser(userEntity);
 
@@ -107,6 +130,10 @@ public class OrderService {
 
     //Sanitized
     public Order createOrder(UserWebDTO user, String address) {
+        UserWebDTO currentUser = userService.getUser();
+        if (currentUser == null || (!currentUser.id().equals(user.id()) && currentUser.role() != UserRole.ADMIN)) {
+            throw new SecurityException("Access Denied. You can only create orders for yourself.");
+        }
         User userEntity = userWebMapper.toDomain(user);
         Order order = new Order();
         order.setUser(userEntity);
@@ -128,10 +155,18 @@ public class OrderService {
     }
 
     public Order getOrderById(Long id) {
-        return orderRepository.findById(id).orElse(null);
+        Order order = orderRepository.findById(id).orElse(null);
+        if (order != null) {
+            checkUserPermissionForOrder(order);
+        }
+        return order;
     }
 
     public List<Order> getOrdersByUser(UserWebDTO user) {
+        UserWebDTO currentUser = userService.getUser();
+        if (currentUser == null || (!currentUser.id().equals(user.id()) && currentUser.role() != UserRole.ADMIN)) {
+            throw new SecurityException("Access Denied. You can only view your own orders.");
+        }
         User userEntity = userWebMapper.toDomain(user);
         List<Order> orders = orderRepository.findByUser(userEntity);
 
@@ -156,6 +191,9 @@ public class OrderService {
     }
 
     public Order addProductToOrder(ProductWebDTO productWebDTO, int amount, UserWebDTO currentUser, Order currentOrder) {
+        if (currentOrder != null) {
+            checkUserPermissionForOrder(currentOrder);
+        }
         User user = userWebMapper.toDomain(currentUser);
         
 
@@ -201,12 +239,14 @@ public class OrderService {
     }
 
     public Order removeProductFromOrder(Order order, ProductWebDTO productWebDTO) {
+        checkUserPermissionForOrder(order);
         Product product = productWebMapper.toDomain(productWebDTO);
         order.removeProduct(product);
         return order;
     }
 
     public Order clearOrder(Order order) {
+        checkUserPermissionForOrder(order);
         while (order.getProducts().size() > 0) {
             order.removeProduct(order.getProducts().get(0));
         }
@@ -214,12 +254,14 @@ public class OrderService {
     }
 
     public ProductWebDTO findProductByIdWeb(Long id, Order order) {
+        checkUserPermissionForOrder(order);
         Product product = order.findProductById(id);
         return productWebMapper.toDTO(product);
     }
 
     //Sanitizado
     public Order setAddress(Order order, String address) {
+        checkUserPermissionForOrder(order);
         order.setAddress(sanitizationService.sanitize(address));
         return order;
     }
@@ -230,6 +272,7 @@ public class OrderService {
     }
 
     public void save(Order order) {
+        checkUserPermissionForOrder(order);
         // Make sure the userOrderNumber is set
         if (order.getUserOrderNumber() == null && order.getUser() != null) {
             List<Order> userOrders = orderRepository.findByUser(order.getUser());
@@ -247,31 +290,20 @@ public class OrderService {
     }
 
     public Order setProductQuantity(Order order, ProductWebDTO productWebDTO, int amount) {
+        checkUserPermissionForOrder(order);
         Product product = productWebMapper.toDomain(productWebDTO);
         order.setProductQuantity(product, amount);
         return order;
     }
 
     public Order calculateTotal(Order order) {
+        checkUserPermissionForOrder(order);
         order.calculateTotal();
         return order;
     }
 
     public void delete(Order orderToDelete) {
-        User user = userService.getUserEntity();
-        
-        if (user == null) {
-            throw new IllegalArgumentException("User not authenticated");
-        }
-        
-        if (orderToDelete == null) {
-            throw new IllegalArgumentException("Order not found");
-        }
-        
-        // Allow admins to delete any order, but regular users can only delete their own
-        if (user.getRole() != UserRole.ADMIN && !orderToDelete.getUser().getId().equals(user.getId())) {
-            throw new SecurityException("Sorry, you don't have permission to delete this order");
-        }
+        checkUserPermissionForOrder(orderToDelete);
         
         // Delete the order
         orderRepository.delete(orderToDelete);
@@ -282,10 +314,18 @@ public class OrderService {
     }
 
     public Order findById(Long orderId) {
-        return orderRepository.findById(orderId).orElse(null);
+        Order order = orderRepository.findById(orderId).orElse(null);
+        if (order != null) {
+            checkUserPermissionForOrder(order);
+        }
+        return order;
     }
 
     public List<OrderApiDTO> getAllOrders() {
+        UserWebDTO currentUser = userService.getUser();
+        if (currentUser == null || currentUser.role() != UserRole.ADMIN) {
+            throw new SecurityException("Access Denied: Only admins can view all orders.");
+        }
         List<Order> orders = orderRepository.findAll();
 
         // Make sure all orders have a userOrderNumber
@@ -310,6 +350,13 @@ public class OrderService {
     }
 
     public OrderApiDTO createOrderApiDTO(OrderApiDTO orderDto) {
+        UserWebDTO currentUser = userService.getUser();
+        if (currentUser == null) {
+            throw new SecurityException("User not authenticated.");
+        }
+        if (orderDto.userId() != null && !currentUser.id().equals(orderDto.userId()) && currentUser.role() != UserRole.ADMIN) {
+            throw new SecurityException("Access Denied. You can only create orders for yourself.");
+        }
         Order order = new Order();
         order.setAddress(sanitizationService.sanitize(orderDto.address()));
         order.setTotal(orderDto.total());
@@ -366,6 +413,7 @@ public class OrderService {
         if (order == null) {
             return null;
         }
+        checkUserPermissionForOrder(order);
 
         // Make sure the userOrderNumber is set
         if (order.getUserOrderNumber() == null && order.getUser() != null) {
@@ -388,20 +436,5 @@ public class OrderService {
         Order orderToDelete = orderRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Order not found"));
         delete(orderToDelete);
-    }
-
-    private void checkUserPermissionForOrder(Order order) {
-        User currentUser = userService.getUserEntity();
-        if (currentUser == null) {
-            throw new SecurityException("User not authenticated");
-        }
-    
-        if (order == null) {
-            throw new IllegalArgumentException("Order cannot be null");
-        }
-    
-        if (currentUser.getRole() != UserRole.ADMIN && (order.getUser() == null || !order.getUser().getId().equals(currentUser.getId()))) {
-            throw new SecurityException("Sorry, you don't have permission to delete this order");
-        }
     }
 }

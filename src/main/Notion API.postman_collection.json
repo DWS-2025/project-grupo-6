@@ -741,40 +741,6 @@
 				}
 			},
 			"response": []
-		},
-		{
-			"name": "DeleteUser",
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "DELETE",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "https://localhost:8443/api/users/delete/2",
-					"protocol": "https",
-					"host": [
-						"localhost"
-					],
-					"port": "8443",
-					"path": [
-						"api",
-						"users",
-						"delete",
-						"2"
-					]
-				}
-			},
-			"response": []
 		}
 	]
 }
